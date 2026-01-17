@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Bag | ZENFOX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --sage: #e2e8dd; --dark-forest: #1a2b1a; }
+        body { font-family: 'Inter', sans-serif; background-color: #fafaf9; }
+        .serif { font-family: 'Playfair Display', serif; }
+        .bg-sage { background-color: var(--sage); }
+        .text-forest { color: var(--dark-forest); }
+        .bg-forest { background-color: var(--dark-forest); }
+    </style>
+</head>
+<body class="bg-sage text-gray-900 min-h-screen">
+
+    <nav class="flex items-center justify-between px-8 py-6 bg-white border-b border-gray-100">
+        <a href="/" class="text-2xl font-bold tracking-tighter serif">ZENFOX.</a>
+        <div class="flex items-center space-x-4">
+            <span id="cart-count-header" class="text-[10px] uppercase tracking-widest font-bold text-gray-400">0 Items</span>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-12 max-w-4xl">
+        <div class="flex flex-col items-center justify-center text-center mb-12 gap-4">
+            <div>
+                <h1 class="text-5xl serif italic text-forest">Shopping Bag</h1>
+                <p class="text-sm text-gray-500 mt-2">Review your selected signature fragrances.</p>
+            </div>
+            <button onclick="clearCart()" id="clear-btn" class="text-[10px] uppercase tracking-[0.2em] font-bold text-red-800 hover:text-red-600 transition hidden">
+                Clear All Items
+            </button>
+        </div>
+
+        
+
+        <div id="cart-container" class="space-y-6">
+            <div class="animate-pulse flex flex-col space-y-4">
+                <div class="h-24 bg-gray-200 rounded-[30px] w-full"></div>
+                <div class="h-24 bg-gray-200 rounded-[30px] w-full"></div>
+            </div>
+        </div>
+
+        <div id="cart-summary" class="mt-12 pt-8 border-t border-gray-200 hidden">
+            <div class="flex justify-between items-center mb-8">
+                <span class="text-sm uppercase tracking-widest text-gray-400 font-bold">Estimated Total</span>
+                <span id="total-price" class="text-3xl serif text-forest">$0.00</span>
+            </div>
+            <button onclick="window.location.href='/checkout'" class="w-full bg-forest text-white py-5 rounded-full hover:bg-black transition duration-300 uppercase text-[10px] tracking-[0.3em] font-bold shadow-xl shadow-green-900/10">
+                Proceed to Checkout
+            </button>
+        </div>
+
+        <div id="empty-state" class="hidden text-center py-20">
+            <div class="text-6xl mb-6">🌿</div>
+            <h2 class="serif text-2xl text-forest mb-4">Your bag is empty</h2>
+            <p class="text-gray-500 mb-8 text-sm">Explore our collections to find your daily scent.</p>
+            <a href="/" class="px-10 py-3 border border-forest rounded-full hover:bg-forest hover:text-white transition uppercase text-[10px] tracking-widest font-bold">Shop Now</a>
+        </div>
+    </main>
+    <script src="{{ url_for('static', filename='cart.js') }}"></script>
+</body>
+</html>
+

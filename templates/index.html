@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZENFOX | Luxury Scents</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --sage: #e2e8dd; --dark-forest: #1a2b1a; }
+        body { font-family: 'Inter', sans-serif; }
+        .serif { font-family: 'Playfair Display', serif; }
+        .bg-sage { background-color: var(--sage); }
+        .text-forest { color: var(--dark-forest); }
+        .bg-forest { background-color: var(--dark-forest); }
+    </style>
+</head>
+<body class="bg-white text-gray-900">
+
+    <nav class="flex items-center justify-between px-8 py-6 border-b border-gray-100 sticky top-0 bg-white z-50">
+        <div class="text-2xl font-bold tracking-tighter serif">ZENFOX.</div>
+        <div class="hidden md:flex space-x-8 uppercase text-[10px] tracking-[0.2em] font-semibold">
+            <a href="/product" class="hover:text-green-800">Perfumes</a>
+            <a href="/product" class="hover:text-green-800">Shop</a>
+            <a href="/about" class="hover:text-green-800">Brands</a>
+        </div>
+        <div class="flex items-center space-x-5">
+            <button class="text-lg">🔍</button>
+            <button class="text-lg">👤</button>
+            <button class="text-lg relative">🛒<span id="cart-count" class="absolute -top-2 -right-2 bg-forest text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center">0</span></button>
+        </div>
+    </nav>
+
+    <header class="relative bg-sage min-h-[90vh] flex items-center px-8 lg:px-24">
+        <div class="max-w-2xl z-10">
+            <h1 class="text-7xl md:text-[100px] text-forest leading-[0.9] serif mb-8">SCENT FOR <br><span class="italic font-normal">DAILY LIFE</span></h1>
+            <p class="text-gray-600 mb-8 max-w-sm text-sm leading-relaxed">A fragrance is a smell, usually a pleasant or sweet smell. Perfumes are called fragrances, or you like the fragrance.</p>
+            <button type="button" class="px-10 py-3 border border-black rounded-full hover:bg-forest hover:text-white transition uppercase text-[10px] tracking-widest font-bold">Shop Now</button>
+            
+            <div class="mt-16 flex items-center space-x-6">
+                <div class="flex -space-x-2">
+                    <img src="https://i.pravatar.cc/40?u=1" class="w-8 h-8 rounded-full border-2 border-white">
+                    <img src="https://i.pravatar.cc/40?u=2" class="w-8 h-8 rounded-full border-2 border-white">
+                </div>
+                <div>
+                    <div class="font-bold text-xl text-forest">4,9 / 5</div>
+                    <div class="text-[10px] uppercase text-gray-500 tracking-tighter">Verified Daily User Reviews</div>
+                </div>
+            </div>
+        </div>
+        <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800" class="absolute right-0 bottom-0 w-1/2 h-[85%] object-cover hidden lg:block" alt="Hero Perfume">
+    </header>
+
+    <div class="py-10 border-y border-gray-100 overflow-hidden bg-white">
+        <div class="flex space-x-20 whitespace-nowrap animate-pulse text-sm uppercase tracking-[0.3em] text-forest font-bold justify-center">
+            <span>Scent of Elegance</span> <span>✕</span> <span>Signature Scent</span> <span>✕</span> <span>Aroma Inspiration</span>
+        </div>
+    </div>
+
+    <section class="py-24 px-8 lg:px-24">
+        <div class="mb-16">
+            <h2 class="text-5xl md:text-6xl serif italic text-forest mb-4">Most Love Scents</h2>
+            <p class="text-gray-500 max-w-md text-sm leading-relaxed">Discover the top-selling perfumes in our exclusive collection explore the most popular scents of the year from classic fragrances.</p>
+        </div>
+
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div class="animate-pulse flex flex-col space-y-4">
+                <div class="bg-gray-200 aspect-[4/5] rounded-xl"></div>
+                <div class="h-6 bg-gray-200 w-3/4"></div>
+            </div>
+        </div>
+    </section>
+
+
+    <footer class="bg-black text-white pt-20 pb-10 px-8 lg:px-24">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+            <div>
+                <h3 class="text-3xl font-bold tracking-tighter serif mb-6">ZENFOX.</h3>
+                <p class="text-gray-500 text-sm">simply dummy text of the printing and Lorem Ipsum has been the industry's</p>
+                <div class="flex space-x-4 mt-6">
+                    <span class="p-2 border border-gray-800 rounded-full cursor-pointer hover:bg-white hover:text-black transition">IG</span>
+                    <span class="p-2 border border-gray-800 rounded-full cursor-pointer hover:bg-white hover:text-black transition">FB</span>
+                </div>
+            </div>
+            <div>
+                <h4 class="uppercase text-[10px] tracking-widest text-gray-400 mb-6">Address</h4>
+                <p class="text-sm">1212, South Tenth Avenue.<br>Toronto, Canada.</p>
+            </div>
+            <div>
+                <h4 class="uppercase text-[10px] tracking-widest text-gray-400 mb-6">Email</h4>
+                <p class="text-sm">hello@zenfox.com<br>support@zenfox.com</p>
+            </div>
+            <div>
+                <h4 class="uppercase text-[10px] tracking-widest text-gray-400 mb-6">Follow Us</h4>
+                <ul class="text-sm space-y-2">
+                    <li><a href="#" class="hover:text-green-500">Facebook</a></li>
+                    <li><a href="#" class="hover:text-green-500">Instagram</a></li>
+                    <li><a href="#" class="hover:text-green-500">Linkedin</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-600 border-t border-gray-900 pt-8 uppercase tracking-widest">
+            <span>© All Rights Reserved Zenfox 2024</span>
+            <div class="space-x-8 mt-4 md:mt-0">
+                <a href="#">Terms & Conditions</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Cookie Policy</a>
+            </div>
+        </div>
+    </footer>
+<script src="{{ url_for('static', filename='index.js') }}"></script>
+</body>
+</html>
+
