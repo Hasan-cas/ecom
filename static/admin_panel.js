@@ -4,8 +4,8 @@
  */
 
 const API_BASE = '/api/admin';
-const PRODUCT_API = '/api/products/api/admin/products';
-const ORDER_API = '/api/orders/api/admin/orders';
+const PRODUCT_API = '/api/admin/products';
+const ORDER_API = '/api/admin/orders';
 
 // DOM Elements Cache
 const DOM = {

@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     setTimeout(() => {
                         // FIXED: Redirecting to admin_panel.html instead of dashboard.html
-                        window.location.href = 'admin_panel.html';
+                        window.location.href = 'admin-panel';
                     }, 1000);
                 } else {
                     // Displays specific errors like "Invalid credentials" from backend
