@@ -11,12 +11,12 @@ from services.order_service import (
     get_all_orders,
     update_order_status
 )
-order_bp = Blueprint("orders", __name__, url_prefix="/api/orders")
+order_bp = Blueprint("orders", __name__, url_prefix="/api")
 
-@order_bp.route('/api/checkout', methods=['POST'])
+@order_bp.route('/checkout', methods=['POST'])
 def checkout():
     """
-    POST /api/checkout
+    POST /checkout
     Process checkout and create an order from cart contents.
     
     Complete User Flow:
@@ -136,11 +136,11 @@ def checkout():
 # ADMIN ROUTES - ORDER MANAGEMENT
 # ============================================================================
 
-@order_bp.route('/api/admin/orders', methods=['GET'])
+@order_bp.route('/admin/orders', methods=['GET'])
 @admin_required
 def get_orders():
     """
-    GET /api/admin/orders
+    GET /admin/orders
     Retrieve all orders with their items and details (Admin only).
     
     Admin Workflow:
@@ -172,11 +172,11 @@ def get_orders():
             'message': 'An error occurred while retrieving orders'
         }), 500
 
-@order_bp.route('/api/admin/orders/<int:order_id>/status', methods=['POST'])
+@order_bp.route('/admin/orders/<int:order_id>/status', methods=['POST'])
 @admin_required
 def update_status(order_id):
     """
-    POST /api/admin/orders/<order_id>/status
+    POST /admin/orders/<order_id>/status
     Update the status of an order (Admin only).
     
     Admin Workflow:
@@ -238,3 +238,4 @@ def update_status(order_id):
             'status': 'error',
             'message': 'An error occurred while updating order status'
         }), 500
+
