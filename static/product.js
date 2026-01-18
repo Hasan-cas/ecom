@@ -1,6 +1,6 @@
-// product-details.js
+// product.js
 
-// 1. Get ID from URL: 127.0.0.1:5000/product.html?id=2
+// 1. Get ID from URL
 function getProductIdFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('id');
@@ -20,6 +20,8 @@ async function fetchProduct() {
 
         if (result.status === 'success' && result.data) {
             renderProduct(result.data);
+            // Check cart status on load to show/hide checkout button
+            updateCheckoutButtonVisibility();
         } else {
             showError();
         }
@@ -72,7 +74,10 @@ async function addToCart(productId) {
         if (response.ok) {
             showMessage("Added to bag", "text-green-700");
             const badge = document.getElementById('cart-count');
-            badge.textContent = parseInt(badge.textContent) + 1;
+            // Update nav badge count
+            badge.textContent = result.data.total_items || (parseInt(badge.textContent) + 1);
+            // Show checkout button after adding item
+            updateCheckoutButtonVisibility();
         } else {
             showMessage(result.message || "Error", "text-red-700");
         }
@@ -81,6 +86,25 @@ async function addToCart(productId) {
     } finally {
         btn.disabled = false;
         btn.textContent = "Add to Bag";
+    }
+}
+
+// 5. NEW: Checkout Button Logic
+async function updateCheckoutButtonVisibility() {
+    const checkoutBtn = document.getElementById('proceed-to-checkout-btn');
+    try {
+        const response = await fetch('/api/cart');
+        const result = await response.json();
+        
+        // If cart has items, show the button
+        if (result.status === 'success' && result.data.total_items > 0) {
+            checkoutBtn.classList.remove('hidden');
+        } else {
+            checkoutBtn.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error("Error checking cart status:", error);
+        checkoutBtn.classList.add('hidden');
     }
 }
 
