@@ -7,3 +7,4 @@ Flask-Limiter>=4.1.1
 whitenoise>=6.5.0
 Flask-Talisman>=1.1.0
 gunicorn==21.2.0
+mysqlclient==2.3.3
