@@ -64,11 +64,14 @@
                     <button id="add-to-cart-btn" class="w-full bg-forest text-white py-5 rounded-full uppercase text-[11px] tracking-[0.2em] font-bold hover:bg-green-900 transition disabled:bg-gray-200">
                         Add to Bag
                     </button>
+                    <a id="proceed-to-checkout-btn" href="/checkout" class="hidden w-full border border-forest text-forest py-5 rounded-full uppercase text-[11px] tracking-[0.2em] font-bold hover:bg-gray-50 transition text-center block">
+                        Proceed to Checkout
+                    </a>
                     <div id="message-box" class="text-center text-[11px] uppercase tracking-widest font-bold hidden"></div>
                 </div>
             </div>
         </div>
     </main>
-</body>
     <script src="{{ url_for('static', filename='product.js') }}"></script>
+</body>
 </html>
