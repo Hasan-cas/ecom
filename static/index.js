@@ -1,34 +1,19 @@
-/**
- * ZENFOX | Frontend Logic
- * Integrates with: product_service.py and cart_service.py
- */
-
 const PRODUCT_API = '/api/products';
 const CART_API = '/api/cart';
 
-// DOM Elements
 const productsGrid = document.getElementById('products-grid');
 const cartBadge = document.getElementById('cart-badge');
 let cartTotal = 0;
 
-/* ==========================================================================
-   Initialization
-   ========================================================================== */
-
 async function init() {
-    await fetchCartStatus(); // Get existing cart count on refresh
+    await fetchCartStatus();
     await fetchFeaturedProducts();
 }
-
-/* ==========================================================================
-   Product Loading
-   ========================================================================== */
 
 async function fetchFeaturedProducts() {
     try {
         const response = await fetch(PRODUCT_API);
         const result = await response.json();
-        
         if (result.status === 'success') {
             renderProducts(result.data);
         }
@@ -47,8 +32,8 @@ function renderProducts(products) {
                      alt="${product.name}" 
                      class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
                 
-                <button onclick="addToCart(${product.id})" 
-                        class="absolute bottom-8 right-8 bg-forest text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-2xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition duration-300">
+                <button onclick="event.stopPropagation(); addToCart(${product.id})" 
+                        class="absolute bottom-8 right-8 bg-forest text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-2xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition duration-300 z-20">
                     +
                 </button>
 
@@ -67,34 +52,21 @@ function renderProducts(products) {
     `).join('');
 }
 
-/* ==========================================================================
-   Cart Logic (Fixing Point 5: Stock Feedback)
-   ========================================================================== */
-
-/**
- * Persists the item to the backend database
- */
 async function addToCart(productId) {
     try {
         const response = await fetch(`${CART_API}/add`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                product_id: productId, 
-                quantity: 1 
-            })
+            body: JSON.stringify({ product_id: productId, quantity: 1 })
         });
 
         const result = await response.json();
 
         if (response.ok && result.status === 'success') {
-            // Success Path
             cartTotal = result.data.total_items;
             updateCartUI();
             showToast(`Added to your bag`, "success");
         } else {
-            // FIX POINT 5: Capture "Insufficient Stock" or other backend errors
-            // This shows the error message directly from cart_service.py
             showToast(result.message || "Could not add to cart", "error");
         }
     } catch (error) {
@@ -103,15 +75,16 @@ async function addToCart(productId) {
     }
 }
 
-/**
- * Fetches existing cart data so refresh doesn't wipe the badge
- */
+// FIX: Attach to window so the onclick in the dynamic HTML can find it
+window.addToCart = addToCart;
+
 async function fetchCartStatus() {
     try {
         const response = await fetch(CART_API);
         const result = await response.json();
-        if (result.status === 'success') {
-            cartTotal = result.total_items;
+        // FIX: Match the data structure from cart_route.py
+        if (result.status === 'success' && result.data) {
+            cartTotal = result.data.total_items;
             updateCartUI();
         }
     } catch (error) {
@@ -122,24 +95,17 @@ async function fetchCartStatus() {
 function updateCartUI() {
     if (cartBadge) {
         cartBadge.innerText = cartTotal;
-        
-        // Visual feedback animation
         const cartIcon = cartBadge.parentElement;
         cartIcon.classList.add('scale-125');
         setTimeout(() => cartIcon.classList.remove('scale-125'), 200);
     }
 }
 
-/* ==========================================================================
-   Utilities (Toast Implementation)
-   ========================================================================== */
-
 function showToast(msg, type = "success") {
     const container = document.getElementById('toast-container');
     if (!container) return;
 
     const toast = document.createElement('div');
-    // Styling based on your Forest/Sage theme
     const bgColor = type === "success" ? "bg-forest" : "bg-red-800";
     
     toast.className = `${bgColor} text-white px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-2xl transition-all duration-500 transform translate-y-10 opacity-0`;
@@ -147,18 +113,15 @@ function showToast(msg, type = "success") {
 
     container.appendChild(toast);
 
-    // Animate In
     setTimeout(() => {
         toast.classList.remove('translate-y-10', 'opacity-0');
     }, 10);
 
-    // Animate Out and Remove
     setTimeout(() => {
         toast.classList.add('opacity-0');
         setTimeout(() => toast.remove(), 500);
     }, 3000);
 }
 
-// Start
 document.addEventListener('DOMContentLoaded', init);
 
