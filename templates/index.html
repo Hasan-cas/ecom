@@ -27,7 +27,7 @@
         <div class="flex items-center space-x-5">
             <button class="text-lg">🔍</button>
             <button class="text-lg">👤</button>
-            <button class="text-lg relative">🛒<span id="cart-badge" class="absolute -top-2 -right-2 bg-forest text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center">0</span></button>
+            <button class="text-lg relative">🛒</button>
         </div>
     </nav>
 
@@ -71,7 +71,6 @@
         </div>
     </section>
 
-
     <footer class="bg-black text-white pt-20 pb-10 px-8 lg:px-24">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
             <div>
@@ -109,9 +108,6 @@
         </div>
     </footer>
 
-    <div id="toast-container" class="fixed bottom-10 right-10 z-50 flex flex-col gap-2"></div>
-
-<script src="{{ url_for('static', filename='index.js') }}"></script>
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
 </body>
 </html>
-
