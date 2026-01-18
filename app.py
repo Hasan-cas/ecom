@@ -37,7 +37,7 @@ def products():
     return render_template("products.html")
 
 @app.route("/product")
-def products():
+def product():
     return render_template("product.html")
 
 
