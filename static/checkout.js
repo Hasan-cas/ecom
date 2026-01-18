@@ -18,7 +18,7 @@ const statusMessage = document.getElementById('statusMessage');
  */
 async function checkCartBeforeCheckout() {
     try {
-        const response = await fetch('/api/cart/api/cart');
+        const response = await fetch('/api/cart');
         const data = await response.json();
         
         // If total_items is 0 or data is missing, redirect to home
