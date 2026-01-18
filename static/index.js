@@ -1,135 +1,167 @@
-// product-details.js
-
 /**
- * 1. Extract ID from URL
- * Works for: 127.0.0.1:5000/product?id=1
+ * ZENFOX | Frontend Logic
+ * Integrates with: product_service.py and cart_service.py
  */
-function getProductIdFromURL() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id');
+
+const PRODUCT_API = '/api/products';
+const CART_API = '/api/cart';
+
+// State
+let cartTotal = 0;
+
+/* ==========================================================================
+   Initialization
+   ========================================================================== */
+
+async function init() {
+    // Select elements inside init to ensure DOM is ready
+    const productsGrid = document.getElementById('products-grid');
+    const cartBadge = document.getElementById('cart-badge');
+
+    await fetchCartStatus(cartBadge); 
+    await fetchFeaturedProducts(productsGrid);
 }
 
-/**
- * 2. Fetch Data from Flask API
- */
-async function fetchProduct() {
-    const id = getProductIdFromURL();
-    
-    // If no ID is present in URL, immediately show error
-    if (!id) {
-        showError();
-        return;
-    }
+/* ==========================================================================
+   Product Loading & Navigation
+   ========================================================================== */
+
+async function fetchFeaturedProducts(gridElement) {
+    if (!gridElement) return;
 
     try {
-        // Ensure this matches your Flask route @app.route('/api/products/<int:id>')
-        const response = await fetch(`/api/products/${id}`);
+        const response = await fetch(PRODUCT_API);
         const result = await response.json();
-
-        if (response.ok && result.status === 'success' && result.data) {
-            renderProduct(result.data);
-        } else {
-            showError();
+        
+        if (result.status === 'success') {
+            renderProducts(result.data, gridElement);
         }
     } catch (error) {
-        console.error("Fetch error:", error);
-        showError();
+        console.error("Error loading products:", error);
     }
 }
 
 /**
- * 3. Render Product Data to UI
+ * FIXED: Added Navigation Logic (Point 2)
+ * The container now supports clicking for navigation while the button handles the cart.
  */
-function renderProduct(product) {
-    // Hide loader and show content
-    document.getElementById('loading').classList.add('hidden');
-    document.getElementById('product-view').classList.remove('hidden');
+function renderProducts(products, container) {
+    container.innerHTML = products.map(product => `
+        <div class="group cursor-pointer" onclick="navigateToProduct(${product.id})">
+            <div class="relative aspect-[4/5] bg-gray-100 mb-6 overflow-hidden rounded-[40px]">
+                <img src="${product.image || 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80'}" 
+                     alt="${product.name}" 
+                     class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                
+                <button onclick="handleAddToCart(event, ${product.id})" 
+                        class="absolute bottom-8 right-8 bg-forest text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-2xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition duration-300 z-10">
+                    +
+                </button>
 
-    // Update Text Content
-    document.getElementById('product-name').textContent = product.name;
-    document.getElementById('product-price').textContent = `$${parseFloat(product.price).toFixed(2)}`;
-    document.getElementById('product-description').textContent = product.description;
-    document.getElementById('category-crumb').textContent = product.category || 'Fragrance';
-    
-    // Update Image
-    const imgElement = document.getElementById('product-image');
-    imgElement.src = product.image || 'https://placehold.co/600x800?text=No+Image';
-    imgElement.alt = product.name;
-    
-    const stockBadge = document.getElementById('product-stock');
-    const btn = document.getElementById('add-to-cart-btn');
-
-    // Stock Logic
-    if (product.stock > 0) {
-        stockBadge.textContent = `In Stock (${product.stock})`;
-        stockBadge.className = "px-3 py-1 text-[9px] uppercase tracking-tighter rounded-full border border-green-800 text-green-800";
-        btn.disabled = false;
-        btn.onclick = () => addToCart(product.id);
-    } else {
-        stockBadge.textContent = "Sold Out";
-        stockBadge.className = "px-3 py-1 text-[9px] uppercase tracking-tighter rounded-full border border-gray-300 text-gray-400";
-        btn.disabled = true;
-        btn.textContent = "Out of Stock";
-    }
+                <div class="absolute top-6 left-6 bg-white/80 backdrop-blur-md px-4 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest">
+                    ${product.stock > 0 ? 'Limited Edition' : 'Out of Stock'}
+                </div>
+            </div>
+            <div class="flex justify-between items-start px-2">
+                <div>
+                    <h3 class="text-xl serif uppercase text-forest font-semibold tracking-tighter">${product.name}</h3>
+                    <p class="text-gray-400 text-xs mt-1 italic">${product.description || 'Exclusive ZENFOX Scent'}</p>
+                </div>
+                <span class="font-bold text-forest">$${parseFloat(product.price).toFixed(2)}</span>
+            </div>
+        </div>
+    `).join('');
 }
 
 /**
- * 4. Add to Cart Logic
+ * Point 2: Shift to dedicated product page
+ * Format: /product?id=X
  */
-async function addToCart(productId) {
-    const btn = document.getElementById('add-to-cart-btn');
-    const originalText = btn.textContent;
-    
-    btn.disabled = true;
-    btn.textContent = "Adding...";
+function navigateToProduct(id) {
+    window.location.href = `/product?id=${id}`;
+}
 
+/* ==========================================================================
+   Cart Logic (Point 1: Fix existing logic)
+   ========================================================================== */
+
+async function handleAddToCart(event, productId) {
+    // Prevent the parent div's 'onclick' (navigation) from firing
+    event.stopPropagation(); 
+    
     try {
-        const response = await fetch('/api/cart/add', {
+        const response = await fetch(`${CART_API}/add`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product_id: productId, quantity: 1 })
+            body: JSON.stringify({ 
+                product_id: productId, 
+                quantity: 1 
+            })
         });
 
         const result = await response.json();
 
-        if (response.ok) {
-            showMessage("Added to bag", "text-green-700");
-            // Increment the cart badge visually
-            const badge = document.getElementById('cart-count');
-            badge.textContent = parseInt(badge.textContent || 0) + 1;
+        if (response.ok && result.status === 'success') {
+            cartTotal = result.data.total_items;
+            updateCartUI();
+            showToast(`Added to your bag`, "success");
         } else {
-            showMessage(result.message || "Could not add to bag", "text-red-700");
+            showToast(result.message || "Could not add to cart", "error");
         }
-    } catch (err) {
-        showMessage("Connection Error", "text-red-700");
-    } finally {
-        btn.disabled = false;
-        btn.textContent = originalText;
+    } catch (error) {
+        console.error("Cart error:", error);
+        showToast("Server connection error", "error");
     }
 }
 
-// --- Helpers ---
-
-function showError() {
-    const loading = document.getElementById('loading');
-    const errorView = document.getElementById('error-view');
-    if (loading) loading.classList.add('hidden');
-    if (errorView) errorView.classList.remove('hidden');
+async function fetchCartStatus(badgeElement) {
+    try {
+        const response = await fetch(CART_API);
+        const result = await response.json();
+        if (result.status === 'success') {
+            cartTotal = result.total_items;
+            updateCartUI(badgeElement);
+        }
+    } catch (error) {
+        console.warn("Could not sync cart state.");
+    }
 }
 
-function showMessage(text, colorClass) {
-    const box = document.getElementById('message-box');
-    box.textContent = text;
-    // Reset classes but keep basic styling
-    box.className = `text-center text-[11px] uppercase tracking-widest font-bold mt-4 ${colorClass}`;
-    box.classList.remove('hidden');
+function updateCartUI(badgeElement) {
+    const badge = badgeElement || document.getElementById('cart-badge');
+    if (badge) {
+        badge.innerText = cartTotal;
+        
+        const cartIcon = badge.parentElement;
+        cartIcon.classList.add('scale-125');
+        setTimeout(() => cartIcon.classList.remove('scale-125'), 200);
+    }
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+function showToast(msg, type = "success") {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    const bgColor = type === "success" ? "bg-forest" : "bg-red-800";
     
-    // Hide message after 3 seconds
+    toast.className = `${bgColor} text-white px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-2xl transition-all duration-500 transform translate-y-10 opacity-0`;
+    toast.innerText = msg;
+
+    container.appendChild(toast);
+
     setTimeout(() => {
-        box.classList.add('hidden');
+        toast.classList.remove('translate-y-10', 'opacity-0');
+    }, 10);
+
+    setTimeout(() => {
+        toast.classList.add('opacity-0');
+        setTimeout(() => toast.remove(), 500);
     }, 3000);
 }
 
-// --- Initialization ---
-// Using DOMContentLoaded is safer than window.onload
-document.addEventListener('DOMContentLoaded', fetchProduct);
+document.addEventListener('DOMContentLoaded', init);
