@@ -36,6 +36,11 @@ def home():
 def products():
     return render_template("products.html")
 
+@app.route("/product")
+def products():
+    return render_template("product.html")
+
+
 @app.route("/cart")
 def cart():
     return render_template("cart.html")
