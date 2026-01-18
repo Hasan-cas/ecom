@@ -1,38 +1,24 @@
 /**
  * ZENFOX | Frontend Logic
- * Integrates with: product_service.py and cart_service.py
+ * Version: Product redirection only
  */
 
 const PRODUCT_API = '/api/products';
-const CART_API = '/api/cart';
 
-// State
-let cartTotal = 0;
-
-/* ==========================================================================
-   Initialization
-   ========================================================================== */
-
+// Initialize
 async function init() {
-    // Select elements inside init to ensure DOM is ready
     const productsGrid = document.getElementById('products-grid');
-    const cartBadge = document.getElementById('cart-badge');
-
-    await fetchCartStatus(cartBadge); 
     await fetchFeaturedProducts(productsGrid);
 }
 
-/* ==========================================================================
-   Product Loading & Navigation
-   ========================================================================== */
-
+// Fetch products from API
 async function fetchFeaturedProducts(gridElement) {
     if (!gridElement) return;
 
     try {
         const response = await fetch(PRODUCT_API);
         const result = await response.json();
-        
+
         if (result.status === 'success') {
             renderProducts(result.data, gridElement);
         }
@@ -41,10 +27,7 @@ async function fetchFeaturedProducts(gridElement) {
     }
 }
 
-/**
- * FIXED: Added Navigation Logic (Point 2)
- * The container now supports clicking for navigation while the button handles the cart.
- */
+// Render products and attach redirect logic
 function renderProducts(products, container) {
     container.innerHTML = products.map(product => `
         <div class="group cursor-pointer" onclick="navigateToProduct(${product.id})">
@@ -53,11 +36,6 @@ function renderProducts(products, container) {
                      alt="${product.name}" 
                      class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
                 
-                <button onclick="handleAddToCart(event, ${product.id})" 
-                        class="absolute bottom-8 right-8 bg-forest text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-2xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition duration-300 z-10">
-                    +
-                </button>
-
                 <div class="absolute top-6 left-6 bg-white/80 backdrop-blur-md px-4 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest">
                     ${product.stock > 0 ? 'Limited Edition' : 'Out of Stock'}
                 </div>
@@ -74,94 +52,11 @@ function renderProducts(products, container) {
 }
 
 /**
- * Point 2: Shift to dedicated product page
- * Format: /product?id=X
+ * FEATURE: Redirect to details page
+ * This matches the logic in your product.js getProductIdFromURL function
  */
 function navigateToProduct(id) {
     window.location.href = `/product?id=${id}`;
-}
-
-/* ==========================================================================
-   Cart Logic (Point 1: Fix existing logic)
-   ========================================================================== */
-
-async function handleAddToCart(event, productId) {
-    // Prevent the parent div's 'onclick' (navigation) from firing
-    event.stopPropagation(); 
-    
-    try {
-        const response = await fetch(`${CART_API}/add`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                product_id: productId, 
-                quantity: 1 
-            })
-        });
-
-        const result = await response.json();
-
-        if (response.ok && result.status === 'success') {
-            cartTotal = result.data.total_items;
-            updateCartUI();
-            showToast(`Added to your bag`, "success");
-        } else {
-            showToast(result.message || "Could not add to cart", "error");
-        }
-    } catch (error) {
-        console.error("Cart error:", error);
-        showToast("Server connection error", "error");
-    }
-}
-
-async function fetchCartStatus(badgeElement) {
-    try {
-        const response = await fetch(CART_API);
-        const result = await response.json();
-        if (result.status === 'success') {
-            cartTotal = result.total_items;
-            updateCartUI(badgeElement);
-        }
-    } catch (error) {
-        console.warn("Could not sync cart state.");
-    }
-}
-
-function updateCartUI(badgeElement) {
-    const badge = badgeElement || document.getElementById('cart-badge');
-    if (badge) {
-        badge.innerText = cartTotal;
-        
-        const cartIcon = badge.parentElement;
-        cartIcon.classList.add('scale-125');
-        setTimeout(() => cartIcon.classList.remove('scale-125'), 200);
-    }
-}
-
-/* ==========================================================================
-   Utilities
-   ========================================================================== */
-
-function showToast(msg, type = "success") {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-
-    const toast = document.createElement('div');
-    const bgColor = type === "success" ? "bg-forest" : "bg-red-800";
-    
-    toast.className = `${bgColor} text-white px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-2xl transition-all duration-500 transform translate-y-10 opacity-0`;
-    toast.innerText = msg;
-
-    container.appendChild(toast);
-
-    setTimeout(() => {
-        toast.classList.remove('translate-y-10', 'opacity-0');
-    }, 10);
-
-    setTimeout(() => {
-        toast.classList.add('opacity-0');
-        setTimeout(() => toast.remove(), 500);
-    }, 3000);
 }
 
 document.addEventListener('DOMContentLoaded', init);
