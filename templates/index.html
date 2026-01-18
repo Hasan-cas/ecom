@@ -27,7 +27,7 @@
         <div class="flex items-center space-x-5">
             <button class="text-lg">🔍</button>
             <button class="text-lg">👤</button>
-            <button class="text-lg relative">🛒<span id="cart-count" class="absolute -top-2 -right-2 bg-forest text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center">0</span></button>
+            <button class="text-lg relative">🛒<span id="cart-badge" class="absolute -top-2 -right-2 bg-forest text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center">0</span></button>
         </div>
     </nav>
 
@@ -63,7 +63,7 @@
             <p class="text-gray-500 max-w-md text-sm leading-relaxed">Discover the top-selling perfumes in our exclusive collection explore the most popular scents of the year from classic fragrances.</p>
         </div>
 
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div class="animate-pulse flex flex-col space-y-4">
                 <div class="bg-gray-200 aspect-[4/5] rounded-xl"></div>
                 <div class="h-6 bg-gray-200 w-3/4"></div>
@@ -108,6 +108,9 @@
             </div>
         </div>
     </footer>
+
+    <div id="toast-container" class="fixed bottom-10 right-10 z-50 flex flex-col gap-2"></div>
+
 <script src="{{ url_for('static', filename='index.js') }}"></script>
 </body>
 </html>

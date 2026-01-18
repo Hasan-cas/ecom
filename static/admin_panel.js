@@ -30,7 +30,7 @@ async function checkAuth() {
         }
         initDashboard();
     } catch (error) {
-        window.location.href = 'admin_form.html';
+        window.location.href = 'admin-form';
     }
 }
 
@@ -53,7 +53,7 @@ function initDashboard() {
 async function fetchProducts() {
     try {
         // Backend route defined in product_route.py
-        const response = await fetch('/api/products/api/products');
+        const response = await fetch('/api/products');
         const result = await response.json();
         
         if (result.status === 'success') {
@@ -212,7 +212,7 @@ function showToast(message, type = 'info') {
 
 async function handleLogout() {
     await fetch('/api/admin/logout');
-    window.location.href = 'admin_form.html';
+    window.location.href = 'admin-form';
 }
 
 // Entry Point
