@@ -27,10 +27,9 @@ async function fetchFeaturedProducts(gridElement) {
     }
 }
 
-// Render products and attach redirect logic
 function renderProducts(products, container) {
     container.innerHTML = products.map(product => `
-        <div class="group cursor-pointer" onclick="navigateToProduct(${product.id})">
+        <a href="/product?id=${product.id}" class="group block cursor-pointer">
             <div class="relative aspect-[4/5] bg-gray-100 mb-6 overflow-hidden rounded-[40px]">
                 <img src="${product.image || 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80'}" 
                      alt="${product.name}" 
@@ -47,9 +46,10 @@ function renderProducts(products, container) {
                 </div>
                 <span class="font-bold text-forest">$${parseFloat(product.price).toFixed(2)}</span>
             </div>
-        </div>
+        </a>
     `).join('');
 }
+
 
 /**
  * FEATURE: Redirect to details page
