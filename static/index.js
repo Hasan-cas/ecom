@@ -60,3 +60,4 @@ function navigateToProduct(id) {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
