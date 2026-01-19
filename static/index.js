@@ -1,6 +1,6 @@
 /**
  * ZENFOX | Frontend Logic
- * Version: Product redirection only
+ * Version: Fixed Product Rendering Logic
  */
 
 const PRODUCT_API = '/api/products';
@@ -8,19 +8,22 @@ const PRODUCT_API = '/api/products';
 // Initialize
 async function init() {
     const productsGrid = document.getElementById('products-grid');
-    await fetchFeaturedProducts(productsGrid);
+    if (productsGrid) {
+        await fetchFeaturedProducts(productsGrid);
+    }
 }
 
 // Fetch products from API
 async function fetchFeaturedProducts(gridElement) {
-    if (!gridElement) return;
-
     try {
         const response = await fetch(PRODUCT_API);
         const result = await response.json();
 
-        if (result.status === 'success') {
+        // Ensure we check for the 'success' status and that 'data' exists
+        if (result.status === 'success' && Array.isArray(result.data)) {
             renderProducts(result.data, gridElement);
+        } else {
+            console.error("Failed to retrieve products:", result.message);
         }
     } catch (error) {
         console.error("Error loading products:", error);
@@ -28,6 +31,14 @@ async function fetchFeaturedProducts(gridElement) {
 }
 
 function renderProducts(products, container) {
+    // Clear the container (removes any static placeholders)
+    container.innerHTML = '';
+
+    if (products.length === 0) {
+        container.innerHTML = '<p class="text-center col-span-full text-gray-400">No scents available at the moment.</p>';
+        return;
+    }
+
     container.innerHTML = products.map(product => `
         <a href="/product?id=${product.id}" class="group block cursor-pointer">
             <div class="relative aspect-[4/5] bg-gray-100 mb-6 overflow-hidden rounded-[40px]">
@@ -50,14 +61,4 @@ function renderProducts(products, container) {
     `).join('');
 }
 
-
-/**
- * FEATURE: Redirect to details page
- * This matches the logic in your product.js getProductIdFromURL function
- */
-function navigateToProduct(id) {
-    window.location.href = `/product?id=${id}`;
-}
-
 document.addEventListener('DOMContentLoaded', init);
-
