@@ -1,101 +1,629 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZENFOX | Luxury Scents</title>
+    <title>Markazus Sunnah - A Touch of Arabian Luxury</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
     <style>
-        :root { --sage: #e2e8dd; --dark-forest: #1a2b1a; }
-        body { font-family: 'Inter', sans-serif; }
-        .serif { font-family: 'Playfair Display', serif; }
-        .bg-sage { background-color: var(--sage); }
-        .text-forest { color: var(--dark-forest); }
-        .bg-forest { background-color: var(--dark-forest); }
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+        .bg-khaki {
+            background-color: #EACFA2 ;
+            opacity: 1;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            width: 100%;
+        }
+        
+        .heading-font { font-family: 'Cormorant Garamond', serif; }
+        
+        /* Nav Link Style from index.html/index3.html */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #d4af37;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+
+        /* Hero Slider Setup from index3.html */
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 0;
+        }
+        .hero-slide.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Essential for Zoom Effect from index3.html */
+        .hero-img {
+            will-change: transform;
+            transform: scale(1.5); 
+        }
+
+        /* Reveal Items (Hidden by default for GSAP) */
+        .reveal-item {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        #navbar {
+            transition: background-color 0.4s ease, height 0.4s ease;
+        }
+        .scene-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            perspective: 1200px; /* 3D perspective */
+        }
+
+        .bg-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        opacity: 0.8; /* Dimmed so product pops */
+        object-fit: contain; /* Shows full image without stretching */
+}
+
+        .product-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transform-style: preserve-3d;
+        }
+
+        .product-3d {
+            width: 450px;
+            max-width: 80%;
+            transform-style: preserve-3d;
+            filter: drop-shadow(0 20px 50px rgba(0,0,0,0.8));
+            transition: transform 0.3s ease-out;
+        }
+
+        .support-item {
+            position: absolute;
+            width: 80px;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
+            z-index: 5;
+        }
+
+        .item-left { left: 65%; top: 40%; }
+        .item-right { right: 60%; top: 35%; }
+
+        .hero-title {
+            position: absolute;
+            font-size: 12vw;
+            font-weight: 900;
+            opacity: 0.7;
+            z-index: 2;
+            white-space: nowrap;
+        }
     </style>
 </head>
-<body class="bg-white text-gray-900">
-
-    <nav class="flex items-center justify-between px-8 py-6 border-b border-gray-100 sticky top-0 bg-white z-50">
-        <div class="text-2xl font-bold tracking-tighter serif">ZENFOX.</div>
-        <div class="hidden md:flex space-x-8 uppercase text-[10px] tracking-[0.2em] font-semibold">
-            <a href="/product" class="hover:text-green-800">Perfumes</a>
-            <a href="/product" class="hover:text-green-800">Shop</a>
-            <a href="/about" class="hover:text-green-800">Brands</a>
-        </div>
-        <div class="flex items-center space-x-5">
-            <button class="text-lg">🔍</button>
-            <button class="text-lg">👤</button>
+<body class="bg-white">
+    <div class="bg-black text-white text-center py-2 text-sm w-full">
+        FREE Shipping On Orders Over USD $60
+    </div>
+    
+    <nav class="bg-white border-b sticky top-0 z-50 w-full" id="navbar">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-20">
+                <div class="text-2xl heading-font font-bold">
+                    <a href="#" class="text-gray-900">Markazus Sunnah</a>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900">Shop</a>
+                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900">New Arrivals</a>
+                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900">Best Sellers</a>
+                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900">Collections</a>
+                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900">Bundles</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-700">Log in</button>
+                    <button class="text-gray-700">Cart (0)</button>
+                </div>
             </div>
+        </div>
     </nav>
+    
+    <section class="relative h-screen w-full overflow-hidden" id="hero">
+        <div class="hero-slide active">
+            <img src="yellow.webp" class="hero-img absolute inset-0 w-full h-full object-cover" alt="Yara Elixir">
+            <div class="absolute inset-0 bg-black/10"></div>
+            <div class="relative z-20 h-full flex items-center">
+                <div class="max-w-7xl mx-auto px-4 w-full">
+                    <div class="max-w-xl text-content">
+                        <h1 class="heading-font text-6xl md:text-8xl font-bold text-white mb-6">Khamrah<br></h1>
+                        <button class="bg-black text-white px-10 py-4 font-bold tracking-widest hover:bg-gray-800 transition">ORDER NOW</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <header class="relative bg-sage min-h-[90vh] flex items-center px-8 lg:px-24">
-        <div class="max-w-2xl z-10">
-            <h1 class="text-7xl md:text-[100px] text-forest leading-[0.9] serif mb-8">SCENT FOR <br><span class="italic font-normal">DAILY LIFE</span></h1>
-            <p class="text-gray-600 mb-8 max-w-sm text-sm leading-relaxed">A fragrance is a smell, usually a pleasant or sweet smell. Perfumes are called fragrances, or you like the fragrance.</p>
-            <button type="button" class="px-10 py-3 border border-black rounded-full hover:bg-forest hover:text-white transition uppercase text-[10px] tracking-widest font-bold">Shop Now</button>
+        <div class="hero-slide">
+            <img src="vampire.webp" class="hero-img absolute inset-0 w-full h-full object-cover" alt="Asad Elixir">
+            <div class="absolute inset-0 bg-black/20"></div>
+            <div class="relative z-20 h-full flex items-center text-white">
+                <div class="max-w-7xl mx-auto px-4 w-full">
+                    <div class="max-w-xl text-content">
+                        <h1 class="heading-font text-6xl md:text-8xl font-bold mb-6">Vampire<br>Blood</h1>
+                        <button class="bg-white text-black px-10 py-4 font-bold tracking-widest hover:bg-gray-200 transition">SHOP NOW</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex space-x-4 z-30">
+            <button class="hero-dot w-3 h-3 rounded-full bg-white/50 border border-black/10" data-index="0"></button>
+            <button class="hero-dot w-3 h-3 rounded-full bg-white/50 border border-black/10" data-index="1"></button>
+        </div>
+    </section>
+<section class="py-20 w-full overflow-hidden" id="collections">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="heading-font text-4xl md:text-5xl font-bold text-center mb-4">Explore Our Collection</h2>
+        <p class="text-center text-gray-600 mb-12 text-lg">What you wear when you want to be unforgettable.</p>
+        
+        <div class="collections-container overflow-hidden cursor-grab active:cursor-grabbing">
+            <div class="flex gap-6 collections-wrapper" id="collectionsWrapper">
+                <div class="collection-card flex-shrink-0 h-[200px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-xl ml-1">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('tupi.webp');"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all"></div>
+                    <div class="absolute bottom-8 left-8 text-white">
+                        <h3 class="heading-font text-3xl font-bold mb-2">TUPI</h3>
+                        <p class="text-sm">8 items</p>
+                    </div>
+                </div>
+                
+                <div class="collection-card flex-shrink-0 h-[200px] w-[345px] rounded-xl md:w-[400px] relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('attor.webp');"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all"></div>
+                    <div class="absolute bottom-8 left-8 text-white">
+                        <h3 class="heading-font text-3xl font-bold mb-2">ATTOR</h3>
+                        <p class="text-sm">7 items</p>
+                    </div>
+                </div>
+                
+                <div class="collection-card flex-shrink-0 h-[200px] w-[345px] rounded-xl md:w-[400px] relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('taj.webp');"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all"></div>
+                    <div class="absolute bottom-8 left-8 text-white">
+                        <h3 class="heading-font text-3xl font-bold mb-2">TAJBI</h3>
+                        <p class="text-sm">5 items</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    <section class="py-20 bg-khaki w-full overflow-hidden" id="products">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12 reveal-item">
+                <div class="flex justify-center space-x-8 mb-8">
+                    <button class="tab-btn text-2xl heading-font font-semibold border-b-2 border-black pb-2">New Arrivals</button>
+                    <button class="tab-btn text-2xl heading-font font-semibold text-gray-400 pb-2">Best Sellers</button>
+                </div>
+                <a href="#" class="text-gray-600 hover:text-black underline">Shop All</a>
+            </div>
             
-            <div class="mt-16 flex items-center space-x-6">
-                <div class="flex -space-x-2">
-                    <img src="https://i.pravatar.cc/40?u=1" class="w-8 h-8 rounded-full border-2 border-white">
-                    <img src="https://i.pravatar.cc/40?u=2" class="w-8 h-8 rounded-full border-2 border-white">
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 product-grid ">
+                <div class="product-card bg-white group shadow-sm reveal-item rounded-2xl">
+                    <div class="relative overflow-hidden bg-gray-100 aspect-square mb-4 rounded-2xl">
+                        <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
+                            <div class="w-32 h-48 bg-gradient-to-b from-amber-700 to-amber-900 rounded-lg"></div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-sm text-gray-500 mb-1">Markazus Sunnah</p>
+                        <h3 class="heading-font text-xl font-semibold mb-2">Asad Elixir</h3>
+                        <p class="text-lg font-semibold">$49.99 USD</p>
+                    </div>
                 </div>
-                <div>
-                    <div class="font-bold text-xl text-forest">4,9 / 5</div>
-                    <div class="text-[10px] uppercase text-gray-500 tracking-tighter">Verified Daily User Reviews</div>
+                
+                <div class="product-card bg-white group shadow-sm reveal-item rounded-2xl">
+                    <div class="relative overflow-hidden bg-gray-100 aspect-square mb-4 rounded-2xl">
+                        <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
+                            <div class="w-32 h-48 bg-gradient-to-b from-pink-300 to-pink-500 rounded-lg"></div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-sm text-gray-500 mb-1">Markazus Sunnah</p>
+                        <h3 class="heading-font text-xl font-semibold mb-2">Yara Elixir</h3>
+                        <p class="text-lg font-semibold">$49.99 USD</p>
+                    </div>
+                </div>
+
+                <div class="product-card bg-white group shadow-sm reveal-item rounded-2xl">
+                    <div class="relative overflow-hidden bg-gray-100 aspect-square mb-4 rounded-2xl">
+                        <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
+                            <div class="w-32 h-48 bg-gradient-to-b from-purple-400 to-purple-700 rounded-lg"></div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-sm text-gray-500 mb-1">Markazus Sunnah</p>
+                        <h3 class="heading-font text-xl font-semibold mb-2">Angham</h3>
+                        <p class="text-lg font-semibold">$49.99 USD</p>
+                    </div>
+                </div>
+
+                <div class="product-card bg-white group shadow-sm reveal-item rounded-2xl">
+                    <div class="relative overflow-hidden bg-gray-100 aspect-square mb-4 rounded-2xl">
+                        <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
+                            <div class="w-32 h-48 bg-gradient-to-b from-red-700 to-red-900 rounded-lg"></div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-sm text-gray-500 mb-1">Markazus Sunnah</p>
+                        <h3 class="heading-font text-xl font-semibold mb-2">Khamrah</h3>
+                        <p class="text-lg font-semibold">$49.99 USD</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800" class="absolute right-0 bottom-0 w-1/2 h-[85%] object-cover hidden lg:block" alt="Hero Perfume">
-    </header>
-
-    <section class="py-24 px-8 lg:px-24">
-        <div class="mb-16">
-            <h2 class="text-5xl md:text-6xl serif italic text-forest mb-4">Most Loved Scents</h2>
-            <p class="text-gray-500 max-w-md text-sm leading-relaxed">Discover the top-selling perfumes in our exclusive collection.</p>
-        </div>
-
-        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-3 gap-12">
-            </div>
     </section>
 
-    <footer class="bg-black text-white pt-20 pb-10 px-8 lg:px-24">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
-            <div>
-                <h3 class="text-3xl font-bold tracking-tighter serif mb-6">ZENFOX.</h3>
-                <p class="text-gray-500 text-sm">simply dummy text of the printing and Lorem Ipsum has been the industry's</p>
-                <div class="flex space-x-4 mt-6">
-                    <span class="p-2 border border-gray-800 rounded-full cursor-pointer hover:bg-white hover:text-black transition">IG</span>
-                    <span class="p-2 border border-gray-800 rounded-full cursor-pointer hover:bg-white hover:text-black transition">FB</span>
+    <section class="scene-container py-32 bg-white text-black w-full overflow-hidden">
+        <!-- Background -->
+        <img src="bg.png" class="bg-layer" alt="Background">
+
+        <!-- Decorative Hero Title -->
+        <h1 class="hero-title">BEST</h1>
+        <h1 class="hero-title mt-10">COLLECTIONS</h1>
+
+        <!-- Supporting Items -->
+        <img src="product_1.png" class="support-item item-left text-center text-white mb-12 text-lg">
+        <img src="product.png" class="support-item item-right" alt="Support Right">
+    </section>
+    <section class="py-20 bg-khaki w-full overflow-hidden" id="reviews">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="heading-font text-4xl md:text-5xl font-bold text-center mb-16">Customer Reviews</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 reviews-grid">
+                <div class="review-card bg-white p-8 rounded-3xl shadow-sm">
+                    <div class="flex items-start mb-4">
+                        <img src="no_acc.png" class="w-16 h-16 rounded-full bg-gray-300 mr-4">
+                    <div>
+                            <h4 class="font-semibold">Arafat</h4>
+                            <p class="text-sm text-gray-500">Verified Customer</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">"The cap is Alhamdulillah very good. Afterwards, you can get comfort. Even to look at, Mashallah, it looks beautiful."</p>
+                    <div class="flex items-center">
+                        <img src="review_1.jpg" class="w-12 h-16 rounded mr-3">
+                        <span class="text-sm font-semibold">Hat & Attor</span>
+                    </div>
+                </div>
+                
+                <div class="review-card bg-white p-8 rounded-3xl shadow-sm">
+                    <div class="flex items-start mb-4">
+                        <img src="no_acc.png" class="w-16 h-16 rounded-full bg-gray-300 mr-4">
+                        <div>
+                            <h4 class="font-semibold">Sheikh Minhajul</h4>
+                            <p class="text-sm text-gray-500">Verified Customer</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">"Mashallah, the cap turned out amazing, and the perfume's smell is also very nice. Jazakallahu Khairan."</p>
+                    <div class="flex items-center">
+                         <img src="review_2.jpg" class="w-12 h-16 rounded mr-3">
+                        <span class="text-sm font-semibold">Hat & Attor</span>
+                    </div>
+                </div>
+                
+                <div class="review-card bg-white p-8 rounded-3xl shadow-sm">
+                    <div class="flex items-start mb-4">
+                        <img src="no_acc.png" class="w-16 h-16 rounded-full bg-gray-300 mr-4">
+                        <div>
+                            <h4 class="font-semibold">Ishan mojumdar</h4>
+                            <p class="text-sm text-gray-500">Verified Customer</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">"I got the chocolate and vampire blood; they turned out really good."</p>
+                    <div class="flex items-center">
+                         <img src="review_3.jpg" class="w-12 h-16 rounded mr-3">
+                        <span class="text-sm font-semibold">Attor</span>
+                    </div>
                 </div>
             </div>
-            <div>
-                <h4 class="uppercase text-[10px] tracking-widest text-gray-400 mb-6">Address</h4>
-                <p class="text-sm">1212, South Tenth Avenue.<br>Toronto, Canada.</p>
-            </div>
-            <div>
-                <h4 class="uppercase text-[10px] tracking-widest text-gray-400 mb-6">Email</h4>
-                <p class="text-sm">hello@zenfox.com<br>support@zenfox.com</p>
-            </div>
-            <div>
-                <h4 class="uppercase text-[10px] tracking-widest text-gray-400 mb-6">Follow Us</h4>
-                <ul class="text-sm space-y-2">
-                    <li><a href="#" class="hover:text-green-500">Facebook</a></li>
-                    <li><a href="#" class="hover:text-green-500">Instagram</a></li>
-                    <li><a href="#" class="hover:text-green-500">Linkedin</a></li>
-                </ul>
-            </div>
         </div>
-        <div class="flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-600 border-t border-gray-900 pt-8 uppercase tracking-widest">
-            <span>© All Rights Reserved Zenfox 2024</span>
-            <div class="space-x-8 mt-4 md:mt-0">
-                <a href="#">Terms & Conditions</a>
-                <a href="#">Privacy Policy</a>
-                <a href="#">Cookie Policy</a>
+    </section>
+        <footer class="bg-black text-white py-16 w-full">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="font-semibold mb-4">Quick Shop</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white">All Fragrances</a></li>
+                        <li><a href="#" class="hover:text-white">New Arrivals</a></li>
+                        <li><a href="#" class="hover:text-white">Bestsellers</a></li>
+                        <li><a href="#" class="hover:text-white">Bundles</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Customer Support</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white">FAQs</a></li>
+                        <li><a href="#" class="hover:text-white">Shipping & Returns</a></li>
+                        <li><a href="#" class="hover:text-white">Track My Order</a></li>
+                        <li><a href="#" class="hover:text-white">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Know More</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Blogs</a></li>
+                        <li><a href="#" class="hover:text-white">Reviews</a></li>
+                        <li><a href="#" class="hover:text-white">My Account</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Follow Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-gray-200">f</a>
+                        <a href="#" class="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-gray-200">i</a>
+                        <a href="#" class="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-gray-200">t</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
+                <p>© 2026 Lattafa. All rights reserved.</p>
             </div>
         </div>
     </footer>
-    <script src="{{ url_for('static', filename='index.js') }}"></script>
+<script>
+    // 1. Added Draggable to the registration
+    gsap.registerPlugin(ScrollTrigger, Draggable);
+
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.hero-slide');
+    const dots = document.querySelectorAll('.hero-dot');
+    let isAnimating = false;
+
+    // --- 1. HERO SLIDER LOGIC ---
+    function changeSlide(index) {
+        if (isAnimating || index === currentSlide) return;
+        isAnimating = true;
+
+        const oldSlide = slides[currentSlide];
+        const newSlide = slides[index];
+        const newImg = newSlide.querySelector('.hero-img');
+        const newText = newSlide.querySelector('.text-content');
+
+        dots.forEach((dot, i) => {
+            gsap.to(dot, { 
+                width: i === index ? 32 : 12, 
+                backgroundColor: i === index ? "white" : "rgba(255,255,255,0.5)", 
+                duration: 0.4 
+            });
+        });
+
+        const tl = gsap.timeline({
+            onComplete: () => {
+                oldSlide.classList.remove('active');
+                isAnimating = false;
+                currentSlide = index;
+            }
+        });
+
+        tl.to(oldSlide, { opacity: 0, duration: 0.8, ease: "power2.inOut" }, 0);
+
+        newSlide.classList.add('active');
+        gsap.set(newSlide, { opacity: 1 });
+        
+        gsap.fromTo(newImg, 
+            { scale: 1.5 }, 
+            { scale: 1, duration: 3.5, ease: "expo.out" }
+        );
+
+        gsap.fromTo(newText, 
+            { y: 60, opacity: 0 }, 
+            { y: 0, opacity: 1, duration: 1.5, delay: 0.3, ease: "expo.out" }
+        );
+    }
+
+    // --- 2. COLLECTIONS DRAGGABLE LOGIC (The "Active Part") ---
+    function setupCollectionScroll() {
+        const wrapper = document.getElementById('collectionsWrapper');
+        if (!wrapper) return;
+
+        const cards = document.querySelectorAll('.collection-card');
+        const stepWidth = cards[0].offsetWidth + 24; // Card + Gap
+        let autoTimer;
+        let startX;
+
+        Draggable.create(wrapper, {
+            type: "x",
+            edgeResistance: 0.95,
+            dragResistance: 0.2,
+            inertia: false,
+            bounds: { 
+                minX: -(wrapper.scrollWidth - wrapper.parentElement.offsetWidth), 
+                maxX: 0 
+            },
+            onDragStart: function() {
+                clearInterval(autoTimer);
+                startX = this.x;
+            },
+            onDragEnd: function() {
+                const draggedDistance = this.x - startX;
+                const threshold = 50;
+                let targetX;
+                
+                if (Math.abs(draggedDistance) > threshold) {
+                    if (draggedDistance < 0) {
+                        targetX = Math.ceil((startX - stepWidth) / stepWidth) * stepWidth;
+                    } else {
+                        targetX = Math.floor((startX + stepWidth) / stepWidth) * stepWidth;
+                    }
+                } else {
+                    targetX = startX;
+                }
+
+                gsap.to(wrapper, {
+                    x: targetX,
+                    duration: 0.6,
+                    ease: "power2.out",
+                    onComplete: startAutoStep
+                });
+            }
+        });
+
+        function moveNext() {
+            const currentX = gsap.getProperty(wrapper, "x");
+            const maxScroll = -(wrapper.scrollWidth - wrapper.parentElement.offsetWidth);
+            let targetX = currentX - stepWidth;
+            if (targetX < maxScroll - 10) targetX = 0;
+
+            gsap.to(wrapper, {
+                x: targetX,
+                duration: 1,
+                ease: "power3.inOut"
+            });
+        }
+
+        function startAutoStep() {
+            clearInterval(autoTimer);
+            autoTimer = setInterval(moveNext, 4000);
+        }
+
+        startAutoStep();
+        wrapper.addEventListener('mouseenter', () => clearInterval(autoTimer));
+        wrapper.addEventListener('mouseleave', startAutoStep);
+    }
+
+    // --- 3. PREMIUM SCROLL REVEALS ---
+    function initScrollAnimations() {
+        ScrollTrigger.create({
+            start: "top -50",
+            onEnter: () => gsap.to("#navbar", { height: 65, backgroundColor: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)", duration: 0.4 }),
+            onLeaveBack: () => gsap.to("#navbar", { height: 80, backgroundColor: "rgba(255,255,255,1)", backdropFilter: "blur(0px)", duration: 0.4 })
+        });
+
+        gsap.utils.toArray('.reveal-item').forEach((item) => {
+            gsap.to(item, {
+                scrollTrigger: {
+                    trigger: item,
+                    start: "top 90%",
+                    toggleActions: "play none none none"
+                },
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 1.2,
+                ease: "power4.out"
+            });
+        });
+    }
+
+    // --- 4. INITIALIZATION ---
+    window.addEventListener('load', () => {
+        initScrollAnimations();
+        setupCollectionScroll(); // Initialized the collection logic
+
+        // Initial Hero Zoom
+        if(slides.length > 0) {
+            gsap.fromTo(slides[0].querySelector('.hero-img'), 
+                { scale: 1.5 }, 
+                { scale: 1, duration: 3.5, ease: "expo.out" }
+            );
+
+            setInterval(() => {
+                let next = (currentSlide + 1) % slides.length;
+                changeSlide(next);
+            }, 6000);
+        }
+
+        // Collection Hover Effects (smooth GSAP version)
+        document.querySelectorAll('.collection-card').forEach(card => {
+            const innerDiv = card.querySelector('div:first-child');
+            card.addEventListener('mouseenter', () => gsap.to(innerDiv, { scale: 1.1, duration: 0.6 }));
+            card.addEventListener('mouseleave', () => gsap.to(innerDiv, { scale: 1, duration: 0.6 }));
+        });
+    });
+
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => changeSlide(parseInt(dot.dataset.index)));
+    });
+</script>
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        const timeline = gsap.timeline({
+            scrollTrigger: {
+                trigger: ".scene-container",
+                start: "top top",
+                end: "+=200%",
+                scrub: 1,
+                pin: true
+            }
+        });
+
+        // Background zoom
+        timeline.from(".bg-layer", { scale: 1.2, opacity: 0, duration: 2 });
+
+        // Hero title slide
+        timeline.from(".hero-title", { x: -500, opacity: 0, duration: 2 }, "-=1.5");
+
+        // Main product 3D drop
+        timeline.from(".product-3d", { 
+            y: -800,
+            rotationX: -15,
+            rotationY: 15,
+            scale: 0.5,
+            opacity: 0,
+            duration: 2.5,
+            ease: "back.out(1.2)"
+        }, "-=1.5");
+
+        // Supporting items fly in
+        timeline.from(".item-left", { x: -300, y: 100, rotation: -30, opacity: 0, duration: 2 }, "-=1.8");
+        timeline.from(".item-right", { x: 300, y: -100, rotation: 30, opacity: 0, duration: 2 }, "-=1.8");
+
+        // Hover 3D effect on product
+        const product = document.querySelector(".product-3d");
+        product.addEventListener("mousemove", e => {
+            const rect = product.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width - 0.5) * 20;
+            const y = ((e.clientY - rect.top) / rect.height - 0.5) * -20;
+            gsap.to(product, { rotationY: x, rotationX: y, duration: 0.3 });
+        });
+        product.addEventListener("mouseleave", () => {
+            gsap.to(product, { rotationY: 0, rotationX: 0, duration: 0.5 });
+        });
+
+    </script>
 </body>
 </html>
