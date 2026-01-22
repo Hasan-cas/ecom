@@ -43,7 +43,8 @@ TARGET_URLS = [
     "https://cdn.jsdelivr.net",
     "https://unpkg.com",
     "https://assets9.lottiefiles.com",
-    "https://cdn.tailwindcss.com"
+    "https://cdn.tailwindcss.com",
+    "https://cdnjs.cloudflare.com"
 ]
 
 # -------------------
