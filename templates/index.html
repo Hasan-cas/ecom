@@ -131,7 +131,9 @@
     </style>
 </head>
 <body class="bg-white">
-    <div class="bg-black text-white text-center py-2 text-sm w-full">
+    <button id="lang-toggle" class="fixed top-24 right-4 z-[100] bg-black text-white px-4 py-2 rounded-full font-bold shadow-lg border border-gray-700 hover:bg-gray-800 transition">BN</button>
+
+    <div class="bg-black text-white text-center py-2 text-sm w-full" data-bn="৬০ ডলারের বেশি অর্ডারে ফ্রি শিপিং">
         FREE Shipping On Orders Over USD $60
     </div>
     
@@ -139,18 +141,18 @@
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center h-20">
                 <div class="text-2xl heading-font font-bold">
-                    <a href="#" class="text-gray-900">Markazus Sunnah</a>
+                    <a href="#" class="text-gray-900" data-bn="মারকাযুস সুন্নাহ">Markazus Sunnah</a>
                 </div>
                 <div class="hidden md:flex space-x-8">
-                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900">Shop</a>
-                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900">New Arrivals</a>
-                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900">Best Sellers</a>
-                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900">Collections</a>
-                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900">Bundles</a>
+                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900" data-bn="শপ">Shop</a>
+                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900" data-bn="নতুন পণ্য">New Arrivals</a>
+                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900" data-bn="বেস্ট সেলার">Best Sellers</a>
+                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900" data-bn="কালেকশন">Collections</a>
+                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900" data-bn="বান্ডেল">Bundles</a>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button class="text-gray-700">Log in</button>
-                    <button class="text-gray-700">Cart (0)</button>
+                    <button class="text-gray-700" data-bn="লগ ইন">Log in</button>
+                    <button class="text-gray-700" data-bn="কার্ট (০)">Cart (0)</button>
                 </div>
             </div>
         </div>
@@ -158,26 +160,26 @@
     
     <section class="relative h-screen w-full overflow-hidden" id="hero">
         <div class="hero-slide active">
-            <img src="yellow.webp" class="hero-img absolute inset-0 w-full h-full object-cover" alt="Yara Elixir">
+            <img src="{{ url_for('static/img', filename='img/yellow.webp') }}" class="hero-img absolute inset-0 w-full h-full object-cover" alt="Yara Elixir">
             <div class="absolute inset-0 bg-black/10"></div>
             <div class="relative z-20 h-full flex items-center">
                 <div class="max-w-7xl mx-auto px-4 w-full">
                     <div class="max-w-xl text-content">
-                        <h1 class="heading-font text-6xl md:text-8xl font-bold text-white mb-6">Khamrah<br></h1>
-                        <button class="bg-black text-white px-10 py-4 font-bold tracking-widest hover:bg-gray-800 transition">ORDER NOW</button>
+                        <h1 class="heading-font text-6xl md:text-8xl font-bold text-white mb-6" data-bn="খামরাহ<br>">Khamrah<br></h1>
+                        <button class="bg-black text-white px-10 py-4 font-bold tracking-widest hover:bg-gray-800 transition" data-bn="অর্ডার করুন">ORDER NOW</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="hero-slide">
-            <img src="vampire.webp" class="hero-img absolute inset-0 w-full h-full object-cover" alt="Asad Elixir">
+            <img src="{{ url_for('static/img', filename='img/vampire.webp') }}" class="hero-img absolute inset-0 w-full h-full object-cover" alt="Asad Elixir">
             <div class="absolute inset-0 bg-black/20"></div>
             <div class="relative z-20 h-full flex items-center text-white">
                 <div class="max-w-7xl mx-auto px-4 w-full">
                     <div class="max-w-xl text-content">
-                        <h1 class="heading-font text-6xl md:text-8xl font-bold mb-6">Vampire<br>Blood</h1>
-                        <button class="bg-white text-black px-10 py-4 font-bold tracking-widest hover:bg-gray-200 transition">SHOP NOW</button>
+                        <h1 class="heading-font text-6xl md:text-8xl font-bold mb-6" data-bn="ভ্যাম্পায়ার<br>ব্লাড">Vampire<br>Blood</h1>
+                        <button class="bg-white text-black px-10 py-4 font-bold tracking-widest hover:bg-gray-200 transition" data-bn="এখনই কিনুন">SHOP NOW</button>
                     </div>
                 </div>
             </div>
@@ -190,35 +192,36 @@
     </section>
 <section class="py-20 w-full overflow-hidden" id="collections">
     <div class="max-w-7xl mx-auto px-4">
-        <h2 class="heading-font text-4xl md:text-5xl font-bold text-center mb-4">Explore Our Collection</h2>
-        <p class="text-center text-gray-600 mb-12 text-lg">What you wear when you want to be unforgettable.</p>
+        <h2 class="heading-font text-4xl md:text-5xl font-bold text-center mb-4" data-bn="আমাদের কালেকশন দেখুন">Explore Our Collection</h2>
+        <p class="text-center text-gray-600 mb-12 text-lg" data-bn="নিজেকে অবিস্মরণীয় করে তুলতে যা পরবেন।">What you wear when you want to be unforgettable.</p>
         
         <div class="collections-container overflow-hidden cursor-grab active:cursor-grabbing">
             <div class="flex gap-6 collections-wrapper" id="collectionsWrapper">
                 <div class="collection-card flex-shrink-0 h-[200px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-xl ml-1">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('tupi.webp');"></div>
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{ url_for('static', filename='img/tupi.webp') }}');"
+></div>
                     <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all"></div>
                     <div class="absolute bottom-8 left-8 text-white">
-                        <h3 class="heading-font text-3xl font-bold mb-2">TUPI</h3>
-                        <p class="text-sm">8 items</p>
+                        <h3 class="heading-font text-3xl font-bold mb-2" data-bn="টুপি">TUPI</h3>
+                        <p class="text-sm" data-bn="৮ টি পণ্য">8 items</p>
                     </div>
                 </div>
                 
                 <div class="collection-card flex-shrink-0 h-[200px] w-[345px] rounded-xl md:w-[400px] relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('attor.webp');"></div>
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{ url_for('static', filename='img/attor.webp') }}');"></div>
                     <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all"></div>
                     <div class="absolute bottom-8 left-8 text-white">
-                        <h3 class="heading-font text-3xl font-bold mb-2">ATTOR</h3>
-                        <p class="text-sm">7 items</p>
+                        <h3 class="heading-font text-3xl font-bold mb-2" data-bn="আতর">ATTOR</h3>
+                        <p class="text-sm" data-bn="৭ টি পণ্য">7 items</p>
                     </div>
                 </div>
                 
                 <div class="collection-card flex-shrink-0 h-[200px] w-[345px] rounded-xl md:w-[400px] relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('taj.webp');"></div>
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{ url_for('static', filename='img/taj.webp') }}');"></div>
                     <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all"></div>
                     <div class="absolute bottom-8 left-8 text-white">
-                        <h3 class="heading-font text-3xl font-bold mb-2">TAJBI</h3>
-                        <p class="text-sm">5 items</p>
+                        <h3 class="heading-font text-3xl font-bold mb-2" data-bn="তসবিহ">TAJBI</h3>
+                        <p class="text-sm" data-bn="৫ টি পণ্য">5 items</p>
                     </div>
                 </div>
             </div>
@@ -229,10 +232,10 @@
         <div class="max-w-7xl mx-auto px-4">
             <div class="text-center mb-12 reveal-item">
                 <div class="flex justify-center space-x-8 mb-8">
-                    <button class="tab-btn text-2xl heading-font font-semibold border-b-2 border-black pb-2">New Arrivals</button>
-                    <button class="tab-btn text-2xl heading-font font-semibold text-gray-400 pb-2">Best Sellers</button>
+                    <button class="tab-btn text-2xl heading-font font-semibold border-b-2 border-black pb-2" data-bn="নতুন পণ্য">New Arrivals</button>
+                    <button class="tab-btn text-2xl heading-font font-semibold text-gray-400 pb-2" data-bn="বেস্ট সেলার">Best Sellers</button>
                 </div>
-                <a href="#" class="text-gray-600 hover:text-black underline">Shop All</a>
+                <a href="#" class="text-gray-600 hover:text-black underline" data-bn="সব দেখুন">Shop All</a>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 product-grid ">
@@ -243,9 +246,9 @@
                         </div>
                     </div>
                     <div class="p-4">
-                        <p class="text-sm text-gray-500 mb-1">Markazus Sunnah</p>
-                        <h3 class="heading-font text-xl font-semibold mb-2">Asad Elixir</h3>
-                        <p class="text-lg font-semibold">$49.99 USD</p>
+                        <p class="text-sm text-gray-500 mb-1" data-bn="মারকাযুস সুন্নাহ">Markazus Sunnah</p>
+                        <h3 class="heading-font text-xl font-semibold mb-2" data-bn="আসাদ এলিক্সির">Asad Elixir</h3>
+                        <p class="text-lg font-semibold" data-bn="$৪৯.৯৯ ইউএসডি">$49.99 USD</p>
                     </div>
                 </div>
                 
@@ -256,9 +259,9 @@
                         </div>
                     </div>
                     <div class="p-4">
-                        <p class="text-sm text-gray-500 mb-1">Markazus Sunnah</p>
-                        <h3 class="heading-font text-xl font-semibold mb-2">Yara Elixir</h3>
-                        <p class="text-lg font-semibold">$49.99 USD</p>
+                        <p class="text-sm text-gray-500 mb-1" data-bn="মারকাযুস সুন্নাহ">Markazus Sunnah</p>
+                        <h3 class="heading-font text-xl font-semibold mb-2" data-bn="ইয়ারা এলিক্সির">Yara Elixir</h3>
+                        <p class="text-lg font-semibold" data-bn="$৪৯.৯৯ ইউএসডি">$49.99 USD</p>
                     </div>
                 </div>
 
@@ -269,9 +272,9 @@
                         </div>
                     </div>
                     <div class="p-4">
-                        <p class="text-sm text-gray-500 mb-1">Markazus Sunnah</p>
-                        <h3 class="heading-font text-xl font-semibold mb-2">Angham</h3>
-                        <p class="text-lg font-semibold">$49.99 USD</p>
+                        <p class="text-sm text-gray-500 mb-1" data-bn="মারকাযুস সুন্নাহ">Markazus Sunnah</p>
+                        <h3 class="heading-font text-xl font-semibold mb-2" data-bn="আনঘাম">Angham</h3>
+                        <p class="text-lg font-semibold" data-bn="$৪৯.৯৯ ইউএসডি">$49.99 USD</p>
                     </div>
                 </div>
 
@@ -282,9 +285,9 @@
                         </div>
                     </div>
                     <div class="p-4">
-                        <p class="text-sm text-gray-500 mb-1">Markazus Sunnah</p>
-                        <h3 class="heading-font text-xl font-semibold mb-2">Khamrah</h3>
-                        <p class="text-lg font-semibold">$49.99 USD</p>
+                        <p class="text-sm text-gray-500 mb-1" data-bn="মারকাযুস সুন্নাহ">Markazus Sunnah</p>
+                        <h3 class="heading-font text-xl font-semibold mb-2" data-bn="খামরাহ">Khamrah</h3>
+                        <p class="text-lg font-semibold" data-bn="$৪৯.৯৯ ইউএসডি">$49.99 USD</p>
                     </div>
                 </div>
             </div>
@@ -292,64 +295,61 @@
     </section>
 
     <section class="scene-container py-32 bg-white text-black w-full overflow-hidden">
-        <!-- Background -->
-        <img src="bg.png" class="bg-layer" alt="Background">
+        <img src="{{ url_for('static', filename='img/bg.png') }}" class="bg-layer" alt="Background">
 
-        <!-- Decorative Hero Title -->
-        <h1 class="hero-title">BEST</h1>
-        <h1 class="hero-title mt-10">COLLECTIONS</h1>
+        <h1 class="hero-title" data-bn="সেরা">BEST</h1>
+        <h1 class="hero-title mt-10" data-bn="কালেকশন">COLLECTIONS</h1>
 
-        <!-- Supporting Items -->
-        <img src="product_1.png" class="support-item item-left text-center text-white mb-12 text-lg">
-        <img src="product.png" class="support-item item-right" alt="Support Right">
+        <img src="{{ url_for('static/img', filename='img/product_1.png') }}" class="support-item item-left text-center text-white mb-12 text-lg">
+        <img src="{{ url_for('static/img', filename='img/product.png') }}" class="support-item item-right" alt="Support Right">
     </section>
     <section class="py-20 bg-khaki w-full overflow-hidden" id="reviews">
         <div class="max-w-7xl mx-auto px-4">
-            <h2 class="heading-font text-4xl md:text-5xl font-bold text-center mb-16">Customer Reviews</h2>
+            <h2 class="heading-font text-4xl md:text-5xl font-bold text-center mb-16" data-bn="কাস্টমার রিভিউ">Customer Reviews</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 reviews-grid">
                 <div class="review-card bg-white p-8 rounded-3xl shadow-sm">
                     <div class="flex items-start mb-4">
-                        <img src="no_acc.png" class="w-16 h-16 rounded-full bg-gray-300 mr-4">
+                        <img src="{{ url_for('static/img', filename='img/no_acc.png') }}"class="w-16 h-16 rounded-full bg-gray-300 mr-4">
                     <div>
-                            <h4 class="font-semibold">Arafat</h4>
-                            <p class="text-sm text-gray-500">Verified Customer</p>
+                            <h4 class="font-semibold" data-bn="আরাফাত">Arafat</h4>
+                            <p class="text-sm text-gray-500" data-bn="যাচাইকৃত গ্রাহক">Verified Customer</p>
                         </div>
                     </div>
-                    <p class="text-gray-700 mb-4">"The cap is Alhamdulillah very good. Afterwards, you can get comfort. Even to look at, Mashallah, it looks beautiful."</p>
+                    <p class="text-gray-700 mb-4" data-bn='"টুপিটি আলহামদুলিল্লাহ খুব ভালো। পরার পরে আরাম পাওয়া যায়। দেখতেও মাশাআল্লাহ খুব সুন্দর।"'>"The cap is Alhamdulillah very good. Afterwards, you can get comfort. Even to look at, Mashallah, it looks beautiful."</p>
                     <div class="flex items-center">
-                        <img src="review_1.jpg" class="w-12 h-16 rounded mr-3">
-                        <span class="text-sm font-semibold">Hat & Attor</span>
+                        <img src="{{ url_for('static/img', filename='img/review_1.jpg') }}" class="w-12 h-16 rounded mr-3">
+                        <span class="text-sm font-semibold" data-bn="টুপি ও আতর">Hat & Attor</span>
                     </div>
                 </div>
                 
                 <div class="review-card bg-white p-8 rounded-3xl shadow-sm">
                     <div class="flex items-start mb-4">
-                        <img src="no_acc.png" class="w-16 h-16 rounded-full bg-gray-300 mr-4">
+                        <img src="{{ url_for('static/img', filename='img/no_acc.png') }}"class="w-16 h-16 rounded-full bg-gray-300 mr-4">
                         <div>
-                            <h4 class="font-semibold">Sheikh Minhajul</h4>
-                            <p class="text-sm text-gray-500">Verified Customer</p>
+                            <h4 class="font-semibold" data-bn="শেখ মিনহাজুল">Sheikh Minhajul</h4>
+                            <p class="text-sm text-gray-500" data-bn="যাচাইকৃত গ্রাহক">Verified Customer</p>
                         </div>
                     </div>
-                    <p class="text-gray-700 mb-4">"Mashallah, the cap turned out amazing, and the perfume's smell is also very nice. Jazakallahu Khairan."</p>
+                    <p class="text-gray-700 mb-4" data-bn='"মাশাআল্লাহ, টুপিটি অসাধারণ হয়েছে, এবং আতরের ঘ্রাণও খুব সুন্দর। জাযাকাল্লাহু খাইরান।"'>"Mashallah, the cap turned out amazing, and the perfume's smell is also very nice. Jazakallahu Khairan."</p>
                     <div class="flex items-center">
-                         <img src="review_2.jpg" class="w-12 h-16 rounded mr-3">
-                        <span class="text-sm font-semibold">Hat & Attor</span>
+                         <img src="{{ url_for('static/img', filename='img/review_2.jpg') }}" class="w-12 h-16 rounded mr-3">
+                        <span class="text-sm font-semibold" data-bn="টুপি ও আতর">Hat & Attor</span>
                     </div>
                 </div>
                 
                 <div class="review-card bg-white p-8 rounded-3xl shadow-sm">
                     <div class="flex items-start mb-4">
-                        <img src="no_acc.png" class="w-16 h-16 rounded-full bg-gray-300 mr-4">
+                        <img src="{{ url_for('static/img', filename='img/no_acc.png') }}"class="w-16 h-16 rounded-full bg-gray-300 mr-4">
                         <div>
-                            <h4 class="font-semibold">Ishan mojumdar</h4>
-                            <p class="text-sm text-gray-500">Verified Customer</p>
+                            <h4 class="font-semibold" data-bn="ঈশান মজুমদার">Ishan mojumdar</h4>
+                            <p class="text-sm text-gray-500" data-bn="যাচাইকৃত গ্রাহক">Verified Customer</p>
                         </div>
                     </div>
-                    <p class="text-gray-700 mb-4">"I got the chocolate and vampire blood; they turned out really good."</p>
+                    <p class="text-gray-700 mb-4" data-bn='"আমি চকলেট এবং ভ্যাম্পায়ার ব্লাড নিয়েছি; এগুলো সত্যিই খুব ভালো।"'>"I got the chocolate and vampire blood; they turned out really good."</p>
                     <div class="flex items-center">
-                         <img src="review_3.jpg" class="w-12 h-16 rounded mr-3">
-                        <span class="text-sm font-semibold">Attor</span>
+                         <img src="{{ url_for('static/img', filename='img/review_2.jpg') }}" class="w-12 h-16 rounded mr-3">
+                        <span class="text-sm font-semibold" data-bn="আতর">Attor</span>
                     </div>
                 </div>
             </div>
@@ -359,37 +359,37 @@
         <div class="max-w-7xl mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                 <div>
-                    <h3 class="font-semibold mb-4">Quick Shop</h3>
+                    <h3 class="font-semibold mb-4" data-bn="কুইক শপ">Quick Shop</h3>
                     <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white">All Fragrances</a></li>
-                        <li><a href="#" class="hover:text-white">New Arrivals</a></li>
-                        <li><a href="#" class="hover:text-white">Bestsellers</a></li>
-                        <li><a href="#" class="hover:text-white">Bundles</a></li>
+                        <li><a href="#" class="hover:text-white" data-bn="সকল সুগন্ধি">All Fragrances</a></li>
+                        <li><a href="#" class="hover:text-white" data-bn="নতুন পণ্য">New Arrivals</a></li>
+                        <li><a href="#" class="hover:text-white" data-bn="বেস্ট সেলার">Bestsellers</a></li>
+                        <li><a href="#" class="hover:text-white" data-bn="বান্ডেল">Bundles</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h3 class="font-semibold mb-4">Customer Support</h3>
+                    <h3 class="font-semibold mb-4" data-bn="কাস্টমার সাপোর্ট">Customer Support</h3>
                     <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white">FAQs</a></li>
-                        <li><a href="#" class="hover:text-white">Shipping & Returns</a></li>
-                        <li><a href="#" class="hover:text-white">Track My Order</a></li>
-                        <li><a href="#" class="hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-white" data-bn="জিজ্ঞাসিত প্রশ্ন">FAQs</a></li>
+                        <li><a href="#" class="hover:text-white" data-bn="শিপিং ও রিটার্ন">Shipping & Returns</a></li>
+                        <li><a href="#" class="hover:text-white" data-bn="অর্ডার ট্র্যাক করুন">Track My Order</a></li>
+                        <li><a href="#" class="hover:text-white" data-bn="যোগাযোগ করুন">Contact Us</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h3 class="font-semibold mb-4">Know More</h3>
+                    <h3 class="font-semibold mb-4" data-bn="আরও জানুন">Know More</h3>
                     <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white">About Us</a></li>
-                        <li><a href="#" class="hover:text-white">Blogs</a></li>
-                        <li><a href="#" class="hover:text-white">Reviews</a></li>
-                        <li><a href="#" class="hover:text-white">My Account</a></li>
+                        <li><a href="#" class="hover:text-white" data-bn="আমাদের সম্পর্কে">About Us</a></li>
+                        <li><a href="#" class="hover:text-white" data-bn="ব্লগ">Blogs</a></li>
+                        <li><a href="#" class="hover:text-white" data-bn="রিভিউ">Reviews</a></li>
+                        <li><a href="#" class="hover:text-white" data-bn="আমার অ্যাকাউন্ট">My Account</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h3 class="font-semibold mb-4">Follow Us</h3>
+                    <h3 class="font-semibold mb-4" data-bn="ফলো করুন">Follow Us</h3>
                     <div class="flex space-x-4">
                         <a href="#" class="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-gray-200">f</a>
                         <a href="#" class="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-gray-200">i</a>
@@ -399,7 +399,7 @@
             </div>
             
             <div class="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
-                <p>© 2026 Lattafa. All rights reserved.</p>
+                <p data-bn="© ২০২৬ লাত্তাফা. সর্বস্বত্ব সংরক্ষিত।">© 2026 Lattafa. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -624,6 +624,38 @@
             gsap.to(product, { rotationY: 0, rotationX: 0, duration: 0.5 });
         });
 
+    </script>
+    
+    <script>
+        const langBtn = document.getElementById('lang-toggle');
+        const langElements = document.querySelectorAll('[data-bn]');
+
+        // Store original English text
+        langElements.forEach(el => {
+            if(!el.dataset.en) {
+                el.dataset.en = el.innerHTML;
+            }
+        });
+
+        function setLanguage(lang) {
+            if(lang === 'bn') {
+                langElements.forEach(el => el.innerHTML = el.dataset.bn);
+                langBtn.textContent = 'EN';
+            } else {
+                langElements.forEach(el => el.innerHTML = el.dataset.en);
+                langBtn.textContent = 'BN';
+            }
+            localStorage.setItem('site_lang', lang);
+        }
+
+        langBtn.addEventListener('click', () => {
+            const currentLang = localStorage.getItem('site_lang') === 'bn' ? 'en' : 'bn';
+            setLanguage(currentLang);
+        });
+
+        // Initialize based on localStorage
+        const savedLang = localStorage.getItem('site_lang') || 'en';
+        setLanguage(savedLang);
     </script>
 </body>
 </html>
