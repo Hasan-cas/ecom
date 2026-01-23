@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markazus Sunnah - A Touch of Arabian Luxury</title>
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
@@ -21,9 +21,9 @@
             overflow-x: hidden;
             width: 100%;
         }
-        
+
         .heading-font { font-family: 'Cormorant Garamond', serif; }
-        
+
         .nav-link {
             position: relative;
             transition: color 0.3s;
@@ -121,28 +121,26 @@
     <div class="bg-black text-white text-center py-2 text-sm w-full" data-bn="৬০ ডলারের বেশি অর্ডারে ফ্রি শিপিং">
         FREE Shipping On Orders Over USD $60
     </div>
-    
+
     <nav class="bg-white border-b sticky top-0 z-50 w-full" id="navbar">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center h-20">
                 <div class="text-2xl heading-font font-bold">
-                    <a href="#" class="text-gray-900" data-bn="মারকাযুস সুন্নাহ">Markazus Sunnah</a>
+                    <a href="/" class="text-gray-900" data-bn="মারকাযুস সুন্নাহ">Markazus Sunnah</a>
                 </div>
                 <div class="hidden md:flex space-x-8">
-                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900" data-bn="শপ">Shop</a>
-                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900" data-bn="নতুন পণ্য">New Arrivals</a>
-                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900" data-bn="বেস্ট সেলার">Best Sellers</a>
-                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900" data-bn="কালেকশন">Collections</a>
-                    <a href="#" class="nav-link text-gray-700 hover:text-gray-900" data-bn="বান্ডেল">Bundles</a>
+                    <a href="/products" class="nav-link text-gray-700 hover:text-gray-900" data-bn="শপ">Shop</a>
+                    <a href="/products" class="nav-link text-gray-700 hover:text-gray-900" data-bn="নতুন পণ্য">New Arrivals</a>
+                    <a href="/products" class="nav-link text-gray-700 hover:text-gray-900" data-bn="বেস্ট সেলার">Best Sellers</a>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button class="text-gray-700" data-bn="লগ ইন">Log in</button>
-                    <button class="text-gray-700" data-bn="কার্ট (০)">Cart (0)</button>
+                    <a href="/products"><button class="text-gray-700" data-bn="পণ্য">Products</button></a>
+                    <a href="/cart"><button class="text-gray-700" data-bn="কার্রট">Cart</button></a>
                 </div>
             </div>
         </div>
     </nav>
-    
+
     <section class="relative h-screen w-full overflow-hidden" id="hero">
         <div class="hero-slide active">
             <img src="/static/img/yellow.webp" class="hero-img absolute inset-0 w-full h-full object-cover" alt="Yara Elixir">
@@ -151,7 +149,7 @@
                 <div class="max-w-7xl mx-auto px-4 w-full">
                     <div class="max-w-xl text-content">
                         <h1 class="heading-font text-6xl md:text-8xl font-bold text-white mb-6" data-bn="খামরাহ<br>">Khamrah<br></h1>
-                        <button class="bg-black text-white px-10 py-4 font-bold tracking-widest hover:bg-gray-800 transition" data-bn="অর্ডার করুন">ORDER NOW</button>
+                        <a href="/products" class="bg-black text-white px-10 py-4 font-bold tracking-widest hover:bg-gray-800 transition" data-bn="অর্ডার করুন">ORDER NOW</a>
                     </div>
                 </div>
             </div>
@@ -164,7 +162,7 @@
                 <div class="max-w-7xl mx-auto px-4 w-full">
                     <div class="max-w-xl text-content">
                         <h1 class="heading-font text-6xl md:text-8xl font-bold mb-6" data-bn="ভ্যাম্পায়ার<br>ব্লাড">Vampire<br>Blood</h1>
-                        <button class="bg-white text-black px-10 py-4 font-bold tracking-widest hover:bg-gray-200 transition" data-bn="এখনই কিনুন">SHOP NOW</button>
+                       <a href="/products"><button class="bg-white text-black px-10 py-4 font-bold tracking-widest hover:bg-gray-200 transition" data-bn="এখনই কিনুন">SHOP NOW</button></a> 
                     </div>
                 </div>
             </div>
@@ -180,7 +178,7 @@
         <div class="max-w-7xl mx-auto px-4">
             <h2 class="heading-font text-4xl md:text-5xl font-bold text-center mb-4" data-bn="আমাদের কালেকশন দেখুন">Explore Our Collection</h2>
             <p class="text-center text-gray-600 mb-12 text-lg" data-bn="নিজেকে অবিস্মরণীয় করে তুলতে যা পরবেন।">What you wear when you want to be unforgettable.</p>
-            
+
             <div class="collections-container overflow-hidden cursor-grab active:cursor-grabbing">
                 <div class="flex gap-6 collections-wrapper" id="collectionsWrapper">
                     <div class="collection-card flex-shrink-0 h-[200px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-xl ml-1">
@@ -191,7 +189,7 @@
                             <p class="text-sm" data-bn="৮ টি পণ্য">8 items</p>
                         </div>
                     </div>
-                    
+
                     <div class="collection-card flex-shrink-0 h-[200px] w-[345px] rounded-xl md:w-[400px] relative overflow-hidden group">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/attor.webp');"></div>
                         <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all"></div>
@@ -200,7 +198,7 @@
                             <p class="text-sm" data-bn="৭ টি পণ্য">7 items</p>
                         </div>
                     </div>
-                    
+
                     <div class="collection-card flex-shrink-0 h-[200px] w-[345px] rounded-xl md:w-[400px] relative overflow-hidden group">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/taj.webp');"></div>
                         <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all"></div>
@@ -217,13 +215,9 @@
     <section class="py-20 bg-khaki w-full overflow-hidden" id="products">
         <div class="max-w-7xl mx-auto px-4">
             <div class="text-center mb-12 reveal-item">
-                <div class="flex justify-center space-x-8 mb-8">
-                    <button class="tab-btn text-2xl heading-font font-semibold border-b-2 border-black pb-2" data-bn="নতুন পণ্য">New Arrivals</button>
-                    <button class="tab-btn text-2xl heading-font font-semibold text-gray-400 pb-2" data-bn="বেস্ট সেলার">Best Sellers</button>
-                </div>
-                <a href="#" class="text-gray-600 hover:text-black underline" data-bn="সব দেখুন">Shop All</a>
+                <a href="/products" class="text-gray-600 hover:text-black underline" data-bn="সব দেখুন">Shop All</a>
             </div>
-            
+
             <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 <div class="col-span-full text-center py-20 text-gray-500">Loading fine fragrances...</div>
             </div>
@@ -241,7 +235,7 @@
     <section class="py-20 bg-khaki w-full overflow-hidden" id="reviews">
         <div class="max-w-7xl mx-auto px-4">
             <h2 class="heading-font text-4xl md:text-5xl font-bold text-center mb-16" data-bn="কাস্টমার রিভিউ">Customer Reviews</h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 reviews-grid">
                 <div class="review-card bg-white p-8 rounded-3xl shadow-sm">
                     <div class="flex items-start mb-4">
@@ -257,7 +251,7 @@
                         <span class="text-sm font-semibold" data-bn="টুপি ও আতর">Hat & Attor</span>
                     </div>
                 </div>
-                
+
                 <div class="review-card bg-white p-8 rounded-3xl shadow-sm">
                     <div class="flex items-start mb-4">
                         <img src="static/img/no_acc.png"class="w-16 h-16 rounded-full bg-gray-300 mr-4">
@@ -272,7 +266,7 @@
                         <span class="text-sm font-semibold" data-bn="টুপি ও আতর">Hat & Attor</span>
                     </div>
                 </div>
-                
+
                 <div class="review-card bg-white p-8 rounded-3xl shadow-sm">
                     <div class="flex items-start mb-4">
                         <img src="static/img/no_acc.png"class="w-16 h-16 rounded-full bg-gray-300 mr-4">
@@ -297,7 +291,7 @@
                 <div>
                     <h3 class="font-semibold mb-4" data-bn="কুইক শপ">Quick Shop</h3>
                     <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white" data-bn="সকল সুগন্ধি">All Fragrances</a></li>
+                        <li><a href="/products" class="hover:text-white" data-bn="সকল সুগন্ধি">All Fragrances</a></li>
                     </ul>
                 </div>
                 <div>
@@ -308,7 +302,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
-                <p data-bn="© ২০২৬ লাত্তাফা. সর্বস্বত্ব সংরক্ষিত।">© 2026 Lattafa. All rights reserved.</p>
+                <p data-bn="© ২০২৬ লাত্তাফা. সর্বস্বত্ব সংরক্ষিত।">© 2026 Markazus Sunnah. All rights reserved.</p>
             </div>
         </div>
     </footer>
