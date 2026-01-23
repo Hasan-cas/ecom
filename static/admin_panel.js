@@ -84,47 +84,30 @@ function renderProducts(products) {
     `).join('');
 }
 
-/**
- * Updated handleAddProduct to support Image File Uploads
- */
 async function handleAddProduct(e) {
     e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
-    const fileInput = document.getElementById('image_file');
-    
-    // Determine if we are sending Multipart (File) or JSON (URL only)
-    let options = {
-        method: 'POST'
-    };
-
-    if (fileInput && fileInput.files.length > 0) {
-        // Use FormData for file uploads
-        options.body = formData;
-        // Browser sets content-type to multipart/form-data automatically
-    } else {
-        // Fallback to JSON if no file is present
-        const data = Object.fromEntries(formData.entries());
-        options.headers = { 'Content-Type': 'application/json' };
-        options.body = JSON.stringify(data);
-    }
+    const formData = new FormData(e.target); // Keep as FormData object
 
     try {
-        const response = await fetch(PRODUCT_API, options);
-        const result = await response.json();
+        const response = await fetch(PRODUCT_API, {
+            method: 'POST',
+            // DO NOT set Content-Type header; browser will set it to multipart/form-data
+            body: formData 
+        });
 
+        const result = await response.json();
         if (response.ok) {
             showToast("Product created successfully", "success");
-            form.reset();
-            fetchProducts(); // Refresh the list
+            e.target.reset();
+            fetchProducts();
         } else {
-            showToast(result.message || "Error creating product", "error");
+            showToast(result.message, "error");
         }
     } catch (error) {
-        console.error("Upload error:", error);
         showToast("Error connecting to server", "error");
     }
 }
+
 
 async function deleteProduct(id) {
     if (!confirm("Delete this product permanently?")) return;
@@ -141,7 +124,7 @@ async function deleteProduct(id) {
 }
 
 /* ==========================================================================
-   Order Management
+   Order Management (The logic for Point 2)
    ========================================================================== */
 
 async function fetchOrders() {
@@ -234,3 +217,5 @@ async function handleLogout() {
 
 // Entry Point
 document.addEventListener('DOMContentLoaded', checkAuth);
+
+

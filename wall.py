@@ -44,7 +44,8 @@ TARGET_URLS = [
     "https://unpkg.com",
     "https://assets9.lottiefiles.com",
     "https://cdn.tailwindcss.com",
-    "https://cdnjs.cloudflare.com"
+    "https://cdnjs.cloudflare.com",
+    "https://res.cloudinary.com"
 ]
 
 # -------------------

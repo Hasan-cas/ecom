@@ -78,26 +78,19 @@ def get_product(product_id):
 @product_bp.route('/admin/products', methods=['POST'])
 @admin_required
 def add_product():
-    """
-    POST /admin/products
-    Create a new product (Admin only).
-    """
     try:
-        data = request.get_json()
+        # Extract text data and file data separately
+        data = request.form.to_dict()
+        image_file = request.files.get('image')
         
         if not data:
-            return jsonify({
-                'status': 'error',
-                'message': 'No data provided in request body'
-            }), 400
+            return jsonify({'status': 'error', 'message': 'No data provided'}), 400
         
-        product, error = create_product(data)
+        # Pass both the text data and the file object to the service
+        product, error = create_product(data, image_file)
         
         if error:
-            return jsonify({
-                'status': 'error',
-                'message': error
-            }), 400
+            return jsonify({'status': 'error', 'message': error}), 400
         
         return jsonify({
             'status': 'success',
@@ -106,10 +99,8 @@ def add_product():
         }), 201
     except Exception as e:
         product_bp.logger.error(f"Error in add_product route: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': 'An error occurred while creating the product'
-        }), 500
+        return jsonify({'status': 'error', 'message': 'Internal server error'}), 500
+
 
 @product_bp.route('/admin/products/<int:product_id>', methods=['PUT'])
 @admin_required
@@ -223,4 +214,5 @@ def delete_product_route(product_id):
             'status': 'error',
             'message': 'An error occurred while deleting the product'
         }), 500
+
 
