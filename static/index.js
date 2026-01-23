@@ -28,34 +28,32 @@ async function fetchProducts() {
 
 // --- UI RENDERING & TEMPLATES ---
 function renderProductCards(products, container) {
-    // 1. Map products to the home.html card design
     container.innerHTML = products.map(product => `
-        <div class="product-card bg-white group shadow-sm reveal-item rounded-2xl cursor-pointer" 
-             onclick="window.location.href='/product?id=${product.id}'">
-            <div class="relative overflow-hidden bg-gray-100 aspect-square mb-4 rounded-2xl">
-                <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
-                    <img src="${product.image || '/static/img/placeholder.webp'}" 
-                         alt="${product.name}" 
-                         class="w-full h-full object-cover">
+        <div class="product-card bg-white group shadow-sm reveal-item rounded-2xl">
+            <a href="/product?id=${product.id}" class="block">
+                <div class="relative overflow-hidden bg-gray-100 aspect-square mb-4 rounded-2xl">
+                    <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
+                        <img src="${product.image || '/static/img/placeholder.webp'}" 
+                             alt="${product.name}" 
+                             class="w-full h-full object-cover">
+                    </div>
                 </div>
-            </div>
-            <div class="p-4">
-                <p class="text-sm text-gray-500 mb-1" data-bn="মারকাযুস সুন্নাহ">Markazus Sunnah</p>
-                <h3 class="heading-font text-xl font-semibold mb-2" 
-                    data-bn="${product.name_bn || product.name}">${product.name}</h3>
-                <p class="text-lg font-semibold" 
-                    data-bn="৳${product.price}">${product.price} USD</p>
-            </div>
+                <div class="p-4">
+                    <p class="text-sm text-gray-500 mb-1" data-bn="মারকাযুস সুন্নাহ">Markazus Sunnah</p>
+                    <h3 class="heading-font text-xl font-semibold mb-2" 
+                        data-bn="${product.name_bn || product.name}">${product.name}</h3>
+                    <p class="text-lg font-semibold" 
+                        data-bn="৳${product.price}">${product.price} taka</p>
+                </div>
+            </a>
         </div>
     `).join('');
 
-    // 2. Re-trigger animations for the newly injected items
     initScrollAnimations();
-    
-    // 3. Apply current language to new elements
     const savedLang = localStorage.getItem('site_lang') || 'en';
     applyLanguage(savedLang);
 }
+
 
 // --- GSAP ANIMATIONS ---
 function initScrollAnimations() {
@@ -101,7 +99,7 @@ function initScrollAnimations() {
 function setupHeroSlider() {
     const slides = document.querySelectorAll('.hero-slide');
     const dots = document.querySelectorAll('.hero-dot');
-    
+
     function changeSlide(index) {
         if (isAnimating || index === currentSlide) return;
         isAnimating = true;
@@ -115,7 +113,7 @@ function setupHeroSlider() {
         gsap.to(oldSlide, { opacity: 0, duration: 0.8, onComplete: () => oldSlide.classList.remove('active') });
         newSlide.classList.add('active');
         gsap.to(newSlide, { opacity: 1, duration: 0.8 });
-        
+
         gsap.fromTo(newSlide.querySelector('.hero-img'), { scale: 1.5 }, { scale: 1, duration: 3.5, ease: "expo.out" });
         gsap.fromTo(newSlide.querySelector('.text-content'), { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 1.5, delay: 0.3, ease: "expo.out" });
 
@@ -153,7 +151,7 @@ function setupCollectionScroll() {
             const draggedDistance = this.x - startX;
             const threshold = 50;
             let targetX;
-            
+
             if (Math.abs(draggedDistance) > threshold) {
                 if (draggedDistance < 0) {
                     targetX = Math.ceil((startX - stepWidth) / stepWidth) * stepWidth;
@@ -212,14 +210,14 @@ function applyLanguage(lang) {
 // --- INITIALIZATION ---
 window.addEventListener('load', () => {
     gsap.registerPlugin(ScrollTrigger, Draggable);
-    
+
     // 1. Initial UI Setup
     setupHeroSlider();
     setupCollectionScroll();
-    
+
     // 2. Load API Data
     fetchProducts();
-    
+
     // 3. Setup Lang Toggle
     langBtn.addEventListener('click', () => {
         const nextLang = localStorage.getItem('site_lang') === 'bn' ? 'en' : 'bn';
