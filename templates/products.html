@@ -7,59 +7,80 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --sage: #e2e8dd; --forest: #1a2b1a; }
-        body { font-family: 'Inter', sans-serif; }
+        :root { --forest: #1a2b1a; }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
         .serif { font-family: 'Playfair Display', serif; }
-        .bg-forest { background-color: var(--forest); }
-        .text-forest { color: var(--forest); }
-        .active-filter { background-color: var(--forest); color: white; border-color: var(--forest); }
+        
+        .active-filter { 
+            background-color: var(--forest) !important; 
+            color: white !important; 
+            border-color: var(--forest) !important; 
+        }
+
+        /* Infinite Horizontal Scroll Setup */
+        .no-scrollbar { 
+            -ms-overflow-style: none; 
+            scrollbar-width: none; 
+            display: flex; 
+            overflow-x: auto; 
+            white-space: nowrap; 
+            -webkit-overflow-scrolling: touch;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .sub-btn {
+            flex-shrink: 0; /* Prevents buttons from squishing */
+            cursor: pointer;
+        }
+
+        .parent-btn {
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-white text-gray-900 min-h-screen">
 
     <nav class="flex items-center justify-between px-8 py-6 border-b border-gray-100 sticky top-0 bg-white/90 backdrop-blur-md z-50">
         <a href="/" class="text-2xl font-bold tracking-tighter serif text-forest no-underline">ZENFOX.</a>
-        <div class="flex items-center space-x-6">
-            <span class="text-xs uppercase tracking-widest font-bold">Catalog</span>
-            <a href="/cart" class="text-xl">🛒</a>
-        </div>
     </nav>
 
     <header class="pt-16 pb-8 text-center">
         <h1 class="serif text-5xl text-forest mb-4">The Collection</h1>
-        <p class="text-gray-400 uppercase text-[10px] tracking-[0.3em]">Pure Essences & Fragrances</p>
     </header>
 
     <section class="container mx-auto px-6 mb-12">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-y border-gray-100 py-6">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-y border-gray-100 py-8">
             
             <div class="relative w-full md:w-64">
                 <input type="text" id="search-input" placeholder="Search products..." 
-                    class="w-full border-b border-gray-300 py-2 focus:border-forest outline-none text-sm transition">
+                    class="w-full border-b border-gray-300 py-2 focus:border-forest outline-none text-sm transition bg-transparent">
             </div>
 
-            <div class="flex flex-wrap justify-center gap-3" id="category-filters">
-                <button class="filter-btn active-filter px-6 py-2 rounded-full border border-gray-200 text-[10px] uppercase font-bold tracking-widest transition" data-category="all">All</button>
-                <button class="filter-btn px-6 py-2 rounded-full border border-gray-200 text-[10px] uppercase font-bold tracking-widest transition" data-category="Floral">Floral</button>
-                <button class="filter-btn px-6 py-2 rounded-full border border-gray-200 text-[10px] uppercase font-bold tracking-widest transition" data-category="Woody">Woody</button>
-                <button class="filter-btn px-6 py-2 rounded-full border border-gray-200 text-[10px] uppercase font-bold tracking-widest transition" data-category="Fresh">Fresh</button>
+            <div class="flex flex-col items-center w-full gap-6">
+                <div class="flex items-center gap-3">
+                    <button onclick="resetFilters()" class="w-10 h-10 rounded-full border border-gray-200 hover:bg-gray-100 flex items-center justify-center">×</button>
+                    <div id="parent-filter-container" class="flex gap-3"></div>
+                </div>
+
+                <div class="w-full max-w-xl px-4 overflow-hidden">
+                    <div id="sub-filter-area" class="no-scrollbar gap-2 hidden"></div>
+                </div>
             </div>
 
             <select id="sort-select" class="bg-transparent border-none text-[10px] uppercase font-bold tracking-widest outline-none cursor-pointer">
                 <option value="newest">Newest</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
+                <option value="price-low">Low to High</option>
+                <option value="price-high">High to Low</option>
             </select>
         </div>
     </section>
 
     <main class="container mx-auto px-6 mb-20">
-        <div id="products-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
-            </div>
-
-        <div id="pagination" class="flex justify-center items-center space-x-4 mt-20">
-            </div>
+        <div id="products-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16"></div>
+        <div id="pagination" class="flex justify-center items-center space-x-4 mt-20"></div>
     </main>
-        <script src="{{ url_for('static', filename='products.js') }}"></script>
+
+    <script src="/static/products.js"></script>
 </body>
 </html>
+

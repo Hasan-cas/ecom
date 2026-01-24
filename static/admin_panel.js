@@ -14,6 +14,10 @@ const DOM = {
     addProductForm: document.getElementById('add-product-form'),
     logoutBtn: document.getElementById('logout-btn'),
     loadingSpinner: document.getElementById('loading-spinner'),
+    // New Category Inputs
+    parentCatInput: document.getElementById('parent-category-input'),
+    subCatInput: document.getElementById('sub-category-input'),
+    combinedCatHidden: document.getElementById('combined-category')
 };
 
 /* ==========================================================================
@@ -75,7 +79,12 @@ function renderProducts(products) {
     DOM.productsTable.innerHTML = products.map(p => `
         <tr class="hover:bg-gray-50 transition">
             <td class="px-6 py-4 font-mono text-xs">#${p.id}</td>
-            <td class="px-6 py-4 font-medium text-forest">${p.name}</td>
+            <td class="px-6 py-4">
+                <div class="font-medium text-forest">${p.name}</div>
+                <div class="text-[9px] uppercase tracking-widest text-gray-400">
+                    ${p.category ? p.category.replace('-', ' ') : 'Uncategorized'}
+                </div>
+            </td>
             <td class="px-6 py-4">$${parseFloat(p.price).toFixed(2)}</td>
             <td class="px-6 py-4 text-right">
                 <button onclick="deleteProduct(${p.id})" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase tracking-widest">Delete</button>
@@ -86,19 +95,33 @@ function renderProducts(products) {
 
 async function handleAddProduct(e) {
     e.preventDefault();
-    const formData = new FormData(e.target); // Keep as FormData object
+
+    // 1. Combine Main and Sub categories into 'parent-child' format
+    const parent = DOM.parentCatInput.value.toLowerCase().trim();
+    const sub = DOM.subCatInput.value.toLowerCase().trim();
+    const combined = `${parent}-${sub}`;
+    
+    // 2. Set the hidden input value so FormData picks it up for the backend
+    DOM.combinedCatHidden.value = combined;
+
+    const formData = new FormData(e.target); 
 
     try {
         const response = await fetch(PRODUCT_API, {
             method: 'POST',
-            // DO NOT set Content-Type header; browser will set it to multipart/form-data
+            // multipart/form-data is handled automatically by the browser
             body: formData 
         });
 
         const result = await response.json();
         if (response.ok) {
             showToast("Product created successfully", "success");
+            
+            // 3. Reset form and custom inputs
             e.target.reset();
+            DOM.parentCatInput.value = '';
+            DOM.subCatInput.value = '';
+            
             fetchProducts();
         } else {
             showToast(result.message, "error");
@@ -107,7 +130,6 @@ async function handleAddProduct(e) {
         showToast("Error connecting to server", "error");
     }
 }
-
 
 async function deleteProduct(id) {
     if (!confirm("Delete this product permanently?")) return;
@@ -124,7 +146,7 @@ async function deleteProduct(id) {
 }
 
 /* ==========================================================================
-   Order Management (The logic for Point 2)
+   Order Management
    ========================================================================== */
 
 async function fetchOrders() {
@@ -217,5 +239,4 @@ async function handleLogout() {
 
 // Entry Point
 document.addEventListener('DOMContentLoaded', checkAuth);
-
 

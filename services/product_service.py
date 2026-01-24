@@ -94,6 +94,7 @@ def create_product(data, image_file):
             name=data['name'],
             price=price,
             stock=stock,
+            category=data.get('category', ''),
             description=data.get('description', ''),
             image=image_url, # Store the full HTTPS link
             created_at=datetime.utcnow()
