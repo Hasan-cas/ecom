@@ -30,7 +30,7 @@
                 <h1 class="text-5xl serif italic text-forest">Shopping Bag</h1>
                 <p class="text-sm text-gray-500 mt-2">Review your selected signature fragrances.</p>
             </div>
-            <button onclick="clearCart()" id="clear-btn" class="text-[10px] uppercase tracking-[0.2em] font-bold text-red-800 hover:text-red-600 transition hidden">
+            <button id="clear-btn" class="text-[10px] uppercase tracking-[0.2em] font-bold text-red-800 hover:text-red-600 transition hidden">
                 Clear All Items
             </button>
         </div>
@@ -58,10 +58,11 @@
             <div class="text-6xl mb-6">🌿</div>
             <h2 class="serif text-2xl text-forest mb-4">Your bag is empty</h2>
             <p class="text-gray-500 mb-8 text-sm">Explore our collections to find your daily scent.</p>
-            <a href="/" class="px-10 py-3 border border-forest rounded-full hover:bg-forest hover:text-white transition uppercase text-[10px] tracking-widest font-bold">Shop Now</a>
+            <a href="/products" class="px-10 py-3 border border-forest rounded-full hover:bg-forest hover:text-white transition uppercase text-[10px] tracking-widest font-bold">Shop Now</a>
         </div>
     </main>
     <script src="{{ url_for('static', filename='cart.js') }}"></script>
 </body>
 </html>
+
 

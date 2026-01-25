@@ -32,21 +32,21 @@
         </div>
 
         <div class="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-50">
-            <form id="checkoutForm" class="space-y-6">
+            <form id="checkout-form" class="space-y-6">
                 <div>
                     <label class="block text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-2 ml-1">Full Name</label>
-                    <input type="text" id="customer_name" class="input-field" placeholder="John Doe" required>
+                    <input type="text" id="customer_name" name="customer_name" class="input-field" placeholder="John Doe" required>
                 </div>
 
                 <div>
                     <label class="block text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-2 ml-1">Phone Number</label>
-                    <input type="tel" id="phone" class="input-field" placeholder="+1 (555) 000-0000" required>
+                    <input type="tel" id="phone" name="phone" class="input-field" placeholder="+1 (555) 000-0000" required>
                     <p id="phoneError" class="text-red-500 text-[10px] mt-1 hidden">Please enter a valid phone number.</p>
                 </div>
 
                 <div>
                     <label class="block text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-2 ml-1">Delivery Address</label>
-                    <textarea id="address" rows="3" class="input-field resize-none" placeholder="123 Luxury Lane, Toronto, Canada" required></textarea>
+                    <textarea id="address" name="address" rows="3" class="input-field resize-none" placeholder="123 Luxury Lane, Toronto, Canada" required></textarea>
                 </div>
 
                 <div class="pt-4">
@@ -63,7 +63,7 @@
     </main>
 
     <footer class="py-8 text-center text-[10px] uppercase tracking-widest text-gray-400">
-        © ZENFOX SCENTS 2024 • Safe & Secure SSL Encryption
+        © ZENFOX SCENTS 2026 • Safe & Secure SSL Encryption
     </footer>
 
     <script src="{{ url_for('static', filename='checkout.js') }}"></script>

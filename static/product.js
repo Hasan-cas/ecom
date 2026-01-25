@@ -1,26 +1,21 @@
-// product.js
+// product.js (Broken parts fixed)
 
-// 1. Get ID from URL
 function getProductIdFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('id');
 }
 
-// 2. Fetch data from Flask API
 async function fetchProduct() {
     const id = getProductIdFromURL();
     if (!id) {
         showError();
         return;
     }
-
     try {
         const response = await fetch(`/api/products/${id}`);
         const result = await response.json();
-
         if (result.status === 'success' && result.data) {
             renderProduct(result.data);
-            // Check cart status on load to show/hide checkout button
             updateCheckoutButtonVisibility();
         } else {
             showError();
@@ -31,11 +26,9 @@ async function fetchProduct() {
     }
 }
 
-// 3. Render Data to DOM
 function renderProduct(product) {
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('product-view').classList.remove('hidden');
-
     document.getElementById('product-name').textContent = product.name;
     document.getElementById('product-price').textContent = `$${parseFloat(product.price).toFixed(2)}`;
     document.getElementById('product-description').textContent = product.description;
@@ -43,7 +36,6 @@ function renderProduct(product) {
     
     const stockBadge = document.getElementById('product-stock');
     const btn = document.getElementById('add-to-cart-btn');
-
     if (product.stock > 0) {
         stockBadge.textContent = `In Stock (${product.stock})`;
         stockBadge.className = "px-3 py-1 text-[9px] uppercase tracking-tighter rounded-full border border-green-800 text-green-800";
@@ -56,28 +48,24 @@ function renderProduct(product) {
     }
 }
 
-// 4. Add to Cart Logic
 async function addToCart(productId) {
     const btn = document.getElementById('add-to-cart-btn');
     btn.disabled = true;
     btn.textContent = "Adding...";
-
     try {
         const response = await fetch('/api/cart/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ product_id: productId, quantity: 1 })
         });
-
         const result = await response.json();
-
         if (response.ok) {
             showMessage("Added to bag", "text-green-700");
+            // FIXED: Correctly access nested data from the new cart_route
             const badge = document.getElementById('cart-count');
-            // Update nav badge count
-            badge.textContent = result.data.total_items || (parseInt(badge.textContent) + 1);
-            // Show checkout button after adding item
-            updateCheckoutButtonVisibility();
+            badge.textContent = result.data.total_items;
+            // FIXED: Immediately reveal checkout button
+            document.getElementById('proceed-to-checkout-btn').classList.remove('hidden');
         } else {
             showMessage(result.message || "Error", "text-red-700");
         }
@@ -89,14 +77,12 @@ async function addToCart(productId) {
     }
 }
 
-// 5. NEW: Checkout Button Logic
 async function updateCheckoutButtonVisibility() {
     const checkoutBtn = document.getElementById('proceed-to-checkout-btn');
     try {
         const response = await fetch('/api/cart');
         const result = await response.json();
-        
-        // If cart has items, show the button
+        // FIXED: Access data.total_items to match standardized response
         if (result.status === 'success' && result.data.total_items > 0) {
             checkoutBtn.classList.remove('hidden');
         } else {
@@ -108,7 +94,6 @@ async function updateCheckoutButtonVisibility() {
     }
 }
 
-// Helpers
 function showError() {
     const loadingEl = document.getElementById('loading');
     const errorEl = document.getElementById('error-view');
@@ -124,5 +109,5 @@ function showMessage(text, colorClass) {
     setTimeout(() => box.classList.add('hidden'), 3000);
 }
 
-// Initialize
 window.onload = fetchProduct;
+
