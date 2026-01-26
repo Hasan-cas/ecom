@@ -7,8 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --forest: #1a2b1a; }
-        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color:#F4E1C4; }
         .serif { font-family: 'Playfair Display', serif; }
         
         .active-filter { 
@@ -38,22 +37,22 @@
         }
     </style>
 </head>
-<body class="bg-white text-gray-900 min-h-screen">
+<body class="text-gray-900 min-h-screen">
 
     <nav class="flex items-center justify-between px-8 py-6 border-b border-gray-100 sticky top-0 bg-white/90 backdrop-blur-md z-50">
-        <a href="/" class="text-2xl font-bold tracking-tighter serif text-forest no-underline">ZENFOX.</a>
+        <a href="/" class="text-2xl font-bold tracking-tighter serif no-underline">ZENFOX.</a>
     </nav>
 
     <header class="pt-16 pb-8 text-center">
-        <h1 class="serif text-5xl text-forest mb-4">The Collection</h1>
+        <h1 class="serif text-5xl  mb-4">The Collection</h1>
     </header>
 
     <section class="container mx-auto px-6 mb-12">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-y border-gray-100 py-8">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-y border-black py-8">
             
             <div class="relative w-full md:w-64">
                 <input type="text" id="search-input" placeholder="Search products..." 
-                    class="w-full border-b border-gray-300 py-2 focus:border-forest outline-none text-sm transition bg-transparent">
+                    class="w-full border-b border-black py-2 focus:border-forest outline-none text-sm transition bg-transparent">
             </div>
 
             <div class="flex flex-col items-center w-full gap-6">
