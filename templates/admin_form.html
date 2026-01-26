@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZENFOX | Admin Portal</title>
+    <title>Markazus Sunnah | Admin Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
+
     <style>
         /* Extracting brand variables from index.html */
-        :root { --sage: #e2e8dd; --dark-forest: #1a2b1a; }
+        :root { --sage: #F4E1C4; --dark-forest: #C8A86A ; }
         body { font-family: 'Inter', sans-serif; }
         .serif { font-family: 'Playfair Display', serif; }
         .bg-sage { background-color: var(--sage); }
         .text-forest { color: var(--dark-forest); }
         .bg-forest { background-color: var(--dark-forest); }
         .border-forest { border-color: var(--dark-forest); }
-        
+
         /* Smooth fade in for errors */
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
@@ -25,16 +25,16 @@
 <body class="bg-sage min-h-screen flex items-center justify-center px-4">
 
     <div class="w-full max-w-md bg-white rounded-[40px] shadow-2xl overflow-hidden p-8 md:p-12">
-        
+
         <div class="text-center mb-10">
-            <a href="/" class="inline-block text-3xl font-bold tracking-tighter serif text-forest mb-2 hover:opacity-70 transition">ZENFOX.</a>
+            <a href="/" class="inline-block text-3xl font-bold tracking-tighter serif text-forest mb-2 hover:opacity-70 transition">Markazus Sunnah.</a>
             <h1 class="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold">Secure Admin Portal</h1>
         </div>
 
         <div id="message-container" class="hidden mb-6 p-4 rounded-xl text-sm text-center" role="alert" aria-live="polite"></div>
 
         <form id="login-form" class="space-y-6">
-            
+
             <div class="space-y-2">
                 <label for="username" class="block text-xs uppercase tracking-widest font-bold text-gray-500 ml-2">Username</label>
                 <input 
@@ -79,4 +79,3 @@
     <script src="{{ url_for('static', filename='admin_form.js') }}"></script>
 </body>
 </html>
-
