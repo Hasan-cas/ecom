@@ -7,16 +7,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --sage: #e2e8dd; --dark-forest: #1a2b1a; }
+        :root { --khaki: #F4E1C4; }
         body { font-family: 'Inter', sans-serif; }
         .serif { font-family: 'Playfair Display', serif; }
-        .bg-forest { background-color: var(--dark-forest); }
-        .text-forest { color: var(--dark-forest); }
+        .bg-khaki { background-color: var(--khaki); }
         .loader { border-top-color: var(--dark-forest); animation: spinner 1s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+<body class="bg-khaki text-gray-900 min-h-screen flex flex-col">
 
     <nav class="flex items-center justify-between px-8 py-6 border-b border-gray-100 sticky top-0 bg-white/90 backdrop-blur-md z-50">
         <a href="/" class="text-2xl font-bold tracking-tighter serif text-forest no-underline">ZENFOX.</a>
@@ -67,7 +66,7 @@
                     <a id="proceed-to-checkout-btn" href="/checkout" class="hidden w-full border border-forest text-forest py-5 rounded-full uppercase text-[11px] tracking-[0.2em] font-bold hover:bg-gray-50 transition text-center block">
                         Proceed to Checkout
                     </a>
-                    <div id="message-box" class="text-center text-[11px] uppercase tracking-widest font-bold hidden"></div>
+                    <div id="meskhaki-box" class="text-center text-[11px] uppercase tracking-widest font-bold hidden"></div>
                 </div>
             </div>
         </div>
