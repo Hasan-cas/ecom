@@ -70,3 +70,4 @@ def get_orders():
         current_app.logger.error(f"Error fetching orders: {str(e)}")
         return jsonify({'status': 'error', 'message': 'Failed to fetch orders'}), 500
 
+

@@ -1,42 +1,75 @@
 /**
  * ZENFOX | Shopping Bag Logic
- * Optimized for performance and UI responsiveness.
+ * Refactored for event-driven architecture and production reliability.
  */
 
+// Configuration & Selectors
 const API_BASE = '/api/cart'; 
-const container = document.getElementById('cart-container');
-const summary = document.getElementById('cart-summary');
-const emptyState = document.getElementById('empty-state');
-const totalEl = document.getElementById('total-price');
-const countHeader = document.getElementById('cart-count-header');
-const clearBtn = document.getElementById('clear-btn');
+const DOM = {
+    container: document.getElementById('cart-container'),
+    summary: document.getElementById('cart-summary'),
+    emptyState: document.getElementById('empty-state'),
+    totalEl: document.getElementById('total-price'),
+    countHeader: document.getElementById('cart-count-header'),
+    clearBtn: document.getElementById('clear-btn'),
+    checkoutBtn: document.getElementById('checkout-btn') // Replaces onclick
+};
 
 /**
- * Event Delegation: Handle removals
+ * 1. INITIALIZATION & GLOBAL LISTENERS
  */
-if (container) {
-    container.addEventListener('click', async (e) => {
-        const removeBtn = e.target.closest('.remove-item-btn');
-        
-        if (removeBtn) {
-            const productId = removeBtn.dataset.id;
-            
-            // UI Feedback: Disable button while processing
-            removeBtn.disabled = true;
-            removeBtn.innerText = 'Removing...';
-            
-            await removeItem(productId);
+document.addEventListener('DOMContentLoaded', () => {
+    // Initial data fetch
+    fetchCart();
+
+    // Listener for Checkout Button
+    if (DOM.checkoutBtn) {
+        DOM.checkoutBtn.addEventListener('click', navigateToCheckout);
+    }
+
+    // Listener for Clear Cart Button
+    if (DOM.clearBtn) {
+        DOM.clearBtn.addEventListener('click', handleClearCart);
+    }
+
+    // Global "Enter" key listener for the Cart Page
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            // Only proceed if the checkout button is visible (cart not empty)
+            if (DOM.summary && !DOM.summary.classList.contains('hidden')) {
+                navigateToCheckout();
+            }
         }
     });
-}
+
+    // Event Delegation for "Remove Item" buttons
+    // This works even when items are re-rendered dynamically
+    if (DOM.container) {
+        DOM.container.addEventListener('click', async (e) => {
+            const removeBtn = e.target.closest('.remove-item-btn');
+            if (removeBtn) {
+                const productId = removeBtn.dataset.id;
+                
+                // UI Feedback: Visual disabling
+                removeBtn.disabled = true;
+                removeBtn.innerHTML = '<span class="animate-pulse">Removing...</span>';
+                
+                await removeItem(productId);
+            }
+        });
+    }
+});
 
 /**
- * Fetch cart data from server
+ * 2. CORE LOGIC FUNCTIONS
  */
+
 async function fetchCart() {
     try {
         const response = await fetch(API_BASE);
         const result = await response.json();
+        
+        // Backend structure: { status: "success", data: { items: [], total_price: 0 } }
         if (result.status === 'success') {
             renderCart(result.data);
         }
@@ -45,59 +78,53 @@ async function fetchCart() {
     }
 }
 
-/**
- * Update DOM with fresh cart data
- */
 function renderCart(cartData) {
     if (!cartData) return;
     const items = cartData.items || [];
     
-    // Update header count
-    if (countHeader) {
-        countHeader.innerText = `${cartData.total_items || 0} Items`;
+    // Update Header Count
+    if (DOM.countHeader) {
+        DOM.countHeader.innerText = `(${cartData.total_items || 0})`;
     }
 
-    // Toggle Empty State vs Cart Content
-    const hasItems = items.length > 0;
-    
-    container?.classList.toggle('hidden', !hasItems);
-    summary?.classList.toggle('hidden', !hasItems);
-    clearBtn?.classList.toggle('hidden', !hasItems);
-    emptyState?.classList.toggle('hidden', hasItems);
+    // Toggle Empty State vs Summary
+    if (items.length === 0) {
+        DOM.container.innerHTML = '';
+        DOM.summary.classList.add('hidden');
+        DOM.emptyState.classList.remove('hidden');
+        return;
+    }
 
-    if (!hasItems) return;
+    DOM.emptyState.classList.add('hidden');
+    DOM.summary.classList.remove('hidden');
 
     // Render Items
-    container.innerHTML = items.map(item => `
-        <div class="bg-white p-6 rounded-[30px] flex items-center gap-6 border border-gray-50 group hover:border-sage transition shadow-sm">
-            <div class="w-20 h-20 bg-gray-100 rounded-2xl overflow-hidden flex-shrink-0">
-                <img src="${item.image || ''}" class="w-full h-full object-cover" alt="${item.product_name}">
+    DOM.container.innerHTML = items.map(item => `
+        <div class="flex items-center justify-between p-6 bg-white rounded-[30px] mb-4 border border-gray-50 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center space-x-6">
+                <div class="w-20 h-20 bg-sage rounded-2xl overflow-hidden">
+                    <img src="${item.image || '/static/placeholder.jpg'}" alt="${item.product_name}" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h3 class="serif text-lg text-forest">${item.product_name}</h3>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Qty: ${item.quantity} • $${item.product_price.toFixed(2)}</p>
+                </div>
             </div>
-            <div class="flex-grow">
-                <h3 class="serif text-lg text-forest uppercase tracking-tight">${item.product_name}</h3>
-                <p class="text-xs text-gray-400 mt-1 italic">$${parseFloat(item.product_price).toFixed(2)} unit</p>
-            </div>
-            <div class="flex flex-col items-end gap-2">
-                <div class="text-[10px] uppercase tracking-widest font-bold text-gray-400">Qty: ${item.quantity}</div>
-                <div class="font-bold text-forest">$${parseFloat(item.subtotal).toFixed(2)}</div>
-                
-                <button type="button" 
-                        data-id="${item.product_id}" 
-                        class="remove-item-btn text-[9px] uppercase tracking-widest text-red-300 hover:text-red-600 transition font-bold mt-1 disabled:opacity-50">
-                    Remove
+            <div class="text-right flex flex-col items-end space-y-2">
+                <span class="text-sm font-bold text-forest">$${item.subtotal.toFixed(2)}</span>
+                <button data-id="${item.product_id}" class="remove-item-btn text-[9px] uppercase tracking-[0.2em] text-red-400 hover:text-red-600 font-bold transition-colors">
+                    Remove Item
                 </button>
             </div>
         </div>
     `).join('');
 
-    if (totalEl) {
-        totalEl.innerText = `$${parseFloat(cartData.total_price || 0).toFixed(2)}`;
+    // Update Grand Total
+    if (DOM.totalEl) {
+        DOM.totalEl.innerText = `$${parseFloat(cartData.total_price || 0).toFixed(2)}`;
     }
 }
 
-/**
- * API Call: Remove specific item
- */
 async function removeItem(productId) {
     try {
         const response = await fetch(`${API_BASE}/remove`, {
@@ -110,9 +137,8 @@ async function removeItem(productId) {
         if (result.status === 'success') {
             renderCart(result.data);
         } else {
-            console.error("Server Error:", result.message);
-            // Re-render to reset button state if removal fails
-            fetchCart(); 
+            console.error("Removal Error:", result.message);
+            fetchCart(); // Reset UI on error
         }
     } catch (err) {
         console.error("Network Error:", err);
@@ -120,11 +146,8 @@ async function removeItem(productId) {
     }
 }
 
-/**
- * API Call: Clear entire cart
- */
 async function handleClearCart() {
-    if (!confirm("Are you sure you want to clear your shopping bag?")) return;
+    if (!confirm("Clear your entire shopping bag?")) return;
     
     try {
         const response = await fetch(`${API_BASE}/clear`, { method: 'POST' });
@@ -137,7 +160,8 @@ async function handleClearCart() {
     }
 }
 
-// Initialization
-document.addEventListener('DOMContentLoaded', fetchCart);
-clearBtn?.addEventListener('click', handleClearCart);
+function navigateToCheckout() {
+    // Standardizing the navigation logic
+    window.location.href = '/checkout';
+}
 

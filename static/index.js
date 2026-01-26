@@ -31,7 +31,7 @@ function renderProductCards(products, container) {
     container.innerHTML = products.map(product => `
         <div class="product-card bg-white group shadow-sm reveal-item rounded-2xl">
             <a href="/product?id=${product.id}" class="block">
-                <div class="relative overflow-hidden bg-gray-100 aspect-square mb-4 rounded-2xl">
+                <div class="relative overflow-hidden bg-gray-400 aspect-square mb-4 rounded-2xl">
                     <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
                         <img src="${product.image || '/static/img/placeholder.webp'}" 
                              alt="${product.name}" 
@@ -99,31 +99,40 @@ function initScrollAnimations() {
 function setupHeroSlider() {
     const slides = document.querySelectorAll('.hero-slide');
     const dots = document.querySelectorAll('.hero-dot');
+    
+    // FIX: Animate the first slide immediately on load
+    const firstSlide = slides[0];
+    gsap.set(dots[0], { backgroundColor: "white", width: 48 });
+    gsap.fromTo(firstSlide.querySelector('.hero-img'), { scale: 1.2 }, { scale: 1, duration: 6, ease: "power2.out" });
+    gsap.fromTo(firstSlide.querySelector('.text-content'), { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 2, ease: "expo.out", delay: 0.5 });
 
     function changeSlide(index) {
         if (isAnimating || index === currentSlide) return;
         isAnimating = true;
+
         const oldSlide = slides[currentSlide];
         const newSlide = slides[index];
 
+        // Dot animation
         dots.forEach((dot, i) => {
-            gsap.to(dot, { width: i === index ? 32 : 12, backgroundColor: i === index ? "white" : "rgba(255,255,255,0.5)", duration: 0.4 });
+            gsap.to(dot, { width: i === index ? 48 : 12, backgroundColor: i === index ? "white" : "rgba(255,255,255,0.2)", duration: 0.6 });
         });
 
-        gsap.to(oldSlide, { opacity: 0, duration: 0.8, onComplete: () => oldSlide.classList.remove('active') });
+        // Fade Transition
+        gsap.to(oldSlide, { opacity: 0, duration: 1.2, ease: "power2.inOut", onComplete: () => oldSlide.classList.remove('active') });
         newSlide.classList.add('active');
-        gsap.to(newSlide, { opacity: 1, duration: 0.8 });
+        gsap.to(newSlide, { opacity: 1, duration: 1.2, ease: "power2.inOut" });
 
-        gsap.fromTo(newSlide.querySelector('.hero-img'), { scale: 1.5 }, { scale: 1, duration: 3.5, ease: "expo.out" });
-        gsap.fromTo(newSlide.querySelector('.text-content'), { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 1.5, delay: 0.3, ease: "expo.out" });
+        // Content Motion
+        gsap.fromTo(newSlide.querySelector('.hero-img'), { scale: 1.2 }, { scale: 1, duration: 6, ease: "power2.out" });
+        gsap.fromTo(newSlide.querySelector('.text-content'), { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 2, ease: "expo.out", delay: 0.3 });
 
-        setTimeout(() => { isAnimating = false; currentSlide = index; }, 800);
+        setTimeout(() => { isAnimating = false; currentSlide = index; }, 1200);
     }
 
     dots.forEach((dot, i) => dot.addEventListener('click', () => changeSlide(i)));
-    setInterval(() => changeSlide((currentSlide + 1) % slides.length), 6000);
+    setInterval(() => changeSlide((currentSlide + 1) % slides.length), 8000);
 }
-
 // --- COLLECTIONS DRAGGABLE LOGIC ---
 function setupCollectionScroll() {
     const wrapper = document.getElementById('collectionsWrapper');
@@ -196,16 +205,26 @@ function setupCollectionScroll() {
 
 // --- LANGUAGE TOGGLE & LOCALSTORAGE ---
 const langBtn = document.getElementById('lang-toggle');
-
 function applyLanguage(lang) {
+    const body = document.body; // Reference the body tag
     const langElements = document.querySelectorAll('[data-bn]');
+
+    // Toggle the .lang-bn class based on the selected language
+    if (lang === 'bn') {
+        body.classList.add('lang-bn');
+    } else {
+        body.classList.remove('lang-bn');
+    }
+
     langElements.forEach(el => {
         if (!el.dataset.en) el.dataset.en = el.innerHTML; // Store original English
         el.innerHTML = (lang === 'bn') ? el.dataset.bn : el.dataset.en;
     });
+
     langBtn.textContent = (lang === 'bn') ? 'EN' : 'BN';
     localStorage.setItem('site_lang', lang);
 }
+
 
 // --- INITIALIZATION ---
 window.addEventListener('load', () => {

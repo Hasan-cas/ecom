@@ -49,7 +49,7 @@
                 <span class="text-sm uppercase tracking-widest text-gray-400 font-bold">Estimated Total</span>
                 <span id="total-price" class="text-3xl serif text-forest">$0.00</span>
             </div>
-            <button onclick="window.location.href='/checkout'" class="w-full bg-forest text-white py-5 rounded-full hover:bg-black transition duration-300 uppercase text-[10px] tracking-[0.3em] font-bold shadow-xl shadow-green-900/10">
+            <button id="checkout-btn" class="w-full bg-forest text-white py-5 rounded-full hover:bg-black transition duration-300 uppercase text-[10px] tracking-[0.3em] font-bold shadow-xl shadow-green-900/10">
                 Proceed to Checkout
             </button>
         </div>
@@ -64,5 +64,6 @@
     <script src="{{ url_for('static', filename='cart.js') }}"></script>
 </body>
 </html>
+
 
 

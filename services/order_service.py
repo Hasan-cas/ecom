@@ -41,7 +41,7 @@ def create_order_from_cart(client_token, customer_data):
             customer_name=customer_data['customer_name'],
             phone=customer_data['phone'],
             address=customer_data['address'],
-            total_price=total_price,
+            total=total_price,
             status='Pending'
         )
         db.session.add(new_order)
@@ -49,10 +49,10 @@ def create_order_from_cart(client_token, customer_data):
 
         for item in cart_items:
             order_item = OrderItem(
-                order_id=new_order.id,
+                order_id=new_order.order_id,
                 product_id=item.product_id,
                 quantity=item.quantity,
-                price_at_time=item.product.price
+                price=item.product.price
             )
             db.session.add(order_item)
         
@@ -89,4 +89,5 @@ def update_order_status(order_id, new_status):
         db.session.rollback()
         current_app.logger.error(f"Error updating status: {str(e)}")
         raise
+
 
