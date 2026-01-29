@@ -1,6 +1,6 @@
 /**
- * Zahab Perfumes | Shopping Bag & Logic
- * Handles variants, dynamic shipping calculation, and payment UI.
+ * Markazus Sunnah | Shopping Bag & Logic
+ * Handles variants, dynamic shipping calculation, and refined UI.
  */
 
 const API_BASE = '/api/cart';
@@ -10,6 +10,8 @@ const DOM = {
     emptyState: document.getElementById('empty-state'),
     subtotalEl: document.getElementById('subtotal-price'),
     shippingEl: document.getElementById('shipping-cost'),
+    discountRow: document.getElementById('discount-row'),
+    discountEl: document.getElementById('discount-amount'),
     grandTotalEl: document.getElementById('grand-total'),
     countHeader: document.getElementById('cart-count-header'),
     freeBadge: document.getElementById('free-delivery-badge'),
@@ -21,18 +23,48 @@ const DOM = {
 let currentCartData = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchCart();
+    initApp();
+});
 
-    // Listener for Shipping Radio Buttons
-    document.querySelectorAll('input[name="shipping"]').forEach(radio => {
+async function initApp() {
+    await fetchCart();
+
+    // Event Delegation for Drawer Toggles
+    document.addEventListener('click', (e) => {
+        const toggleBtn = e.target.closest('.drawer-toggle-btn');
+        if (toggleBtn) {
+            const item = toggleBtn.closest('.drawer-item');
+            item.classList.toggle('active');
+        }
+    });
+
+    // Event Delegation for Remove Buttons in Cart
+    if (DOM.container) {
+        DOM.container.addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('.remove-item-btn');
+            if (removeBtn) {
+                const id = removeBtn.getAttribute('data-id');
+                const size = removeBtn.getAttribute('data-size');
+                removeItem(id, size);
+            }
+        });
+    }
+
+    // Shipping selection change
+    document.querySelectorAll('.shipping-radio').forEach(radio => {
         radio.addEventListener('change', () => {
             if (currentCartData) calculateTotals(currentCartData);
         });
     });
 
-    if (DOM.clearBtn) DOM.clearBtn.addEventListener('click', handleClearCart);
-    if (DOM.checkoutBtn) DOM.checkoutBtn.addEventListener('click', navigateToCheckout);
-});
+    if (DOM.clearBtn) {
+        DOM.clearBtn.addEventListener('click', handleClearCart);
+    }
+
+    if (DOM.checkoutBtn) {
+        DOM.checkoutBtn.addEventListener('click', navigateToCheckout);
+    }
+}
 
 async function fetchCart() {
     try {
@@ -64,23 +96,36 @@ function renderCart(cartData) {
 
     // Render items - each size variant appears as a separate card
     DOM.container.innerHTML = cartData.items.map(item => `
-        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-5">
-            <img src="${item.image || 'https://placehold.co/100'}" class="w-20 h-20 object-cover rounded-xl bg-gray-50">
+        <div class="cart-card bg-white p-6 rounded-3xl border border-gray-100 flex items-center gap-6 shadow-sm">
+            <div class="w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden bg-gray-50 border border-gray-50">
+                <img src="${item.image || 'https://placehold.co/150'}" class="w-full h-full object-cover">
+            </div>
+            
             <div class="flex-1">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="font-bold text-sm uppercase tracking-tight">${item.name}</h3>
-                        <span class="inline-block mt-1 px-2 py-0.5 bg-purple-50 text-purple-600 text-[10px] font-bold rounded uppercase">
+                        <h3 class="heading-font font-bold text-sm uppercase tracking-tight text-gray-900">${item.product_name || item.name}</h3>
+                        <div class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full bg-khaki/40 text-gray-700 text-[9px] font-bold uppercase tracking-wider border border-khaki/50">
                             Size: ${item.size || 'Standard'}
-                        </span>
+                        </div>
                     </div>
-                    <button onclick="removeItem(${item.product_id}, '${item.size}')" class="text-gray-300 hover:text-red-500 transition">
+                    <button class="remove-item-btn text-gray-300 hover:text-red-500 transition-colors p-1" 
+                            data-id="${item.product_id}" data-size="${item.size || ''}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-                <div class="flex justify-between items-center mt-4">
-                    <span class="text-xs font-semibold text-gray-400">Qty: ${item.quantity}</span>
-                    <span class="font-bold text-purple-600">${item.subtotal.toFixed(2)} BDT</span>
+                
+                <div class="flex justify-between items-end mt-4">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Quantity</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-bold text-gray-900">${item.quantity}</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Subtotal</span>
+                        <span class="font-black heading-font text-black text-lg">৳${item.subtotal.toLocaleString()}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -91,23 +136,29 @@ function renderCart(cartData) {
 
 function calculateTotals(cartData) {
     const subtotal = parseFloat(cartData.total_price);
-    let shippingCharge = 0;
+    const selectedShippingValue = getSelectedShippingValue();
+    
+    let discount = 0;
+    let finalTotal = subtotal + selectedShippingValue;
 
-    // Logic: Free delivery if price > 1500 BDT
+    // Logic: Free delivery if subtotal > 1500 BDT
     if (subtotal > 1500) {
-        shippingCharge = 0;
+        discount = selectedShippingValue;
+        finalTotal = subtotal; // effective shipping becomes 0
+        
         DOM.freeBadge.classList.remove('hidden');
-        DOM.shippingEl.innerHTML = `<span class="line-through text-gray-300 mr-2">${getSelectedShippingValue()} BDT</span> FREE`;
+        DOM.discountRow.classList.remove('hidden');
+        DOM.discountEl.innerText = `-৳${selectedShippingValue.toFixed(2)}`;
+        DOM.shippingEl.classList.add('text-gray-400', 'line-through');
     } else {
-        shippingCharge = getSelectedShippingValue();
         DOM.freeBadge.classList.add('hidden');
-        DOM.shippingEl.innerText = `${shippingCharge.toFixed(2)} BDT`;
+        DOM.discountRow.classList.add('hidden');
+        DOM.shippingEl.classList.remove('text-gray-400', 'line-through');
     }
 
-    const grandTotal = subtotal + shippingCharge;
-
-    DOM.subtotalEl.innerText = `${subtotal.toFixed(2)} BDT`;
-    DOM.grandTotalEl.innerText = `${grandTotal.toFixed(2)} BDT`;
+    DOM.subtotalEl.innerText = `৳${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+    DOM.shippingEl.innerText = `৳${selectedShippingValue.toFixed(2)}`;
+    DOM.grandTotalEl.innerText = `৳${finalTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
 }
 
 function getSelectedShippingValue() {
@@ -119,8 +170,13 @@ async function removeItem(productId, size) {
     try {
         const response = await fetch(`${API_BASE}/remove`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product_id: productId, size: size })
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                product_id: productId, 
+                size: size
+            })
         });
         const result = await response.json();
         if (result.status === 'success') {
@@ -133,9 +189,11 @@ async function removeItem(productId, size) {
 }
 
 async function handleClearCart() {
-    if (!confirm("Clear your shopping bag?")) return;
+    if (!confirm("Are you sure you want to clear your shopping bag?")) return;
     try {
-        const response = await fetch(`${API_BASE}/clear`, { method: 'POST' });
+        const response = await fetch(`${API_BASE}/clear`, {
+            method: 'POST'
+        });
         const result = await response.json();
         if (result.status === 'success') {
             fetchCart();
@@ -146,11 +204,24 @@ async function handleClearCart() {
 }
 
 function navigateToCheckout() {
-    const shipping = subtotal > 1500 ? 0 : getSelectedShippingValue();
-    const location = document.querySelector('input[name="shipping"]:checked').parentElement.querySelector('span').innerText;
+    if (!currentCartData || currentCartData.items.length === 0) return;
+
+    const subtotal = parseFloat(currentCartData.total_price);
+    const shippingValue = getSelectedShippingValue();
+    const isFree = subtotal > 1500;
     
-    // You can pass these to your order API or checkout page
-    console.log("Proceeding with:", { shipping, location });
-    alert("Order placement logic would trigger here.");
+    const locationRadio = document.querySelector('input[name="shipping"]:checked');
+    const locationName = locationRadio ? locationRadio.closest('label').querySelector('span').innerText : "Inside Dhaka";
+
+    const finalSummary = {
+        subtotal: subtotal,
+        shipping: isFree ? 0 : shippingValue,
+        actual_shipping: shippingValue,
+        location: locationName,
+        total: isFree ? subtotal : subtotal + shippingValue
+    };
+
+    console.log("Finalized Order Summary:", finalSummary);
+    alert(`Order of ৳${finalSummary.total.toLocaleString()} placed successfully! Delivery to: ${finalSummary.location}`);
 }
 
