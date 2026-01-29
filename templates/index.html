@@ -120,8 +120,7 @@
     <button id="lang-toggle" class="fixed top-24 right-4 z-[100] bg-black text-white px-4 py-2 rounded-full font-bold shadow-lg border border-gray-700 hover:bg-gray-800 transition">BN</button>
 
     <div class="bg-black text-white text-center py-2 text-sm w-full" data-bn="৬০ ডলারের বেশি অর্ডারে ফ্রি শিপিং">
-        FREE Shipping On Orders Over USD $60
-    </div>
+        FREE Shipping On Orders Over BDT 1500</div>
 
     <nav class="bg-white border-b sticky top-0 z-50 w-full" id="navbar">
         <div class="max-w-7xl mx-auto px-4">
@@ -142,38 +141,45 @@
         </div>
     </nav>
 
-    <section class="relative h-[85vh] w-full overflow-hidden" id="hero">
-        <div class="hero-slide active">
+<section class="relative h-[85vh] w-full overflow-hidden" id="hero">
+    <div class="hero-slide active">
+        <picture>
+            <source srcset="/static/img/yellow_desk.webp" media="(min-width: 768px)">
             <img src="/static/img/yellow.webp" class="hero-img absolute inset-0 w-full h-full object-cover" alt="Yara Elixir">
-            <div class="absolute inset-0 bg-black/20"></div>
-            <div class="relative z-20 h-full flex items-center">
-                <div class="max-w-7xl mx-auto px-4 w-full">
-                    <div class="max-w-xl text-content">
-                        <h1 class="heading-font text-6xl md:text-8xl font-black text-white mb-6 leading-none" data-bn="খামরাহ">Khamrah</h1>
-                        <a href="/products" class="inline-block bg-white text-black px-10 py-4 font-bold tracking-widest hover:bg-gray-100 transition rounded-full" data-bn="অর্ডার করুন">ORDER NOW</a>
-                    </div>
+        </picture>
+        <div class="absolute inset-0 bg-black/20"></div>
+        <div class="relative z-20 h-full flex items-center">
+            <div class="max-w-7xl mx-auto px-4 w-full">
+                <div class="max-w-xl text-content">
+                    <h1 class="heading-font text-6xl md:text-8xl font-black text-white mb-6 leading-none" data-bn="নাছিম বারিদ">Nasim Barid</h1>
+                    <a href="/products" class="inline-block bg-white text-black px-10 py-4 font-bold tracking-widest hover:bg-gray-100 transition rounded-full" data-bn="অর্ডার করুন">ORDER NOW</a>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="hero-slide">
+    <div class="hero-slide">
+        <picture>
+            <source srcset="/static/img/vampire_desk.webp" media="(min-width: 768px)">
             <img src="/static/img/vampire.webp" class="hero-img absolute inset-0 w-full h-full object-cover" alt="Asad Elixir">
-            <div class="absolute inset-0 bg-black/30"></div>
-            <div class="relative z-20 h-full flex items-center text-white">
-                <div class="max-w-7xl mx-auto px-4 w-full">
-                    <div class="max-w-xl text-content">
-                        <h1 class="heading-font text-6xl md:text-8xl font-black mb-6 leading-none" data-bn="ভ্যাম্পায়ার ব্লাড">Vampire Blood</h1>
-                       <a href="/products" class="inline-block bg-white text-black px-10 py-4 font-bold tracking-widest hover:bg-gray-100 transition rounded-full" data-bn="এখনই কিনুন">SHOP NOW</a> 
-                    </div>
+        </picture>
+        <div class="absolute inset-0 bg-black/30"></div>
+        <div class="relative z-20 h-full flex items-center text-white">
+            <div class="max-w-7xl mx-auto px-4 w-full">
+                <div class="max-w-xl text-content">
+                    <h1 class="heading-font text-6xl md:text-8xl font-black mb-6 leading-none" data-bn="আনবার">Anbar</h1>
+                   <a href="/products" class="inline-block bg-white text-black px-10 py-4 font-bold tracking-widest hover:bg-gray-100 transition rounded-full" data-bn="এখনই কিনুন">SHOP NOW</a> 
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex space-x-4 z-30">
-            <button class="hero-dot w-3 h-3 rounded-full bg-white/50 border border-black/10" data-index="0"></button>
-            <button class="hero-dot w-3 h-3 rounded-full bg-white/50 border border-black/10" data-index="1"></button>
-        </div>
-    </section>
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex space-x-4 z-30">
+        <button class="hero-dot w-3 h-3 rounded-full bg-white/50 border border-black/10" data-index="0"></button>
+        <button class="hero-dot w-3 h-3 rounded-full bg-white/50 border border-black/10" data-index="1"></button>
+    </div>
+</section>
+
 
     <section class="py-20 bg-khaki border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4">
@@ -306,3 +312,4 @@
     <script src="/static/index.js"></script>
 </body>
 </html>
+
