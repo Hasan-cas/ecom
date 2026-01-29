@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markazus Sunnah Admin | Dashboard</title>
+    <title>Zenfox Admin | Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -85,6 +85,15 @@
                                             <input type="number" name="stock" class="w-full rounded-lg border-gray-200 focus:border-[#C8A86A] focus:ring focus:ring-[#C8A86A]/20 text-sm p-2.5 bg-gray-50" placeholder="Qty">
                                         </div>
                                     </div>
+<div class="space-y-2">
+    <label class="block text-[10px] uppercase tracking-widest text-gray-400 font-bold ml-1">
+        Product Variations (Format: Size:Price:Stock / Size:Price:Stock)
+    </label>
+    <input type="text" id="variants-input" 
+           class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-black outline-none transition-all" 
+           placeholder="e.g. 6ml:500 / 12ml:900 / 50ml:2500">
+    <p class="text-[9px] text-gray-400 italic mt-1">Leave empty if the product has only one size/price.</p>
+</div>
 
                                     <div>
                                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Product Image</label>

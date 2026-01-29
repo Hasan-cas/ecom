@@ -1,113 +1,184 @@
-// product.js (Broken parts fixed)
+/**
+ * Markazus Sunnah | Product Detail Logic (Production Ready)
+ * Version: 2.2.0 (Clean Event Listeners - No Inline HTML)
+ */
 
-function getProductIdFromURL() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id');
-}
+let currentProduct = null;
+let currentSelectedSize = "";
 
+// DOM Elements
+const elements = {
+    name: document.getElementById('product-name'),
+    price: document.getElementById('product-price'),
+    description: document.getElementById('product-description'),
+    image: document.getElementById('product-image'),
+    sizeContainer: document.getElementById('size-container'),
+    stockPill: document.getElementById('stock-pill'),
+    quantity: document.getElementById('quantity'),
+    addToCartBtn: document.getElementById('addToCart'),
+    buyNowBtn: document.getElementById('buyNow'),
+    messageBox: document.getElementById('message-box'),
+    accordionGroup: document.getElementById('accordion-group') // New reference
+};
+
+// 1. INITIALIZATION
+document.addEventListener('DOMContentLoaded', () => {
+    fetchProduct();
+    setupEventListeners();
+});
+
+// 2. FETCH DATA
 async function fetchProduct() {
-    const id = getProductIdFromURL();
-    if (!id) {
-        showError();
-        return;
-    }
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+    if (!id) return;
+
     try {
         const response = await fetch(`/api/products/${id}`);
         const result = await response.json();
         if (result.status === 'success' && result.data) {
-            renderProduct(result.data);
-            updateCheckoutButtonVisibility();
-        } else {
-            showError();
+            currentProduct = result.data;
+            renderProduct(currentProduct);
         }
     } catch (error) {
-        console.error("Fetch error:", error);
-        showError();
+        console.error("Load Error:", error);
     }
 }
 
+// 3. EVENT LISTENERS (REPLACES ONCLICK)
+function setupEventListeners() {
+    // Drawer/Accordion Logic
+    if (elements.accordionGroup) {
+        elements.accordionGroup.addEventListener('click', (e) => {
+            const header = e.target.closest('.accordion-header');
+            if (!header) return;
+
+            const item = header.parentElement;
+            const isActive = item.classList.contains('active');
+
+            // Close all items
+            document.querySelectorAll('.accordion-item').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Toggle current
+            if (!isActive) item.classList.add('active');
+        });
+    }
+
+    // Volume Selection
+    elements.sizeContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.size-option');
+        if (!btn) return;
+
+        document.querySelectorAll('.size-option').forEach(el => el.classList.remove('active', 'border-black'));
+        btn.classList.add('active', 'border-black');
+
+        const variant = {
+            size: btn.getAttribute('data-size'),
+            price: btn.getAttribute('data-price'),
+            stock: btn.getAttribute('data-stock')
+        };
+        updateVariantDisplay(variant);
+    });
+
+    // Quantity Buttons
+    document.getElementById('increase').addEventListener('click', () => {
+        elements.quantity.value = parseInt(elements.quantity.value) + 1;
+    });
+
+    document.getElementById('decrease').addEventListener('click', () => {
+        const val = parseInt(elements.quantity.value);
+        if (val > 1) elements.quantity.value = val - 1;
+    });
+
+    // Cart Actions
+    elements.addToCartBtn.addEventListener('click', () => addToBag(false));
+    elements.buyNowBtn.addEventListener('click', () => addToBag(true));
+}
+
+// 4. RENDERING & UI UPDATES
 function renderProduct(product) {
-    document.getElementById('loading').classList.add('hidden');
-    document.getElementById('product-view').classList.remove('hidden');
-    document.getElementById('product-name').textContent = product.name;
-    document.getElementById('product-price').textContent = `$${parseFloat(product.price).toFixed(2)}`;
-    document.getElementById('product-description').textContent = product.description;
-    document.getElementById('product-image').src = product.image || 'https://placehold.co/600x800?text=No+Image';
-    
-    const stockBadge = document.getElementById('product-stock');
-    const btn = document.getElementById('add-to-cart-btn');
-    if (product.stock > 0) {
-        stockBadge.textContent = `In Stock (${product.stock})`;
-        stockBadge.className = "px-3 py-1 text-[9px] uppercase tracking-tighter rounded-full border border-green-800 text-green-800";
-        btn.onclick = () => addToCart(product.id);
-    } else {
-        stockBadge.textContent = "Sold Out";
-        stockBadge.className = "px-3 py-1 text-[9px] uppercase tracking-tighter rounded-full border border-gray-300 text-gray-400";
-        btn.disabled = true;
-        btn.textContent = "Out of Stock";
+    elements.name.textContent = product.name;
+    elements.description.textContent = product.description;
+    elements.image.src = product.image || 'https://placehold.co/600x800?text=No+Image';
+
+    let variants = [];
+    if (Array.isArray(product.variants)) {
+        variants = product.variants;
+    } else if (typeof product.variants === 'string' && product.variants.trim() !== "") {
+        variants = product.variants.split(',').map(s => ({ 
+            size: s.trim(), 
+            price: product.price, 
+            stock: product.stock 
+        }));
+    }
+
+    if (variants.length > 0) {
+        elements.sizeContainer.innerHTML = variants.map((v, index) => `
+            <button data-size="${v.size}" data-price="${v.price}" data-stock="${v.stock}"
+                    class="size-option px-8 py-3 border-2 border-gray-100 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all hover:border-black ${index === 0 ? 'active border-black' : ''}">
+                ${v.size}
+            </button>
+        `).join('');
+        updateVariantDisplay(variants[0]);
     }
 }
 
-async function addToCart(productId) {
-    const btn = document.getElementById('add-to-cart-btn');
+function updateVariantDisplay(variant) {
+    if (!variant) return;
+    currentSelectedSize = variant.size;
+    elements.price.textContent = `BDT ${parseFloat(variant.price).toLocaleString()}`;
+
+    const isAvailable = parseInt(variant.stock) > 0;
+    elements.stockPill.textContent = isAvailable ? "In Stock" : "Out of Stock";
+    elements.stockPill.className = `px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${isAvailable ? 'border-emerald-500 text-emerald-600 bg-emerald-50' : 'border-red-500 text-red-600 bg-red-50'}`;
+    
+    elements.addToCartBtn.disabled = !isAvailable;
+    elements.buyNowBtn.disabled = !isAvailable;
+    elements.addToCartBtn.textContent = isAvailable ? "Add to Cart" : "Sold Out";
+}
+
+// 5. API ACTIONS
+async function addToBag(redirect) {
+    if (!currentProduct) return;
+    const btn = redirect ? elements.buyNowBtn : elements.addToCartBtn;
+    const originalText = btn.textContent;
+    
     btn.disabled = true;
-    btn.textContent = "Adding...";
+    btn.textContent = "Processing...";
+
     try {
         const response = await fetch('/api/cart/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product_id: productId, quantity: 1 })
+            body: JSON.stringify({ 
+                product_id: currentProduct.id, 
+                quantity: parseInt(elements.quantity.value),
+                size: currentSelectedSize 
+            })
         });
+
         const result = await response.json();
-        if (response.ok) {
-            showMessage("Added to bag", "text-green-700");
-            // FIXED: Correctly access nested data from the new cart_route
-            const badge = document.getElementById('cart-count');
-            badge.textContent = result.data.total_items;
-            // FIXED: Immediately reveal checkout button
-            document.getElementById('proceed-to-checkout-btn').classList.remove('hidden');
-        } else {
-            showMessage(result.message || "Error", "text-red-700");
+        if (result.status === 'success') {
+            showMessage("Added to Bag", "bg-black");
+            if (redirect) window.location.href = '/cart';
         }
     } catch (err) {
-        showMessage("Connection Error", "text-red-700");
+        showMessage("Connection Error", "bg-red-600");
     } finally {
         btn.disabled = false;
-        btn.textContent = "Add to Bag";
+        btn.textContent = originalText;
     }
 }
 
-async function updateCheckoutButtonVisibility() {
-    const checkoutBtn = document.getElementById('proceed-to-checkout-btn');
-    try {
-        const response = await fetch('/api/cart');
-        const result = await response.json();
-        // FIXED: Access data.total_items to match standardized response
-        if (result.status === 'success' && result.data.total_items > 0) {
-            checkoutBtn.classList.remove('hidden');
-        } else {
-            checkoutBtn.classList.add('hidden');
-        }
-    } catch (error) {
-        console.error("Error checking cart status:", error);
-        checkoutBtn.classList.add('hidden');
-    }
+function showMessage(text, bgColor) {
+    elements.messageBox.textContent = text;
+    elements.messageBox.className = `fixed top-6 right-6 z-[100] px-8 py-4 rounded-full shadow-2xl font-bold uppercase tracking-widest text-[10px] text-white transition-all duration-300 show ${bgColor}`;
+    elements.messageBox.classList.remove('hidden');
+    setTimeout(() => {
+        elements.messageBox.classList.remove('show');
+        setTimeout(() => elements.messageBox.classList.add('hidden'), 400);
+    }, 3000);
 }
-
-function showError() {
-    const loadingEl = document.getElementById('loading');
-    const errorEl = document.getElementById('error-view');
-    if(loadingEl) loadingEl.classList.add('hidden');
-    if(errorEl) errorEl.classList.remove('hidden');
-}
-
-function showMessage(text, colorClass) {
-    const box = document.getElementById('message-box');
-    box.textContent = text;
-    box.className = `text-center text-[11px] uppercase tracking-widest font-bold mt-4 ${colorClass}`;
-    box.classList.remove('hidden');
-    setTimeout(() => box.classList.add('hidden'), 3000);
-}
-
-window.onload = fetchProduct;
 

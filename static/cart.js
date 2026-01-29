@@ -1,159 +1,144 @@
 /**
- * ZENFOX | Shopping Bag Logic
- * Refactored for event-driven architecture and production reliability.
+ * Zahab Perfumes | Shopping Bag & Logic
+ * Handles variants, dynamic shipping calculation, and payment UI.
  */
 
-// Configuration & Selectors
-const API_BASE = '/api/cart'; 
+const API_BASE = '/api/cart';
 const DOM = {
     container: document.getElementById('cart-container'),
     summary: document.getElementById('cart-summary'),
     emptyState: document.getElementById('empty-state'),
-    totalEl: document.getElementById('total-price'),
+    subtotalEl: document.getElementById('subtotal-price'),
+    shippingEl: document.getElementById('shipping-cost'),
+    grandTotalEl: document.getElementById('grand-total'),
     countHeader: document.getElementById('cart-count-header'),
+    freeBadge: document.getElementById('free-delivery-badge'),
+    options: document.getElementById('cart-options'),
     clearBtn: document.getElementById('clear-btn'),
-    checkoutBtn: document.getElementById('checkout-btn') // Replaces onclick
+    checkoutBtn: document.getElementById('checkout-btn')
 };
 
-/**
- * 1. INITIALIZATION & GLOBAL LISTENERS
- */
+let currentCartData = null;
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Initial data fetch
     fetchCart();
 
-    // Listener for Checkout Button
-    if (DOM.checkoutBtn) {
-        DOM.checkoutBtn.addEventListener('click', navigateToCheckout);
-    }
-
-    // Listener for Clear Cart Button
-    if (DOM.clearBtn) {
-        DOM.clearBtn.addEventListener('click', handleClearCart);
-    }
-
-    // Global "Enter" key listener for the Cart Page
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            // Only proceed if the checkout button is visible (cart not empty)
-            if (DOM.summary && !DOM.summary.classList.contains('hidden')) {
-                navigateToCheckout();
-            }
-        }
+    // Listener for Shipping Radio Buttons
+    document.querySelectorAll('input[name="shipping"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (currentCartData) calculateTotals(currentCartData);
+        });
     });
 
-    // Event Delegation for "Remove Item" buttons
-    // This works even when items are re-rendered dynamically
-    if (DOM.container) {
-        DOM.container.addEventListener('click', async (e) => {
-            const removeBtn = e.target.closest('.remove-item-btn');
-            if (removeBtn) {
-                const productId = removeBtn.dataset.id;
-                
-                // UI Feedback: Visual disabling
-                removeBtn.disabled = true;
-                removeBtn.innerHTML = '<span class="animate-pulse">Removing...</span>';
-                
-                await removeItem(productId);
-            }
-        });
-    }
+    if (DOM.clearBtn) DOM.clearBtn.addEventListener('click', handleClearCart);
+    if (DOM.checkoutBtn) DOM.checkoutBtn.addEventListener('click', navigateToCheckout);
 });
-
-/**
- * 2. CORE LOGIC FUNCTIONS
- */
 
 async function fetchCart() {
     try {
         const response = await fetch(API_BASE);
         const result = await response.json();
-        
-        // Backend structure: { status: "success", data: { items: [], total_price: 0 } }
         if (result.status === 'success') {
+            currentCartData = result.data;
             renderCart(result.data);
         }
     } catch (err) {
-        console.error("Cart retrieval error:", err);
+        console.error("Cart fetch failed:", err);
     }
 }
 
 function renderCart(cartData) {
-    if (!cartData) return;
-    const items = cartData.items || [];
-    
-    // Update Header Count
-    if (DOM.countHeader) {
-        DOM.countHeader.innerText = `(${cartData.total_items || 0})`;
-    }
-
-    // Toggle Empty State vs Summary
-    if (items.length === 0) {
+    if (!cartData.items || cartData.items.length === 0) {
         DOM.container.innerHTML = '';
-        DOM.summary.classList.add('hidden');
         DOM.emptyState.classList.remove('hidden');
+        DOM.summary.classList.add('hidden');
+        DOM.options.classList.add('hidden');
+        DOM.countHeader.innerText = "0 Items";
         return;
     }
 
     DOM.emptyState.classList.add('hidden');
     DOM.summary.classList.remove('hidden');
+    DOM.options.classList.remove('hidden');
+    DOM.countHeader.innerText = `${cartData.total_items} Items`;
 
-    // Render Items
-    DOM.container.innerHTML = items.map(item => `
-        <div class="flex items-center justify-between p-6 bg-white rounded-[30px] mb-4 border border-gray-50 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-center space-x-6">
-                <div class="w-20 h-20 bg-sage rounded-2xl overflow-hidden">
-                    <img src="${item.image || '/static/placeholder.jpg'}" alt="${item.product_name}" class="w-full h-full object-cover">
+    // Render items - each size variant appears as a separate card
+    DOM.container.innerHTML = cartData.items.map(item => `
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-5">
+            <img src="${item.image || 'https://placehold.co/100'}" class="w-20 h-20 object-cover rounded-xl bg-gray-50">
+            <div class="flex-1">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-sm uppercase tracking-tight">${item.name}</h3>
+                        <span class="inline-block mt-1 px-2 py-0.5 bg-purple-50 text-purple-600 text-[10px] font-bold rounded uppercase">
+                            Size: ${item.size || 'Standard'}
+                        </span>
+                    </div>
+                    <button onclick="removeItem(${item.product_id}, '${item.size}')" class="text-gray-300 hover:text-red-500 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
                 </div>
-                <div>
-                    <h3 class="serif text-lg text-forest">${item.product_name}</h3>
-                    <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Qty: ${item.quantity} • $${item.product_price.toFixed(2)}</p>
+                <div class="flex justify-between items-center mt-4">
+                    <span class="text-xs font-semibold text-gray-400">Qty: ${item.quantity}</span>
+                    <span class="font-bold text-purple-600">${item.subtotal.toFixed(2)} BDT</span>
                 </div>
-            </div>
-            <div class="text-right flex flex-col items-end space-y-2">
-                <span class="text-sm font-bold text-forest">$${item.subtotal.toFixed(2)}</span>
-                <button data-id="${item.product_id}" class="remove-item-btn text-[9px] uppercase tracking-[0.2em] text-red-400 hover:text-red-600 font-bold transition-colors">
-                    Remove Item
-                </button>
             </div>
         </div>
     `).join('');
 
-    // Update Grand Total
-    if (DOM.totalEl) {
-        DOM.totalEl.innerText = `$${parseFloat(cartData.total_price || 0).toFixed(2)}`;
-    }
+    calculateTotals(cartData);
 }
 
-async function removeItem(productId) {
+function calculateTotals(cartData) {
+    const subtotal = parseFloat(cartData.total_price);
+    let shippingCharge = 0;
+
+    // Logic: Free delivery if price > 1500 BDT
+    if (subtotal > 1500) {
+        shippingCharge = 0;
+        DOM.freeBadge.classList.remove('hidden');
+        DOM.shippingEl.innerHTML = `<span class="line-through text-gray-300 mr-2">${getSelectedShippingValue()} BDT</span> FREE`;
+    } else {
+        shippingCharge = getSelectedShippingValue();
+        DOM.freeBadge.classList.add('hidden');
+        DOM.shippingEl.innerText = `${shippingCharge.toFixed(2)} BDT`;
+    }
+
+    const grandTotal = subtotal + shippingCharge;
+
+    DOM.subtotalEl.innerText = `${subtotal.toFixed(2)} BDT`;
+    DOM.grandTotalEl.innerText = `${grandTotal.toFixed(2)} BDT`;
+}
+
+function getSelectedShippingValue() {
+    const selected = document.querySelector('input[name="shipping"]:checked');
+    return selected ? parseFloat(selected.value) : 60;
+}
+
+async function removeItem(productId, size) {
     try {
         const response = await fetch(`${API_BASE}/remove`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product_id: productId })
+            body: JSON.stringify({ product_id: productId, size: size })
         });
         const result = await response.json();
-        
         if (result.status === 'success') {
+            currentCartData = result.data;
             renderCart(result.data);
-        } else {
-            console.error("Removal Error:", result.message);
-            fetchCart(); // Reset UI on error
         }
     } catch (err) {
-        console.error("Network Error:", err);
-        fetchCart();
+        console.error("Remove failed:", err);
     }
 }
 
 async function handleClearCart() {
-    if (!confirm("Clear your entire shopping bag?")) return;
-    
+    if (!confirm("Clear your shopping bag?")) return;
     try {
         const response = await fetch(`${API_BASE}/clear`, { method: 'POST' });
         const result = await response.json();
         if (result.status === 'success') {
-            renderCart({ items: [], total_items: 0, total_price: 0.0 });
+            fetchCart();
         }
     } catch (err) {
         console.error("Clear failed:", err);
@@ -161,7 +146,11 @@ async function handleClearCart() {
 }
 
 function navigateToCheckout() {
-    // Standardizing the navigation logic
-    window.location.href = '/checkout';
+    const shipping = subtotal > 1500 ? 0 : getSelectedShippingValue();
+    const location = document.querySelector('input[name="shipping"]:checked').parentElement.querySelector('span').innerText;
+    
+    // You can pass these to your order API or checkout page
+    console.log("Proceeding with:", { shipping, location });
+    alert("Order placement logic would trigger here.");
 }
 

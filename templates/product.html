@@ -4,73 +4,197 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Details | Markazus Sunnah</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --khaki: #F4E1C4; }
-        body { font-family: 'Inter', sans-serif; }
-        .serif { font-family: 'Playfair Display', serif; }
-        .bg-khaki { background-color: var(--khaki); }
-        .loader { border-top-color: var(--dark-forest); animation: spinner 1s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+
+        .bg-khaki { background-color: #e2e8dd; }
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #fff;
+        }
+
+        .heading-font { font-family: 'Poppins', sans-serif; }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #d4af37;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+
+        /* Accordion styles */
+        .accordion-item { border-bottom: 1px solid #e5e7eb; }
+        .accordion-header { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 0; font-weight: 700; font-family: 'Poppins', sans-serif; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem; }
+        .accordion-icon { transition: transform 0.3s; }
+        .accordion-item.active .accordion-icon { transform: rotate(180deg); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .accordion-item.active .accordion-content { max-height: 500px; }
+        .accordion-body { padding-bottom: 1.25rem; color: #4b5563; line-height: 1.8; font-size: 0.875rem; }
+
+        .size-option.active { 
+            background-color: #000; 
+            color: #fff; 
+            border-color: #000;
+        }
+        
+        .quantity-btn:hover { background-color: #f3f4f6; }
+        
+        #message-box {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        #message-box.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
-<body class="bg-khaki text-gray-900 min-h-screen flex flex-col">
+<body class="bg-white text-gray-900">
+    <div id="message-box" class="hidden fixed top-6 right-6 z-[100] px-8 py-4 rounded-full shadow-2xl font-bold uppercase tracking-widest text-[10px] text-white"></div>
 
-    <nav class="flex items-center justify-between px-8 py-6 border-b border-gray-100 sticky top-0 bg-white/90 backdrop-blur-md z-50">
-        <a href="/" class="text-2xl font-bold tracking-tighter serif text-forest no-underline">ZENFOX.</a>
-        <div class="flex items-center space-x-6">
-            <a href="/" class="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 hover:text-forest transition">Back to Shop</a>
-            <div class="relative">
-                <span class="text-xl">🛒</span>
-                <span id="cart-count" class="absolute -top-2 -right-2 bg-forest text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+    <nav class="bg-white border-b sticky top-0 z-50 w-full">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-20">
+                <div class="text-2xl heading-font font-extrabold tracking-tight">
+                    <a href="/" class="text-gray-900">Markazus Sunnah</a>
+                </div>
+                <div class="hidden md:flex space-x-8 font-medium">
+                    <a href="/products" class="nav-link text-gray-700 hover:text-gray-900">Shop</a>
+                    <a href="/products" class="nav-link text-gray-700 hover:text-gray-900">New Arrivals</a>
+                    <a href="/products" class="nav-link text-gray-700 hover:text-gray-900">Best Sellers</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/products" class="font-bold text-gray-700 hover:text-black text-sm uppercase tracking-widest">Products</a>
+                    <a href="/cart" class="font-bold text-gray-700 hover:text-black text-sm uppercase tracking-widest">Cart</a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow container mx-auto px-6 py-12">
-        <div id="loading" class="flex flex-col items-center justify-center py-20">
-            <div class="loader ease-linear rounded-full border-2 border-t-2 border-gray-100 h-12 w-12 mb-4"></div>
-            <p class="text-[10px] uppercase tracking-widest text-gray-400">Loading Essence...</p>
-        </div>
-
-        <div id="error-view" class="hidden text-center py-20">
-            <h2 class="serif text-3xl text-red-800 mb-4">Scent Not Found</h2>
-            <p class="text-gray-500 mb-8">The product you are looking for does not exist or has been moved.</p>
-            <a href="/" class="px-8 py-3 bg-forest text-white rounded-full text-[10px] uppercase tracking-widest">Return to Collection</a>
-        </div>
-
-        <div id="product-view" class="hidden grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div class="bg-gray-50 rounded-[40px] overflow-hidden aspect-[4/5] flex items-center justify-center p-8">
-                <img id="product-image" src="" alt="" class="max-w-full max-h-full object-contain mix-blend-multiply">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-24">
+        <div id="product-view" class="grid lg:grid-cols-2 gap-16 items-start">
+            
+            <div class="lg:sticky lg:top-32">
+                <div id="image-container" class="rounded-3xl bg-gray-50 aspect-[4/5] flex items-center justify-center overflow-hidden relative group border border-gray-100">
+                    <img id="product-image" src="" alt="Product" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                </div>
             </div>
 
-            <div>
-                <nav class="mb-6 text-[10px] uppercase tracking-widest text-gray-400">
-                    <a href="/" class="hover:text-forest">Collection</a> / <span id="category-crumb">Fragrance</span>
-                </nav>
-
-                <h1 id="product-name" class="serif text-5xl text-forest mb-4"></h1>
-                
-                <div class="flex items-center gap-4 mb-8">
-                    <span id="product-price" class="text-2xl font-medium"></span>
-                    <span id="product-stock" class="px-3 py-1 text-[9px] uppercase tracking-tighter rounded-full border"></span>
+            <div class="flex flex-col space-y-8">
+                <div class="space-y-4">
+                    <h1 id="product-name" class="heading-font text-4xl lg:text-5xl font-black text-gray-900 leading-tight">Loading...</h1>
+                    
+                    <div class="flex items-center gap-4">
+                        <span id="product-price" class="heading-font text-3xl font-bold text-gray-900">BDT --</span>
+                        <div id="stock-pill" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border"></div>
+                    </div>
                 </div>
 
-                <p id="product-description" class="text-gray-600 leading-relaxed mb-10 font-light"></p>
+                <p id="product-description" class="text-gray-600 leading-relaxed text-lg font-medium"></p>
 
                 <div class="space-y-4">
-                    <button id="add-to-cart-btn" class="w-full bg-forest text-white py-5 rounded-full uppercase text-[11px] tracking-[0.2em] font-bold hover:bg-green-900 transition disabled:bg-gray-200">
-                        Add to Bag
+                    <label class="block heading-font text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400">Select Volume</label>
+                    <div id="size-container" class="flex flex-wrap gap-3"></div>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="block heading-font text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400">Quantity</label>
+                    <div class="flex items-center border-2 border-gray-100 rounded-full w-fit bg-gray-50 p-1">
+                        <button id="decrease" class="w-12 h-12 flex items-center justify-center text-gray-900 font-bold hover:bg-white rounded-full transition-colors">−</button>
+                        <input id="quantity" type="number" value="1" min="1" class="w-16 text-center bg-transparent text-gray-900 font-bold focus:outline-none pointer-events-none" readonly>
+                        <button id="increase" class="w-12 h-12 flex items-center justify-center text-gray-900 font-bold hover:bg-white rounded-full transition-colors">+</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                    <button id="addToCart" class="flex-1 bg-black text-white font-bold py-5 rounded-full tracking-widest text-xs uppercase hover:bg-gray-800 transition-all active:scale-95 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed">
+                        Add to Cart
                     </button>
-                    <a id="proceed-to-checkout-btn" href="/checkout" class="hidden w-full border border-forest text-forest py-5 rounded-full uppercase text-[11px] tracking-[0.2em] font-bold hover:bg-gray-50 transition text-center block">
-                        Proceed to Checkout
-                    </a>
-                    <div id="meskhaki-box" class="text-center text-[11px] uppercase tracking-widest font-bold hidden"></div>
+                    <button id="buyNow" class="flex-1 bg-khaki text-gray-900 font-bold py-5 rounded-full tracking-widest text-xs uppercase hover:opacity-90 transition-all active:scale-95 disabled:opacity-50">
+                        Buy Now
+                    </button>
+                </div>
+
+                <div class="pt-8 grid grid-cols-2 gap-6 border-t border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-khaki flex items-center justify-center text-sm">📦</div>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-tight">Free Delivery<br>over 1500 BDT</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-khaki flex items-center justify-center text-sm">✓</div>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-tight">100% Authentic<br>Sunnah Products</p>
+                    </div>
+                </div>
+
+                <div id="accordion-group" class="mt-4 border-t border-gray-100">
+                    <div class="accordion-item active">
+                        <div class="accordion-header">
+                            <span>Product Details</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                Our perfume oils are highly concentrated, alcohol-free, and meticulously crafted. Designed for longevity, providing an evocative scent profile that lasts 8-12 hours on skin.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>Shipping & Returns</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                We ship nationwide across Bangladesh. Due to the hygiene nature of our products, we only accept returns for damaged items reported within 24 hours of delivery.
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
-    <script src="{{ url_for('static', filename='product.js') }}"></script>
+
+    <footer class="bg-black text-white py-16 w-full mt-20">
+        <div class="max-w-7xl mx-auto px-4 text-center md:text-left">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                <div>
+                    <h3 class="heading-font font-bold text-xl mb-6">Markazus Sunnah</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Dedicated to providing the finest Sunnah-inspired luxury products for your lifestyle.</p>
+                </div>
+                <div>
+                    <h3 class="heading-font font-bold text-xl mb-6">Quick Links</h3>
+                    <ul class="space-y-3 text-sm text-gray-400 font-medium">
+                        <li><a href="/products" class="hover:text-white transition">All Fragrances</a></li>
+                        <li><a href="#" class="hover:text-white transition">About Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="heading-font font-bold text-xl mb-6">Contact</h3>
+                    <div class="flex justify-center md:justify-start">
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition">f</a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-white/10 pt-8 text-sm text-gray-500">
+                <p>© 2026 Markazus Sunnah. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/product.js"></script>
 </body>
 </html>
+

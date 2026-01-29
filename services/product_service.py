@@ -1,4 +1,5 @@
 import os
+import json
 import cloudinary
 import cloudinary.uploader
 from datetime import datetime
@@ -64,53 +65,48 @@ def get_product_by_id(product_id):
 
 def create_product(data, image_file):
     """
-    Create a new product and upload its image to Cloudinary.
+    Standardized creation for products with or without variants.
+    'data' is expected to be request.form (ImmutableMultiDict)
     """
-    # 1. Validation Logic (Consistent with original service)
-    required_fields = ['name', 'price', 'stock']
-    for field in required_fields:
-        if field not in data:
-            return None, f"Missing required field: {field}"
-    
-    if not image_file or image_file.filename == '':
-        return None, "Product image is required"
-
     try:
-        # Validate data types
-        price = float(data['price'])
-        stock = int(data['stock'])
-        
-        # 2. Cloudinary Upload
-        # Cloudinary's uploader can handle the Flask FileStorage object directly
-        upload_result = cloudinary.uploader.upload(
-            image_file,
-            folder="ecom_products" # Organizes your images in Cloudinary
-        )
-        
-        image_url = upload_result.get('secure_url')
+        # 1. Parse Variations (Sent as JSON string from JS)
+        variants_json = data.get('variants')
+        parsed_variants = json.loads(variants_json) if variants_json else []
 
-        # 3. Database Insertion
+        # 2. Upload Image
+        image_url = None
+        if image_file:
+            upload_result = cloudinary.uploader.upload(image_file, folder="zenfox_products")
+            image_url = upload_result.get('secure_url')
+
+        # 3. Determine Price & Stock
+        # If variants exist, priority is given to the first variant's price
+        if parsed_variants:
+            base_price = float(parsed_variants[0]['price'])
+            total_stock = sum(int(v.get('stock', 0)) for v in parsed_variants)
+        else:
+            base_price = float(data.get('price', 0))
+            total_stock = int(data.get('stock', 0))
+
+        # 4. Create Database Entry
         new_product = Product(
-            name=data['name'],
-            price=price,
-            stock=stock,
-            category=data.get('category', ''),
-            description=data.get('description', ''),
-            image=image_url, # Store the full HTTPS link
-            created_at=datetime.utcnow()
+            name=data.get('name'),
+            category=data.get('category'),
+            price=base_price,
+            stock=total_stock,
+            description=data.get('description'),
+            image=image_url,
+            variants=parsed_variants # Ensure your Product model has this JSON column
         )
-        
+
         db.session.add(new_product)
         db.session.commit()
         
         return new_product, None
 
-    except (ValueError, TypeError):
-        return None, "Invalid data type for price or stock"
     except Exception as e:
         db.session.rollback()
-        # Log the error as seen in other service functions
-        return None, f"Cloudinary/Database Error: {str(e)}"
+        return None, f"Database Error: {str(e)}"
 
 
 def update_product(product_id, data, image_file=None):
@@ -166,4 +162,5 @@ def delete_product(product_id):
     except Exception as e:
         db.session.rollback()
         return False, f"Deletion failed: {str(e)}"
+
 

@@ -10,6 +10,7 @@ class Product(db.Model):
     category = db.Column(db.String(100), nullable=True) 
     price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, nullable=False, default=0)
+    variants = db.Column(db.JSON, nullable=True) 
     description = db.Column(db.Text, nullable=True)
     image = db.Column(db.String(500), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -23,6 +24,7 @@ class Product(db.Model):
             'category': self.category, # Included in dictionary for API responses
             'price': self.price,
             'stock': self.stock,
+            'variants': self.variants,
             'description': self.description,
             'image': self.image,
             'created_at': self.created_at.isoformat() if self.created_at else None,
@@ -31,4 +33,3 @@ class Product(db.Model):
 
     def __repr__(self):
         return f'<Product {self.id}: {self.name}>'
-

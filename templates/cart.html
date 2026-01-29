@@ -3,64 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Bag | Markazus Sunnah</title>
+    <title>Your Bag | Zahab Perfumes</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --khaki: #F4E1C4;}
-        body { font-family: 'Inter', sans-serif; background-color: #fafaf9; }
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
         .serif { font-family: 'Playfair Display', serif; }
-        .bg-khaki { background-color: var(--khaki); }
+        
+        /* Drawer/Accordion Animation */
+        .drawer-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out; }
+        .drawer-item.active .drawer-content { max-height: 300px; }
+        .drawer-item.active .drawer-icon { transform: rotate(180deg); }
     </style>
 </head>
-<body class="bg-khaki text-gray-900 min-h-screen">
+<body class="text-gray-900 min-h-screen">
 
-    <nav class="flex items-center justify-between px-8 py-6 bg-white border-b border-gray-100">
-        <a href="/" class="text-2xl font-bold tracking-tighter serif">ZENFOX.</a>
-        <div class="flex items-center space-x-4">
-            <span id="cart-count-header" class="text-[10px] uppercase tracking-widest font-bold text-gray-400">0 Items</span>
-        </div>
+    <nav class="flex items-center justify-between px-6 py-6 bg-white border-b border-gray-100 sticky top-0 z-40">
+        <a href="/" class="text-2xl font-bold tracking-tighter serif">Zahab.</a>
+        <span id="cart-count-header" class="text-[10px] uppercase tracking-widest font-bold text-gray-400">0 Items</span>
     </nav>
 
-    <main class="container mx-auto px-4 py-12 max-w-4xl">
-        <div class="flex flex-col items-center justify-center text-center mb-12 gap-4">
-            <div>
-                <h1 class="text-5xl serif italic text-forest">Shopping Bag</h1>
-                <p class="text-sm text-gray-500 mt-2">Review your selected signature fragrances.</p>
-            </div>
-            <button id="clear-btn" class="text-[10px] uppercase tracking-[0.2em] font-bold text-red-800 hover:text-red-600 transition hidden">
-                Clear All Items
-            </button>
-        </div>
+    <main class="max-w-3xl mx-auto px-4 py-12">
+        <h1 class="serif text-4xl mb-10">Your Bag</h1>
 
-        
-
-        <div id="cart-container" class="space-y-6">
-            <div class="animate-pulse flex flex-col space-y-4">
-                <div class="h-24 bg-gray-200 rounded-[30px] w-full"></div>
-                <div class="h-24 bg-gray-200 rounded-[30px] w-full"></div>
-            </div>
-        </div>
-
-        <div id="cart-summary" class="mt-12 pt-8 border-t border-gray-200 hidden">
-            <div class="flex justify-between items-center mb-8">
-                <span class="text-sm uppercase tracking-widest text-gray-400 font-bold">Estimated Total</span>
-                <span id="total-price" class="text-3xl serif text-forest">$0.00</span>
-            </div>
-            <button id="checkout-btn" class="w-full bg-forest text-white py-5 rounded-full hover:bg-black transition duration-300 uppercase text-[10px] tracking-[0.3em] font-bold shadow-xl shadow-green-900/10">
-                Proceed to Checkout
-            </button>
+        <div id="cart-container" class="space-y-4">
+            <div class="animate-pulse space-y-4">
+                <div class="h-24 bg-gray-200 rounded-xl w-full"></div>
+                <div class="h-24 bg-gray-200 rounded-xl w-full"></div>
+             </div>
         </div>
 
         <div id="empty-state" class="hidden text-center py-20">
-            <div class="text-6xl mb-6">🌿</div>
-            <h2 class="serif text-2xl text-forest mb-4">Your bag is empty</h2>
-            <p class="text-gray-500 mb-8 text-sm">Explore our collections to find your daily scent.</p>
-            <a href="/products" class="px-10 py-3 border border-forest rounded-full hover:bg-forest hover:text-white transition uppercase text-[10px] tracking-widest font-bold">Shop Now</a>
+            <div class="text-6xl mb-6">🧴</div>
+            <h2 class="serif text-2xl mb-4">Your bag is empty</h2>
+            <a href="/" class="inline-block px-8 py-3 bg-purple-600 text-white rounded-lg font-bold uppercase text-xs tracking-widest">Start Shopping</a>
+        </div>
+
+        <div id="cart-options" class="mt-8 space-y-3 hidden">
+            <div class="drawer-item bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                <button onclick="toggleDrawer(this)" class="w-full px-6 py-4 flex justify-between items-center hover:bg-gray-50 transition">
+                    <span class="text-sm font-bold uppercase tracking-wider">1. Delivery Option</span>
+                    <span class="drawer-icon transition-transform">▼</span>
+                </button>
+                <div class="drawer-content px-6 pb-6">
+                    <div class="space-y-3 pt-2">
+                        <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:border-purple-500 transition">
+                            <input type="radio" name="shipping" value="60" checked class="w-4 h-4 text-purple-600 focus:ring-purple-500">
+                            <div class="ml-4">
+                                <span class="block text-sm font-bold">Inside Dhaka</span>
+                                <span class="text-xs text-gray-500">60 BDT (2-3 Business Days)</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:border-purple-500 transition">
+                            <input type="radio" name="shipping" value="120" class="w-4 h-4 text-purple-600 focus:ring-purple-500">
+                            <div class="ml-4">
+                                <span class="block text-sm font-bold">Outside Dhaka</span>
+                                <span class="text-xs text-gray-500">120 BDT (3-5 Business Days)</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="drawer-item bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                <button onclick="toggleDrawer(this)" class="w-full px-6 py-4 flex justify-between items-center hover:bg-gray-50 transition">
+                    <span class="text-sm font-bold uppercase tracking-wider">2. Payment Method</span>
+                    <span class="drawer-icon transition-transform">▼</span>
+                </button>
+                <div class="drawer-content px-6 pb-6">
+                    <div class="pt-4 p-4 bg-purple-50 rounded-lg border border-purple-100">
+                        <p class="text-xs font-bold text-purple-800 uppercase tracking-widest mb-2">Bkash Personal</p>
+                        <p class="text-xl font-mono font-bold text-purple-900">017XXXXXXXX</p>
+                        <p class="text-[10px] text-purple-600 mt-2 italic">Please include your order ID as a reference.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="cart-summary" class="mt-10 pt-8 border-t border-gray-200 hidden">
+            <div class="space-y-4 mb-8">
+                <div class="flex justify-between text-sm text-gray-500">
+                    <span>Subtotal</span>
+                    <span id="subtotal-price">0.00 BDT</span>
+                </div>
+                <div class="flex justify-between text-sm text-gray-500">
+                    <span>Shipping</span>
+                    <span id="shipping-cost">0.00 BDT</span>
+                </div>
+                <div id="free-delivery-badge" class="hidden py-2 px-3 bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-widest rounded-md text-center">
+                    ✨ Free Delivery Applied (Over 1500 BDT)
+                </div>
+                <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                    <span class="text-sm uppercase tracking-widest font-bold">Total Amount</span>
+                    <span id="grand-total" class="text-3xl font-bold text-purple-700">0.00 BDT</span>
+                </div>
+            </div>
+            
+            <button id="checkout-btn" class="w-full bg-black text-white py-5 rounded-xl hover:bg-gray-800 transition duration-300 uppercase text-xs tracking-[0.2em] font-bold shadow-xl">
+                Place Order
+            </button>
+            <button id="clear-btn" class="w-full mt-4 text-gray-400 hover:text-red-500 text-[10px] uppercase tracking-widest font-bold transition">
+                Clear Shopping Bag
+            </button>
         </div>
     </main>
-    <script src="{{ url_for('static', filename='cart.js') }}"></script>
+
+    <script src="/static/cart.js"></script>
+    <script>
+        // Simple UI logic for drawer toggling
+        function toggleDrawer(button) {
+            const item = button.parentElement;
+            item.classList.toggle('active');
+        }
+    </script>
 </body>
 </html>
-
 

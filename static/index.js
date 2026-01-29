@@ -1,6 +1,6 @@
 /**
  * MARKAZUS SUNNAH | Frontend Logic
- * Integrated API, GSAP Animations, and Language Toggle
+ * Integrated API, GSAP Animations, Language Toggle, Stats Counter
  */
 
 // --- CONFIGURATION & GLOBAL VARIABLES ---
@@ -22,66 +22,103 @@ async function fetchProducts() {
         }
     } catch (error) {
         console.error("API Error:", error);
-        grid.innerHTML = `<p class="col-span-full text-center text-red-500">Failed to load products. Please try again later.</p>`;
+        grid.innerHTML = `
+            <p class="col-span-full text-center text-red-500">
+                Failed to load products. Please try again later.
+            </p>`;
     }
 }
 
-// --- UI RENDERING & TEMPLATES ---
+// --- UI RENDERING ---
 function renderProductCards(products, container) {
     container.innerHTML = products.map(product => `
-        <div class="product-card bg-white group shadow-sm reveal-item rounded-2xl">
+        <div class="product-card bg-white group shadow-sm reveal-item rounded-2xl opacity-0 translate-y-8 scale-95">
             <a href="/product?id=${product.id}" class="block">
                 <div class="relative overflow-hidden bg-gray-400 aspect-square mb-4 rounded-2xl">
-                    <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
-                        <img src="${product.image || '/static/img/placeholder.webp'}" 
-                             alt="${product.name}" 
+                    <div class="product-image absolute inset-0 transition-transform duration-700 group-hover:scale-110">
+                        <img src="${product.image || '/static/img/placeholder.webp'}"
+                             alt="${product.name}"
                              class="w-full h-full object-cover">
                     </div>
                 </div>
                 <div class="p-4">
-                    <p class="text-sm text-gray-500 mb-1" data-bn="মারকাযুস সুন্নাহ">Markazus Sunnah</p>
-                    <h3 class="heading-font text-xl font-semibold mb-2" 
-                        data-bn="${product.name_bn || product.name}">${product.name}</h3>
-                    <p class="text-lg font-semibold" 
-                        data-bn="৳${product.price}">${product.price} taka</p>
+                    <p class="text-sm text-gray-500 mb-1" data-bn="মারকাযুস সুন্নাহ">
+                        Markazus Sunnah
+                    </p>
+                    <h3 class="heading-font text-xl font-semibold mb-2"
+                        data-bn="${product.name_bn || product.name}">
+                        ${product.name}
+                    </h3>
+                    <p class="text-lg font-semibold"
+                        data-bn="৳${product.price}">
+                        ${product.price} taka
+                    </p>
                 </div>
             </a>
         </div>
     `).join('');
 
     initScrollAnimations();
-    const savedLang = localStorage.getItem('site_lang') || 'en';
-    applyLanguage(savedLang);
+    applyLanguage(localStorage.getItem('site_lang') || 'en');
 }
 
+// --- STATS COUNTER ---
+function initStatsCounter() {
+    gsap.utils.toArray('.count-up').forEach(el => {
+        const target = parseInt(el.dataset.target);
+        gsap.to(el, {
+            innerText: target,
+            duration: 4,
+            snap: { innerText: 1 },
+            ease: "expo.out",
+            scrollTrigger: {
+                trigger: el,
+                start: "top 90%",
+                toggleActions: "play none none none"
+            }
+        });
+    });
+}
 
-// --- GSAP ANIMATIONS ---
+// --- SCROLL ANIMATIONS ---
 function initScrollAnimations() {
-    // Navbar Shrink
+    // Navbar shrink
     ScrollTrigger.create({
         start: "top -50",
-        onEnter: () => gsap.to("#navbar", { height: 65, backgroundColor: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)", duration: 0.4 }),
-        onLeaveBack: () => gsap.to("#navbar", { height: 80, backgroundColor: "rgba(255,255,255,1)", backdropFilter: "blur(0px)", duration: 0.4 })
+        onEnter: () =>
+            gsap.to("#navbar", {
+                height: 65,
+                backgroundColor: "rgba(255,255,255,0.95)",
+                backdropFilter: "blur(10px)",
+                duration: 0.4
+            }),
+        onLeaveBack: () =>
+            gsap.to("#navbar", {
+                height: 80,
+                backgroundColor: "rgba(255,255,255,1)",
+                backdropFilter: "blur(0px)",
+                duration: 0.4
+            })
     });
 
-    // Reveal items (including new product cards)
-    gsap.utils.toArray('.reveal-item').forEach((item) => {
+    // Reveal items
+    gsap.utils.toArray('.reveal-item').forEach(item => {
         gsap.to(item, {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 1.1,
+            ease: "power4.out",
             scrollTrigger: {
                 trigger: item,
                 start: "top 90%",
                 toggleActions: "play none none none"
-            },
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 1.2,
-            ease: "power4.out"
+            }
         });
     });
 
-    // 3D Scene Timeline
-    const sceneTl = gsap.timeline({
+    // 3D Scene
+    gsap.timeline({
         scrollTrigger: {
             trigger: ".scene-container",
             start: "top top",
@@ -89,22 +126,29 @@ function initScrollAnimations() {
             scrub: 1,
             pin: true
         }
-    });
-    sceneTl.from(".bg-layer", { scale: 1.2, opacity: 0, duration: 2 })
-           .from(".hero-title", { x: -500, opacity: 0, duration: 2 }, "-=1.5")
-           .from(".item-left", { x: -300, y: 100, rotation: -30, opacity: 0, duration: 2 }, "-=1.8")
-           .from(".item-right", { x: 300, y: -100, rotation: 30, opacity: 0, duration: 2 }, "-=1.8");
+    })
+        .from(".bg-layer", { scale: 1.2, autoAlpha: 0, duration: 2 })
+        .from(".hero-title", { x: -400, autoAlpha: 0, duration: 2 }, "-=1.5")
+        .from(".item-left", { x: -300, y: 100, rotation: -30, autoAlpha: 0, duration: 2 }, "-=1.6")
+        .from(".item-right", { x: 300, y: -100, rotation: 30, autoAlpha: 0, duration: 2 }, "-=1.6");
 }
 
+// --- HERO SLIDER (SMOOTH FADE FIX) ---
 function setupHeroSlider() {
     const slides = document.querySelectorAll('.hero-slide');
     const dots = document.querySelectorAll('.hero-dot');
-    
-    // FIX: Animate the first slide immediately on load
-    const firstSlide = slides[0];
-    gsap.set(dots[0], { backgroundColor: "white", width: 48 });
-    gsap.fromTo(firstSlide.querySelector('.hero-img'), { scale: 1.2 }, { scale: 1, duration: 6, ease: "power2.out" });
-    gsap.fromTo(firstSlide.querySelector('.text-content'), { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 2, ease: "expo.out", delay: 0.5 });
+    if (!slides.length) return;
+
+    // Init first slide
+    gsap.set(slides, { autoAlpha: 0 });
+    gsap.set(slides[0], { autoAlpha: 1 });
+    gsap.set(dots[0], { width: 48, backgroundColor: "white" });
+
+    gsap.fromTo(
+        slides[0].querySelector('.hero-img'),
+        { scale: 1.1 },
+        { scale: 1, duration: 5, ease: "power2.out" }
+    );
 
     function changeSlide(index) {
         if (isAnimating || index === currentSlide) return;
@@ -113,133 +157,147 @@ function setupHeroSlider() {
         const oldSlide = slides[currentSlide];
         const newSlide = slides[index];
 
-        // Dot animation
+        gsap.killTweensOf([oldSlide, newSlide]);
+
         dots.forEach((dot, i) => {
-            gsap.to(dot, { width: i === index ? 48 : 12, backgroundColor: i === index ? "white" : "rgba(255,255,255,0.2)", duration: 0.6 });
+            gsap.to(dot, {
+                width: i === index ? 48 : 12,
+                backgroundColor: i === index ? "white" : "rgba(255,255,255,0.2)",
+                duration: 0.5,
+                ease: "power2.out"
+            });
         });
 
-        // Fade Transition
-        gsap.to(oldSlide, { opacity: 0, duration: 1.2, ease: "power2.inOut", onComplete: () => oldSlide.classList.remove('active') });
-        newSlide.classList.add('active');
-        gsap.to(newSlide, { opacity: 1, duration: 1.2, ease: "power2.inOut" });
+        const tl = gsap.timeline({
+            defaults: { ease: "expo.inOut" },
+            onComplete: () => {
+                currentSlide = index;
+                isAnimating = false;
+            }
+        });
 
-        // Content Motion
-        gsap.fromTo(newSlide.querySelector('.hero-img'), { scale: 1.2 }, { scale: 1, duration: 6, ease: "power2.out" });
-        gsap.fromTo(newSlide.querySelector('.text-content'), { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 2, ease: "expo.out", delay: 0.3 });
+        tl.to(oldSlide, {
+            autoAlpha: 0,
+            scale: 0.98,
+            duration: 1
+        }, 0);
 
-        setTimeout(() => { isAnimating = false; currentSlide = index; }, 1200);
+        tl.fromTo(newSlide,
+            { autoAlpha: 0, scale: 1.02 },
+            { autoAlpha: 1, scale: 1, duration: 1 },
+            0
+        );
+
+        tl.fromTo(
+            newSlide.querySelector('.hero-img'),
+            { scale: 1.08 },
+            { scale: 1, duration: 5, ease: "power2.out" },
+            0
+        );
+
+        tl.fromTo(
+            newSlide.querySelector('.text-content'),
+            { y: 30, autoAlpha: 0 },
+            { y: 0, autoAlpha: 1, duration: 1.2, ease: "expo.out" },
+            0.2
+        );
     }
 
-    dots.forEach((dot, i) => dot.addEventListener('click', () => changeSlide(i)));
-    setInterval(() => changeSlide((currentSlide + 1) % slides.length), 8000);
+    dots.forEach((dot, i) =>
+        dot.addEventListener('click', () => changeSlide(i))
+    );
+
+    setInterval(() => {
+        changeSlide((currentSlide + 1) % slides.length);
+    }, 8000);
 }
-// --- COLLECTIONS DRAGGABLE LOGIC ---
+
+// --- COLLECTION DRAG ---
 function setupCollectionScroll() {
     const wrapper = document.getElementById('collectionsWrapper');
     if (!wrapper) return;
 
-    const cards = document.querySelectorAll('.collection-card');
-    const stepWidth = cards[0].offsetWidth + 24; // Card + Gap
-    let autoTimer;
-    let startX;
+    const cards = wrapper.querySelectorAll('.collection-card');
+    if (!cards.length) return;
+
+    const step = cards[0].offsetWidth + 24;
+    let autoTimer, startX;
 
     Draggable.create(wrapper, {
         type: "x",
-        edgeResistance: 0.95,
-        dragResistance: 0.2,
-        inertia: false,
-        bounds: { 
-            minX: -(wrapper.scrollWidth - wrapper.parentElement.offsetWidth), 
-            maxX: 0 
+        bounds: {
+            minX: -(wrapper.scrollWidth - wrapper.parentElement.offsetWidth),
+            maxX: 0
         },
-        onDragStart: function() {
+        onDragStart() {
             clearInterval(autoTimer);
             startX = this.x;
         },
-        onDragEnd: function() {
-            const draggedDistance = this.x - startX;
-            const threshold = 50;
-            let targetX;
-
-            if (Math.abs(draggedDistance) > threshold) {
-                if (draggedDistance < 0) {
-                    targetX = Math.ceil((startX - stepWidth) / stepWidth) * stepWidth;
-                } else {
-                    targetX = Math.floor((startX + stepWidth) / stepWidth) * stepWidth;
-                }
-            } else {
-                targetX = startX;
-            }
+        onDragEnd() {
+            const diff = this.x - startX;
+            const target =
+                Math.abs(diff) > 50
+                    ? startX + (diff < 0 ? -step : step)
+                    : startX;
 
             gsap.to(wrapper, {
-                x: targetX,
+                x: target,
                 duration: 0.6,
                 ease: "power2.out",
-                onComplete: startAutoStep
+                onComplete: startAuto
             });
         }
     });
 
     function moveNext() {
-        const currentX = gsap.getProperty(wrapper, "x");
-        const maxScroll = -(wrapper.scrollWidth - wrapper.parentElement.offsetWidth);
-        let targetX = currentX - stepWidth;
-        if (targetX < maxScroll - 10) targetX = 0;
-
+        const x = gsap.getProperty(wrapper, "x");
+        const max = -(wrapper.scrollWidth - wrapper.parentElement.offsetWidth);
         gsap.to(wrapper, {
-            x: targetX,
+            x: x - step < max ? 0 : x - step,
             duration: 1,
             ease: "power3.inOut"
         });
     }
 
-    function startAutoStep() {
+    function startAuto() {
         clearInterval(autoTimer);
         autoTimer = setInterval(moveNext, 4000);
     }
 
-    startAutoStep();
+    startAuto();
     wrapper.addEventListener('mouseenter', () => clearInterval(autoTimer));
-    wrapper.addEventListener('mouseleave', startAutoStep);
+    wrapper.addEventListener('mouseleave', startAuto);
 }
 
-// --- LANGUAGE TOGGLE & LOCALSTORAGE ---
+// --- LANGUAGE ---
 const langBtn = document.getElementById('lang-toggle');
+
 function applyLanguage(lang) {
-    const body = document.body; // Reference the body tag
-    const langElements = document.querySelectorAll('[data-bn]');
+    document.body.classList.toggle('lang-bn', lang === 'bn');
 
-    // Toggle the .lang-bn class based on the selected language
-    if (lang === 'bn') {
-        body.classList.add('lang-bn');
-    } else {
-        body.classList.remove('lang-bn');
-    }
-
-    langElements.forEach(el => {
-        if (!el.dataset.en) el.dataset.en = el.innerHTML; // Store original English
-        el.innerHTML = (lang === 'bn') ? el.dataset.bn : el.dataset.en;
+    document.querySelectorAll('[data-bn]').forEach(el => {
+        if (!el.dataset.en) el.dataset.en = el.innerHTML;
+        el.innerHTML = lang === 'bn' ? el.dataset.bn : el.dataset.en;
     });
 
-    langBtn.textContent = (lang === 'bn') ? 'EN' : 'BN';
+    if (langBtn) langBtn.textContent = lang === 'bn' ? 'EN' : 'BN';
     localStorage.setItem('site_lang', lang);
 }
 
-
-// --- INITIALIZATION ---
+// --- INIT ---
 window.addEventListener('load', () => {
     gsap.registerPlugin(ScrollTrigger, Draggable);
 
-    // 1. Initial UI Setup
     setupHeroSlider();
     setupCollectionScroll();
-
-    // 2. Load API Data
+    initStatsCounter();
     fetchProducts();
 
-    // 3. Setup Lang Toggle
-    langBtn.addEventListener('click', () => {
-        const nextLang = localStorage.getItem('site_lang') === 'bn' ? 'en' : 'bn';
-        applyLanguage(nextLang);
-    });
+    if (langBtn) {
+        langBtn.addEventListener('click', () => {
+            applyLanguage(
+                localStorage.getItem('site_lang') === 'bn' ? 'en' : 'bn'
+            );
+        });
+    }
 });
