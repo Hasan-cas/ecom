@@ -1,3 +1,6 @@
+/**
+ * MARKAZUS SUNNAH | Frontend Logic for products page
+ */
 let allProducts = [];
 let filteredProducts = [];
 let currentPage = 1;
@@ -17,13 +20,41 @@ async function loadProducts() {
         if (result.status === 'success') {
             allProducts = result.data;
             console.log("Products loaded:", allProducts);
-            
+
             renderParents();
+            
+            // --- NEW: Check URL for category on page load ---
+            handleUrlCategory(); 
+            
             applyFilters();
         }
     } catch (err) {
         console.error("Fetch error:", err);
         grid.innerHTML = `<p class="col-span-full text-center py-20">Error loading products.</p>`;
+    }
+}
+
+/**
+ * NEW: Logic to handle ?category=name in the URL
+ */
+function handleUrlCategory() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category')?.toLowerCase();
+
+    if (!categoryParam) return;
+
+    // Find the button in the parent container
+    const parentBtn = document.querySelector(`.parent-btn[data-parent="${categoryParam}"]`);
+
+    if (parentBtn) {
+        // Reset any existing active states
+        document.querySelectorAll('.parent-btn').forEach(btn => btn.classList.remove('active-filter'));
+        
+        // Activate the specific parent from URL
+        parentBtn.classList.add('active-filter');
+        
+        // Render the sub-categories for that parent so the UI stays consistent
+        renderSubCategories(categoryParam);
     }
 }
 
@@ -33,8 +64,6 @@ function renderParents() {
         .filter(Boolean)
     )].sort();
 
-    console.log("Parent categories found:", parents);
-    
     parentContainer.innerHTML = parents.map(cat => `
         <button class="parent-btn px-6 py-2 rounded-full border border-gray-200 text-[10px] font-bold uppercase tracking-widest transition" data-parent="${cat.toLowerCase()}">${cat}</button>
     `).join('');
@@ -53,12 +82,10 @@ function renderSubCategories(parentVal) {
         })
     )].filter(Boolean).sort();
 
-    console.log(`Sub-categories for ${parentVal}:`, subs);
-
     if (subs.length > 0) {
         subArea.classList.remove('hidden');
         subArea.className = "no-scrollbar flex gap-2 overflow-x-auto pb-2 mb-4 w-full";
-        
+
         subArea.innerHTML = subs.map(s => `
             <button class="sub-btn whitespace-nowrap px-4 py-1 rounded-full bg-gray-100 text-[10px] font-bold uppercase transition flex-shrink-0" data-sub="${parentVal.toLowerCase()}-${s.toLowerCase()}">${s}</button>
         `).join('');
@@ -71,13 +98,12 @@ function renderSubCategories(parentVal) {
 // EVENT DELEGATION - Click on parent buttons
 parentContainer.addEventListener('click', (e) => {
     if (!e.target.classList.contains('parent-btn')) return;
-    
+
     const parentVal = e.target.dataset.parent;
     const isActive = e.target.classList.contains('active-filter');
-    
-    // Reset all parent buttons
+
     document.querySelectorAll('.parent-btn').forEach(btn => btn.classList.remove('active-filter'));
-    
+
     if (isActive) {
         subArea.classList.add('hidden');
         subArea.innerHTML = '';
@@ -85,7 +111,6 @@ parentContainer.addEventListener('click', (e) => {
         return;
     }
 
-    // Activate the clicked parent
     e.target.classList.add('active-filter');
     renderSubCategories(parentVal);
     applyFilters();
@@ -94,18 +119,15 @@ parentContainer.addEventListener('click', (e) => {
 // EVENT DELEGATION - Click on sub buttons
 subArea.addEventListener('click', (e) => {
     if (!e.target.classList.contains('sub-btn')) return;
-    
-    const subVal = e.target.dataset.sub;
+
     const wasActive = e.target.classList.contains('active-filter');
-    
-    // Reset all sub buttons
+
     document.querySelectorAll('.sub-btn').forEach(btn => btn.classList.remove('active-filter'));
-    
+
     if (!wasActive) {
         e.target.classList.add('active-filter');
     }
-    
-    console.log("Active sub-category:", subVal);
+
     applyFilters();
 });
 
@@ -115,14 +137,12 @@ function applyFilters() {
     const activeSub = document.querySelector('.sub-btn.active-filter')?.dataset.sub;
     const sort = sortSelect.value;
 
-    console.log("Filtering with - Parent:", activeParent, "Sub:", activeSub);
-
     filteredProducts = allProducts.filter(p => {
         const pCat = p.category ? p.category.toLowerCase().trim() : "";
         const matchesSearch = p.name.toLowerCase().includes(search);
-        
+
         let matchesCategory = true;
-        
+
         if (activeSub) {
             matchesCategory = (pCat === activeSub);
         } else if (activeParent) {
@@ -131,8 +151,6 @@ function applyFilters() {
 
         return matchesSearch && matchesCategory;
     });
-
-    console.log("Filtered products count:", filteredProducts.length);
 
     if (sort === 'price-low') filteredProducts.sort((a, b) => a.price - b.price);
     else if (sort === 'price-high') filteredProducts.sort((a, b) => b.price - a.price);
@@ -157,7 +175,7 @@ function renderGrid() {
             <p class="font-bold">$${p.price}</p>
         </a>
     `).join('') : `<p class="col-span-full text-center py-20 text-gray-400">No products found matching your criteria.</p>`;
-    
+
     renderPagination();
 }
 
@@ -165,7 +183,7 @@ function renderPagination() {
     const pages = Math.ceil(filteredProducts.length / itemsPerPage);
     const container = document.getElementById('pagination');
     if (pages <= 1) { container.innerHTML = ''; return; }
-    
+
     let html = '';
     for (let i = 1; i <= pages; i++) {
         html += `<button onclick="changePage(${i})" 
@@ -186,7 +204,6 @@ function resetFilters() {
 
 window.resetFilters = resetFilters;
 
-// Reset button event listener
 document.addEventListener('click', (e) => {
     if (e.target.textContent === '×' && e.target.tagName === 'BUTTON') {
         resetFilters();
