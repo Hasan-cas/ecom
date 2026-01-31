@@ -6,7 +6,6 @@ const API_BASE = '/api/admin';
 const PRODUCT_API = '/api/admin/products';
 const ORDER_API = '/api/admin/orders';
 
-// DOM Elements Cache
 const DOM = {
     productsTable: document.getElementById('products-table-body'),
     ordersContainer: document.getElementById('orders-list'),
@@ -17,15 +16,11 @@ const DOM = {
     subCatInput: document.getElementById('sub-category-input'),
     combinedCatHidden: document.getElementById('combined-category'),
     variantsInput: document.getElementById('variants-input'),
-    submitBtn: document.querySelector('#add-product-form button[type="submit"]')
+    submitBtn: document.querySelector('#add-product-form button[type="submit"]'),
+    orderModal: document.getElementById('order-detail-modal')
 };
 
-// Local storage for orders to power the modal
 let allOrders = [];
-
-/* ==========================================================================
-   Auth & Initialization
-   ========================================================================== */
 
 async function checkAuth() {
     toggleLoading(true);
@@ -50,31 +45,51 @@ function initDashboard() {
     if (DOM.addProductForm) DOM.addProductForm.addEventListener('submit', handleAddProduct);
     if (DOM.logoutBtn) DOM.logoutBtn.addEventListener('click', handleLogout);
 
-    // Click listener for the Order Modal
+    // Global Modal Close Listeners
+    document.querySelectorAll('.btn-close-modal').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+    });
+
+    // Event Delegation for Products Table (Delete Button)
+    if (DOM.productsTable) {
+        DOM.productsTable.addEventListener('click', (e) => {
+            const deleteBtn = e.target.closest('.delete-product-btn');
+            if (deleteBtn) {
+                const productId = deleteBtn.getAttribute('data-id');
+                deleteProduct(productId);
+            }
+        });
+    }
+
+    // Event Delegation for Orders List (Modal & Status)
     if (DOM.ordersContainer) {
         DOM.ordersContainer.addEventListener('click', (e) => {
-            // Prevent modal if clicking the status dropdown
+            // If user clicks the select dropdown, don't open modal
             if (e.target.closest('.order-status-select')) return;
-            
+
             const card = e.target.closest('.order-card');
             if (card) {
                 const orderId = card.getAttribute('data-id');
                 showOrderDetails(orderId);
             }
         });
+
+        DOM.ordersContainer.addEventListener('change', (e) => {
+            const select = e.target.closest('.order-status-select');
+            if (select) {
+                const orderId = select.getAttribute('data-order-id');
+                updateOrderStatus(orderId, select.value);
+            }
+        });
     }
 }
-
-/* ==========================================================================
-   Order Management
-   ========================================================================== */
 
 async function fetchOrders() {
     try {
         const response = await fetch(ORDER_API);
         const result = await response.json();
         if (result.status === 'success') {
-            allOrders = result.data; // Save data for the modal
+            allOrders = result.data;
             renderOrders(allOrders);
         }
     } catch (error) {
@@ -84,13 +99,11 @@ async function fetchOrders() {
 
 function renderOrders(orders) {
     if (!DOM.ordersContainer) return;
-
     if (orders.length === 0) {
         DOM.ordersContainer.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">No orders yet.</div>`;
         return;
     }
 
-    // Mapping to Backend Keys: order_id instead of id, total instead of total_amount
     DOM.ordersContainer.innerHTML = orders.map(order => `
         <div class="order-card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-black transition cursor-pointer" data-id="${order.order_id}">
             <div class="flex justify-between items-start mb-4">
@@ -105,14 +118,11 @@ function renderOrders(orders) {
                     ${order.status}
                 </span>
             </div>
-            
             <p class="text-xs text-gray-500 mb-4 h-8 overflow-hidden">${order.address}</p>
-            
             <div class="space-y-3 pt-3 border-t border-gray-50 flex justify-between items-center">
-                <span class="text-sm font-bold text-forest">$${parseFloat(order.total).toFixed(2)}</span>
-                <select onchange="updateOrderStatus(${order.order_id}, this.value)" 
+                <span class="text-sm font-bold">$${parseFloat(order.total).toFixed(2)}</span>
+                <select data-order-id="${order.order_id}"
                         class="order-status-select text-[10px] uppercase font-bold bg-gray-50 rounded-lg px-2 py-1 outline-none border-none cursor-pointer hover:bg-gray-100 transition">
-                    <option value="" disabled selected>Status</option>
                     <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
                     <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
                     <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
@@ -122,23 +132,20 @@ function renderOrders(orders) {
     `).join('');
 }
 
-// Logic to show the Modal with Order Items
 function showOrderDetails(orderId) {
     const order = allOrders.find(o => o.order_id == orderId);
     if (!order) return;
 
-    const modal = document.getElementById('order-detail-modal');
     const content = document.getElementById('modal-items-content');
     const totalEl = document.getElementById('modal-total-price');
 
-    // Render each item from order_items
     content.innerHTML = order.items.map(item => `
         <div class="flex justify-between items-center py-4 border-b border-gray-50 last:border-0">
             <div class="flex items-center gap-4">
                 <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center font-bold text-xs">x${item.quantity}</div>
                 <div>
                     <p class="font-bold text-sm">${item.product_name}</p>
-                    <p class="text-[10px] text-gray-400 uppercase">Unit Price: $${item.price.toFixed(2)}</p>
+                    <p class="text-[10px] text-gray-400 uppercase">Unit: $${parseFloat(item.price).toFixed(2)}</p>
                 </div>
             </div>
             <p class="font-bold text-sm">$${(item.price * item.quantity).toFixed(2)}</p>
@@ -146,16 +153,12 @@ function showOrderDetails(orderId) {
     `).join('');
 
     totalEl.innerText = `$${parseFloat(order.total).toFixed(2)}`;
-    modal.classList.remove('hidden');
+    DOM.orderModal.classList.remove('hidden');
 }
 
 function closeModal() {
-    document.getElementById('order-detail-modal').classList.add('hidden');
+    DOM.orderModal.classList.add('hidden');
 }
-
-/* ==========================================================================
-   Product Management & Utilities (Existing Features Kept)
-   ========================================================================== */
 
 async function fetchProducts() {
     try {
@@ -178,8 +181,8 @@ function renderProducts(products) {
             </td>
             <td class="px-6 py-4 font-medium text-gray-600">$${parseFloat(p.price).toFixed(2)}</td>
             <td class="px-6 py-4 text-right">
-                <button onclick="deleteProduct(${p.id})" class="text-red-500 hover:text-red-700 transition">
-                    <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                <button type="button" data-id="${p.id}" class="delete-product-btn text-red-500 hover:text-red-700 transition">
+                    <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                 </button>
             </td>
         </tr>
@@ -191,6 +194,7 @@ async function handleAddProduct(e) {
     const parent = DOM.parentCatInput.value.trim();
     const sub = DOM.subCatInput.value.trim();
     DOM.combinedCatHidden.value = `${parent.toLowerCase()}-${sub.toLowerCase()}`;
+    
     const variantRaw = DOM.variantsInput.value.trim();
     let refinedVariants = [];
     if (variantRaw) {
@@ -199,14 +203,20 @@ async function handleAddProduct(e) {
             return { size: size.trim(), price: parseFloat(price), stock: parseInt(stock) };
         });
     }
+
     const formData = new FormData(e.target);
     formData.append('variants', JSON.stringify(refinedVariants));
+    
     setSubmitting(true);
     try {
         const response = await fetch(PRODUCT_API, { method: 'POST', body: formData });
         if (response.ok) {
             showToast("Product created", "success");
-            e.target.reset(); fetchProducts();
+            e.target.reset();
+            fetchProducts();
+        } else {
+            const err = await response.json();
+            showToast(err.message || "Failed to create", "error");
         }
     } catch (error) { showToast("Error connecting", "error"); } finally { setSubmitting(false); }
 }
@@ -215,7 +225,10 @@ async function deleteProduct(id) {
     if (!confirm("Delete product?")) return;
     try {
         const response = await fetch(`${PRODUCT_API}/${id}`, { method: 'DELETE' });
-        if (response.ok) { showToast("Product deleted", "success"); fetchProducts(); }
+        if (response.ok) { 
+            showToast("Product deleted", "success"); 
+            fetchProducts(); 
+        }
     } catch (error) { showToast("Delete failed", "error"); }
 }
 

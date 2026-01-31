@@ -91,6 +91,11 @@
                                     </div>
 
                                     <div>
+                                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Product Description</label>
+                                        <textarea name="description" required rows="3" class="w-full rounded-lg border-gray-200 focus:border-[#C8A86A] focus:ring focus:ring-[#C8A86A]/20 text-sm p-2.5 bg-gray-50" placeholder="Enter product details and notes..."></textarea>
+                                    </div>
+
+                                    <div>
                                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Product Image</label>
                                         <input type="file" name="image" accept="image/*" required class="w-full rounded-lg border-gray-200 text-sm p-2 bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-[#C8A86A] file:text-white">
                                     </div>              
@@ -135,18 +140,17 @@
                     <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Order Details</span>
                     <h3 class="font-serif font-bold text-2xl text-black">Purchased Items</h3>
                 </div>
-                <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm hover:text-red-500 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <button type="button" class="btn-close-modal w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm hover:text-red-500 transition">
+                    <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <div id="modal-items-content" class="p-8 max-h-[60vh] overflow-y-auto no-scrollbar">
-                </div>
+            <div id="modal-items-content" class="p-8 max-h-[60vh] overflow-y-auto no-scrollbar"></div>
             <div class="p-8 bg-white border-t border-gray-50 flex justify-between items-center">
                 <div>
                     <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Grand Total</span>
                     <p id="modal-total-price" class="font-serif font-bold text-2xl text-black">$0.00</p>
                 </div>
-                <button onclick="closeModal()" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest">Close</button>
+                <button type="button" class="btn-close-modal px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest">Close</button>
             </div>
         </div>
     </div>
