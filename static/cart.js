@@ -222,6 +222,15 @@ function navigateToCheckout() {
     };
 
     console.log("Finalized Order Summary:", finalSummary);
-    alert(`Order of ৳${finalSummary.total.toLocaleString()} placed successfully! Delivery to: ${finalSummary.location}`);
+
+    // 1. Show the message
+    alert(`Order of ৳${finalSummary.total.toLocaleString()} placed successfully! Redirecting to checkout...`);
+
+    // 2. Wait 3 seconds (3000ms) then redirect
+    setTimeout(() => {
+        window.location.href = '/checkout';
+    }, 3000);
 }
+
+
 

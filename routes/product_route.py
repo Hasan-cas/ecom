@@ -50,7 +50,7 @@ def get_product(product_id):
 # ADMIN ROUTES (Authentication Required)
 # ============================================================================
 
-@product_bp.route('/admin/products', methods=['POST'])
+@product_bp.route('/admin/products', methods=['GET','POST'])
 @admin_required
 def add_product():
     """Create a new product (Admin only)."""

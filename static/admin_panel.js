@@ -1,6 +1,5 @@
 /**
  * ZENFOX Admin Dashboard Logic
- * Integrates with: product_service.py, order_service.py, admin_service.py
  */
 
 const API_BASE = '/api/admin';
@@ -14,15 +13,15 @@ const DOM = {
     addProductForm: document.getElementById('add-product-form'),
     logoutBtn: document.getElementById('logout-btn'),
     loadingSpinner: document.getElementById('loading-spinner'),
-    // Category Inputs
     parentCatInput: document.getElementById('parent-category-input'),
     subCatInput: document.getElementById('sub-category-input'),
     combinedCatHidden: document.getElementById('combined-category'),
-    // Variants Input
     variantsInput: document.getElementById('variants-input'),
-    // UI Helpers
     submitBtn: document.querySelector('#add-product-form button[type="submit"]')
 };
+
+// Local storage for orders to power the modal
+let allOrders = [];
 
 /* ==========================================================================
    Auth & Initialization
@@ -48,45 +47,132 @@ function initDashboard() {
     fetchProducts();
     fetchOrders();
 
-    if (DOM.addProductForm) {
-        DOM.addProductForm.addEventListener('submit', handleAddProduct);
-    }
-    if (DOM.logoutBtn) {
-        DOM.logoutBtn.addEventListener('click', handleLogout);
+    if (DOM.addProductForm) DOM.addProductForm.addEventListener('submit', handleAddProduct);
+    if (DOM.logoutBtn) DOM.logoutBtn.addEventListener('click', handleLogout);
+
+    // Click listener for the Order Modal
+    if (DOM.ordersContainer) {
+        DOM.ordersContainer.addEventListener('click', (e) => {
+            // Prevent modal if clicking the status dropdown
+            if (e.target.closest('.order-status-select')) return;
+            
+            const card = e.target.closest('.order-card');
+            if (card) {
+                const orderId = card.getAttribute('data-id');
+                showOrderDetails(orderId);
+            }
+        });
     }
 }
 
 /* ==========================================================================
-   Product Management
+   Order Management
+   ========================================================================== */
+
+async function fetchOrders() {
+    try {
+        const response = await fetch(ORDER_API);
+        const result = await response.json();
+        if (result.status === 'success') {
+            allOrders = result.data; // Save data for the modal
+            renderOrders(allOrders);
+        }
+    } catch (error) {
+        showToast("Failed to load orders", "error");
+    }
+}
+
+function renderOrders(orders) {
+    if (!DOM.ordersContainer) return;
+
+    if (orders.length === 0) {
+        DOM.ordersContainer.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">No orders yet.</div>`;
+        return;
+    }
+
+    // Mapping to Backend Keys: order_id instead of id, total instead of total_amount
+    DOM.ordersContainer.innerHTML = orders.map(order => `
+        <div class="order-card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-black transition cursor-pointer" data-id="${order.order_id}">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Order #${order.order_id}</span>
+                    <h4 class="font-bold text-gray-800">${order.customer_name}</h4>
+                </div>
+                <span class="px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest
+                    ${order.status === 'Pending' ? 'text-orange-600 bg-orange-50' : ''}
+                    ${order.status === 'Shipped' ? 'text-blue-600 bg-blue-50' : ''}
+                    ${order.status === 'Delivered' ? 'text-green-600 bg-green-50' : ''}">
+                    ${order.status}
+                </span>
+            </div>
+            
+            <p class="text-xs text-gray-500 mb-4 h-8 overflow-hidden">${order.address}</p>
+            
+            <div class="space-y-3 pt-3 border-t border-gray-50 flex justify-between items-center">
+                <span class="text-sm font-bold text-forest">$${parseFloat(order.total).toFixed(2)}</span>
+                <select onchange="updateOrderStatus(${order.order_id}, this.value)" 
+                        class="order-status-select text-[10px] uppercase font-bold bg-gray-50 rounded-lg px-2 py-1 outline-none border-none cursor-pointer hover:bg-gray-100 transition">
+                    <option value="" disabled selected>Status</option>
+                    <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                    <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                    <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                </select>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Logic to show the Modal with Order Items
+function showOrderDetails(orderId) {
+    const order = allOrders.find(o => o.order_id == orderId);
+    if (!order) return;
+
+    const modal = document.getElementById('order-detail-modal');
+    const content = document.getElementById('modal-items-content');
+    const totalEl = document.getElementById('modal-total-price');
+
+    // Render each item from order_items
+    content.innerHTML = order.items.map(item => `
+        <div class="flex justify-between items-center py-4 border-b border-gray-50 last:border-0">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center font-bold text-xs">x${item.quantity}</div>
+                <div>
+                    <p class="font-bold text-sm">${item.product_name}</p>
+                    <p class="text-[10px] text-gray-400 uppercase">Unit Price: $${item.price.toFixed(2)}</p>
+                </div>
+            </div>
+            <p class="font-bold text-sm">$${(item.price * item.quantity).toFixed(2)}</p>
+        </div>
+    `).join('');
+
+    totalEl.innerText = `$${parseFloat(order.total).toFixed(2)}`;
+    modal.classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('order-detail-modal').classList.add('hidden');
+}
+
+/* ==========================================================================
+   Product Management & Utilities (Existing Features Kept)
    ========================================================================== */
 
 async function fetchProducts() {
     try {
         const response = await fetch('/api/products');
         const result = await response.json();
-        
-        if (result.status === 'success') {
-            renderProducts(result.data);
-        }
-    } catch (error) {
-        showToast("Failed to load products", "error");
-    }
+        if (result.status === 'success') renderProducts(result.data);
+    } catch (error) { showToast("Failed to load products", "error"); }
 }
 
 function renderProducts(products) {
     if (!DOM.productsTable) return;
-    
-    if (products.length === 0) {
-        DOM.productsTable.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">No products found.</td></tr>`;
-        return;
-    }
-
     DOM.productsTable.innerHTML = products.map(p => `
         <tr class="hover:bg-gray-50 transition border-b border-gray-50">
             <td class="px-6 py-4 font-mono text-xs text-gray-400">#${p.id}</td>
             <td class="px-6 py-4">
                 <div class="font-bold text-gray-800">${p.name}</div>
-                <div class="text-[9px] uppercase tracking-widest text-forest font-semibold">
+                <div class="text-[9px] uppercase tracking-widest text-emerald-600 font-semibold">
                     ${p.category ? p.category.replace('-', ' > ') : 'Uncategorized'}
                 </div>
             </td>
@@ -102,130 +188,35 @@ function renderProducts(products) {
 
 async function handleAddProduct(e) {
     e.preventDefault();
-
-    // 1. Category Refinement
     const parent = DOM.parentCatInput.value.trim();
     const sub = DOM.subCatInput.value.trim();
-    
-    if (!parent || !sub) {
-        showToast("Both category fields are required", "error");
-        return;
-    }
-    
     DOM.combinedCatHidden.value = `${parent.toLowerCase()}-${sub.toLowerCase()}`;
-
-    // 2. Variant Refinement (Size:Price:Stock Parsing)
     const variantRaw = DOM.variantsInput.value.trim();
     let refinedVariants = [];
-
     if (variantRaw) {
         refinedVariants = variantRaw.split('/').map(pair => {
             const [size, price, stock] = pair.split(':');
-            return {
-                size: size ? size.trim() : '',
-                price: price ? parseFloat(price.trim()) : 0,
-                stock: stock ? parseInt(stock.trim()) : 0
-            };
-        }).filter(v => v.size !== '' && !isNaN(v.price));
-    }
-
-    const formData = new FormData(e.target);
-    
-    // Add processed variants as JSON string
-    formData.append('variants', JSON.stringify(refinedVariants));
-
-    setSubmitting(true);
-
-    try {
-        const response = await fetch(PRODUCT_API, {
-            method: 'POST',
-            body: formData 
+            return { size: size.trim(), price: parseFloat(price), stock: parseInt(stock) };
         });
-
-        const result = await response.json();
-        if (response.ok) {
-            showToast("Product created successfully", "success");
-            e.target.reset();
-            DOM.parentCatInput.value = '';
-            DOM.subCatInput.value = '';
-            fetchProducts();
-        } else {
-            showToast(result.message || "Error adding product", "error");
-        }
-    } catch (error) {
-        showToast("Error connecting to server", "error");
-    } finally {
-        setSubmitting(false);
     }
+    const formData = new FormData(e.target);
+    formData.append('variants', JSON.stringify(refinedVariants));
+    setSubmitting(true);
+    try {
+        const response = await fetch(PRODUCT_API, { method: 'POST', body: formData });
+        if (response.ok) {
+            showToast("Product created", "success");
+            e.target.reset(); fetchProducts();
+        }
+    } catch (error) { showToast("Error connecting", "error"); } finally { setSubmitting(false); }
 }
 
 async function deleteProduct(id) {
-    if (!confirm("Delete this product permanently?")) return;
-
+    if (!confirm("Delete product?")) return;
     try {
         const response = await fetch(`${PRODUCT_API}/${id}`, { method: 'DELETE' });
-        if (response.ok) {
-            showToast("Product deleted", "success");
-            fetchProducts();
-        }
-    } catch (error) {
-        showToast("Delete failed", "error");
-    }
-}
-
-/* ==========================================================================
-   Order Management
-   ========================================================================== */
-
-async function fetchOrders() {
-    try {
-        const response = await fetch(ORDER_API);
-        const result = await response.json();
-        if (result.status === 'success') {
-            renderOrders(result.data);
-        }
-    } catch (error) {
-        showToast("Failed to load orders", "error");
-    }
-}
-
-function renderOrders(orders) {
-    if (!DOM.ordersContainer) return;
-
-    if (orders.length === 0) {
-        DOM.ordersContainer.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">No orders yet.</div>`;
-        return;
-    }
-
-    DOM.ordersContainer.innerHTML = orders.map(order => `
-        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Order #${order.id}</span>
-                    <h4 class="font-bold text-gray-800">${order.customer_name}</h4>
-                </div>
-                <span class="px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest
-                    ${order.status === 'Pending' ? 'text-orange-600 bg-orange-50' : ''}
-                    ${order.status === 'Shipped' ? 'text-blue-600 bg-blue-50' : ''}
-                    ${order.status === 'Delivered' ? 'text-green-600 bg-green-50' : ''}">
-                    ${order.status}
-                </span>
-            </div>
-            
-            <p class="text-xs text-gray-500 mb-4 h-8 overflow-hidden">${order.address}</p>
-            
-            <div class="space-y-3 pt-3 border-t border-gray-50 flex justify-between items-center">
-                <span class="text-sm font-bold text-forest">$${parseFloat(order.total_amount).toFixed(2)}</span>
-                <select onchange="updateOrderStatus(${order.id}, this.value)" 
-                        class="text-[10px] uppercase font-bold bg-gray-50 rounded-lg px-2 py-1 outline-none border-none cursor-pointer hover:bg-gray-100 transition">
-                    <option value="" disabled selected>Status</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Shipped">Shipped</option>
-                    <option value="Delivered">Delivered</option>
-                </select>
-            </div>
-        </div>
-    `).join('');
+        if (response.ok) { showToast("Product deleted", "success"); fetchProducts(); }
+    } catch (error) { showToast("Delete failed", "error"); }
 }
 
 async function updateOrderStatus(orderId, newStatus) {
@@ -235,53 +226,24 @@ async function updateOrderStatus(orderId, newStatus) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: newStatus })
         });
-
         if (response.ok) {
             showToast(`Order #${orderId} Updated`, "success");
             fetchOrders();
         }
-    } catch (error) {
-        showToast("Update failed", "error");
-    }
+    } catch (error) { showToast("Update failed", "error"); }
 }
 
-/* ==========================================================================
-   Utilities
-   ========================================================================== */
-
-function toggleLoading(isLoading) {
-    if (DOM.loadingSpinner) {
-        DOM.loadingSpinner.classList.toggle('hidden', !isLoading);
-    }
-}
-
-function setSubmitting(isSubmitting) {
-    if (DOM.submitBtn) {
-        DOM.submitBtn.disabled = isSubmitting;
-        DOM.submitBtn.innerText = isSubmitting ? 'PROCESSING...' : 'ADD PRODUCT';
-    }
-}
-
+function toggleLoading(isLoading) { if (DOM.loadingSpinner) DOM.loadingSpinner.classList.toggle('hidden', !isLoading); }
+function setSubmitting(isSubmitting) { if (DOM.submitBtn) { DOM.submitBtn.disabled = isSubmitting; DOM.submitBtn.innerText = isSubmitting ? '...' : 'Create Product'; } }
 function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
-    if (!container) return;
-
     const toast = document.createElement('div');
-    toast.className = `px-6 py-3 rounded-xl text-white text-xs font-bold uppercase tracking-widest shadow-2xl transition-all duration-300 transform translate-y-0 ${type === 'success' ? 'bg-emerald-600' : 'bg-red-500'}`;
+    toast.className = `px-6 py-3 rounded-xl text-white text-xs font-bold uppercase tracking-widest shadow-2xl transition-all duration-300 ${type === 'success' ? 'bg-emerald-600' : 'bg-red-500'}`;
     toast.innerText = message;
-    
     container.appendChild(toast);
-    setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    setTimeout(() => toast.remove(), 3000);
 }
+async function handleLogout() { await fetch('/api/admin/logout'); window.location.href = 'admin-form'; }
 
-async function handleLogout() {
-    await fetch('/api/admin/logout');
-    window.location.href = 'admin-form';
-}
-
-// Entry Point
 document.addEventListener('DOMContentLoaded', checkAuth);
 

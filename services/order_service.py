@@ -52,7 +52,8 @@ def create_order_from_cart(client_token, customer_data):
                 order_id=new_order.order_id,
                 product_id=item.product_id,
                 quantity=item.quantity,
-                price=item.product.price
+                price=item.product.price,
+                size=item.size  # BRIDGE: Copy size from CartItem to OrderItem
             )
             db.session.add(order_item)
         
@@ -60,8 +61,7 @@ def create_order_from_cart(client_token, customer_data):
         return new_order
     except SQLAlchemyError as e:
         db.session.rollback()
-        current_app.logger.error(f"Error creating order: {str(e)}")
-        raise
+
 
 def reduce_product_stock(cart_items):
     try:
@@ -89,5 +89,6 @@ def update_order_status(order_id, new_status):
         db.session.rollback()
         current_app.logger.error(f"Error updating status: {str(e)}")
         raise
+
 
 
