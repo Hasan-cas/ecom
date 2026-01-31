@@ -3,69 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout | Markazus Sunnah Luxury Scents</title>
+    <title>Checkout | Markazus Sunnah</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --khaki: #F4E1C4; --dark-forest: #C8A86A; }
-        body { font-family: 'Inter', sans-serif; background-color: #fafaf9; }
-        .serif { font-family: 'Playfair Display', serif; }
-        .bg-khaki { background-color: var(--khaki); }
-        .text-forest { color: var(--dark-forest); }
-        .bg-forest { background-color: var(--dark-forest); }
+        body { font-family: 'Quicksand', sans-serif; background-color: #fcfcfc; }
+        .heading-font { font-family: 'Poppins', sans-serif; }
+        .bg-khaki { background-color: #e2e8dd; }
+        
+        /* Styles for the success message injected by JS */
+        .bg-sage { background-color: #e2e8dd; }
+        .text-forest { color: #2d3436; }
+
         .input-field { 
-            @apply w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#e2e8dd] focus:border-forest outline-none transition-all duration-200;
+            @apply w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-[#e2e8dd] focus:border-gray-400 outline-none transition-all duration-200 shadow-sm;
         }
     </style>
 </head>
-<body class="bg-khaki text-gray-900 min-h-screen flex flex-col">
+<body class="text-gray-900 min-h-screen flex flex-col">
 
-    <nav class="flex items-center justify-between px-8 py-6 bg-white border-b border-gray-100">
-        <a href="/" class="text-2xl font-bold tracking-tighter serif">ZENFOX.</a>
-        <div class="text-[10px] uppercase tracking-[0.2em] font-semibold text-gray-400">Secure Checkout</div>
+    <nav class="bg-white border-b sticky top-0 z-50 w-full">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-20">
+                <div class="text-2xl heading-font font-extrabold tracking-tight">
+                    <a href="/" class="text-gray-900">Markazus Sunnah</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400">Secure Checkout</span>
+                </div>
+            </div>
+        </div>
     </nav>
 
-    <main class="flex-grow container mx-auto px-4 py-12 max-w-2xl">
-        <div class="mb-10 text-center">
-            <h1 class="text-4xl serif italic text-forest mb-2">Complete Your Order</h1>
-            <p class="text-sm text-gray-500">Provide your delivery details to secure your signature scent.</p>
+    <main class="flex-grow max-w-2xl mx-auto w-full px-4 py-12 lg:py-20">
+        <div class="text-center mb-12">
+            <h1 class="heading-font text-4xl lg:text-5xl font-black mb-4 tracking-tight">Complete Order</h1>
+            <p class="text-gray-500 font-medium">Please provide your delivery details below.</p>
         </div>
 
-        <div class="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-50">
+        <div class="bg-white rounded-[40px] p-8 md:p-12 border border-gray-100 shadow-sm">
             <form id="checkout-form" class="space-y-6">
                 <div>
-                    <label class="block text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-2 ml-1">Full Name</label>
-                    <input type="text" id="customer_name" name="customer_name" class="input-field" placeholder="John Doe" required>
+                    <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-3 ml-1">Full Name</label>
+                    <input type="text" id="customer_name" name="customer_name" class="input-field" placeholder="Enter your full name" required>
                 </div>
 
                 <div>
-                    <label class="block text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-2 ml-1">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" class="input-field" placeholder="+1 (555) 000-0000" required>
-                    <p id="phoneError" class="text-red-500 text-[10px] mt-1 hidden">Please enter a valid phone number.</p>
+                    <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-3 ml-1">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" class="input-field" placeholder="01XXXXXXXXX" required>
+                    <p id="phoneError" class="text-red-500 text-[10px] font-bold mt-2 uppercase tracking-wider hidden">Please enter a valid phone number.</p>
                 </div>
 
                 <div>
-                    <label class="block text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-2 ml-1">Delivery Address</label>
-                    <textarea id="address" name="address" rows="3" class="input-field resize-none" placeholder="123 Luxury Lane, Toronto, Canada" required></textarea>
+                    <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-3 ml-1">Delivery Address</label>
+                    <textarea id="address" name="address" rows="3" class="input-field resize-none" placeholder="House, Road, Area, City" required></textarea>
                 </div>
 
-                <div class="pt-4">
-                    <button type="submit" id="submitBtn" class="w-full bg-forest text-white py-4 rounded-full hover:bg-black transition duration-300 uppercase text-[10px] tracking-[0.3em] font-bold shadow-lg shadow-green-900/10">
+                <div class="pt-6">
+                    <button type="submit" id="submitBtn" class="w-full bg-black text-white py-5 rounded-full hover:bg-gray-800 transition duration-300 uppercase text-[10px] tracking-[0.3em] font-bold shadow-xl active:scale-95">
                         Place Order
                     </button>
                 </div>
             </form>
 
             <div id="statusContainer" class="mt-8 hidden">
-                <div id="statusMeskhaki" class="p-6 rounded-3xl text-center text-sm leading-relaxed"></div>
+                <div id="statusMessage" class="p-6 rounded-3xl text-center text-sm leading-relaxed"></div>
             </div>
         </div>
     </main>
 
-    <footer class="py-8 text-center text-[10px] uppercase tracking-widest text-gray-400">
-        © ZENFOX SCENTS 2026 • Safe & Secure SSL Encryption
+    <footer class="bg-black text-white py-12 w-full mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em] font-bold">
+                © 2026 Markazus Sunnah. Safe & Secure SSL Encryption.
+            </p>
+        </div>
     </footer>
 
-    <script src="{{ url_for('static', filename='checkout.js') }}"></script>
+    <script src="/static/checkout.js"></script>
 </body>
 </html>
