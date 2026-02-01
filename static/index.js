@@ -1,6 +1,6 @@
 /**
- * MARKAZUS SUNNAH | Full Enterprise Production Logic
- * Optimized for Render, Vercel, and Termux
+ * MARKAZUS SUNNAH | Final Enterprise Stable Logic
+ * Fixes: 3D Scene Positioning, Hero Zoom-out, and Render Sync
  */
 
 const PRODUCT_API = '/api/products';
@@ -19,36 +19,29 @@ window.addEventListener('load', () => {
     
     // Fetch Products and refresh ScrollTrigger AFTER they land
     fetchProducts().then(() => {
-        // Refresh after DOM injection
+        // Recalculate everything once products are in the DOM
         ScrollTrigger.refresh();
     });
 
-    // Language Toggle Setup
-    const langBtn = document.getElementById('lang-toggle');
-    if (langBtn) {
-        langBtn.addEventListener('click', () => {
-            applyLanguage(localStorage.getItem('site_lang') === 'bn' ? 'en' : 'bn');
-        });
-    }
-
-    // Safety Refresh for slow Render servers / image loading
+    // Safety Refresh for cloud servers (Render/Vercel)
+    // This catches any layout shifts from slow-loading images
     setTimeout(() => {
         ScrollTrigger.refresh();
-    }, 2000);
+        console.log("3D Scene & Scroll Positions Recalculated");
+    }, 2500);
 });
 
-// --- 2. HERO SLIDER (RESORED ZOOM-OUT) ---
+// --- 2. HERO SLIDER (ZOOM-OUT RESTORED) ---
 function setupHeroSlider() {
     const slides = document.querySelectorAll('.hero-slide');
     const dots = document.querySelectorAll('.hero-dot');
     if (!slides.length) return;
 
-    // Initial state
     gsap.set(slides, { autoAlpha: 0 });
     gsap.set(slides[0], { autoAlpha: 1 });
     gsap.set(dots[0], { width: 48, backgroundColor: "white" });
 
-    // Start initial zoom-out
+    // Initial Zoom-out for first slide
     gsap.fromTo(slides[0].querySelector('.hero-img'),
         { scale: 1.15 },
         { scale: 1, duration: 6, ease: "power2.out" }
@@ -76,22 +69,16 @@ function setupHeroSlider() {
             }
         });
 
-        // Transition logic
         tl.to(oldSlide, { autoAlpha: 0, scale: 0.98, duration: 1.2, ease: "expo.inOut" }, 0);
-        tl.fromTo(newSlide, 
-            { autoAlpha: 0, scale: 1.02 }, 
-            { autoAlpha: 1, scale: 1, duration: 1.2, ease: "expo.inOut" }, 
-            0
-        );
+        tl.fromTo(newSlide, { autoAlpha: 0, scale: 1.02 }, { autoAlpha: 1, scale: 1, duration: 1.2, ease: "expo.inOut" }, 0);
 
-        // Zoom-out logic for the new slide image
+        // RESTORED: Zoom-out for new image
         tl.fromTo(newSlide.querySelector('.hero-img'),
             { scale: 1.15 },
             { scale: 1, duration: 6, ease: "power2.out" },
             0
         );
 
-        // Text reveal
         tl.fromTo(newSlide.querySelector('.text-content'),
             { y: 30, autoAlpha: 0 },
             { y: 0, autoAlpha: 1, duration: 1, ease: "power3.out" },
@@ -103,7 +90,7 @@ function setupHeroSlider() {
     setInterval(() => changeSlide((currentSlide + 1) % slides.length), 8000);
 }
 
-// --- 3. SCROLL & 3D ANIMATIONS (FIXED POSITIONING) ---
+// --- 3. SCROLL & 3D ANIMATIONS (STABILITY FIX) ---
 function initScrollAnimations() {
     // Navbar effect
     ScrollTrigger.create({
@@ -112,7 +99,7 @@ function initScrollAnimations() {
         onLeaveBack: () => gsap.to("#navbar", { height: 80, backgroundColor: "rgba(255,255,255,1)", backdropFilter: "blur(0px)", duration: 0.4 })
     });
 
-    // Reveal Product Items
+    // Reveal Product Cards
     gsap.utils.toArray('.reveal-item').forEach(item => {
         gsap.to(item, {
             opacity: 1, y: 0, scale: 1,
@@ -121,27 +108,28 @@ function initScrollAnimations() {
         });
     });
 
-    // 3D SCENE FIX: Set initial hidden positions explicitly
-    gsap.set(".item-left", { x: -300, y: 100, rotation: -30, autoAlpha: 0 });
-    gsap.set(".item-right", { x: 300, y: -100, rotation: 30, autoAlpha: 0 });
-    gsap.set(".hero-title", { x: -400, autoAlpha: 0 });
+    // --- 3D SCENE FIX: FORCE START POSITIONS ---
+    // We use .set to ensure they are off-screen before the scroll starts
+    gsap.set(".item-left", { x: -400, y: 150, rotation: -45, autoAlpha: 0 });
+    gsap.set(".item-right", { x: 400, y: -150, rotation: 45, autoAlpha: 0 });
+    gsap.set(".hero-title", { x: -500, autoAlpha: 0 });
 
     const sceneTl = gsap.timeline({
         scrollTrigger: {
             trigger: ".scene-container",
             start: "top top",
             end: "+=200%",
-            scrub: 1.2,
+            scrub: 1.5,
             pin: true,
-            invalidateOnRefresh: true
+            invalidateOnRefresh: true // Critical for Render stability
         }
     });
 
     sceneTl
         .to(".bg-layer", { scale: 1.1, autoAlpha: 0.8, duration: 2 })
         .to(".hero-title", { x: 0, autoAlpha: 1, duration: 2 }, "-=1.5")
-        .to(".item-left", { x: 0, y: 0, rotation: 0, autoAlpha: 1, duration: 2.5, ease: "power2.out" }, "-=1.8")
-        .to(".item-right", { x: 0, y: 0, rotation: 0, autoAlpha: 1, duration: 2.5, ease: "power2.out" }, "-=2.5");
+        .to(".item-left", { x: 0, y: 0, rotation: 0, autoAlpha: 1, duration: 3, ease: "power2.out" }, "-=1.8")
+        .to(".item-right", { x: 0, y: 0, rotation: 0, autoAlpha: 1, duration: 3, ease: "power2.out" }, "-=2.8");
 }
 
 // --- 4. API & RENDERING ---
@@ -155,7 +143,7 @@ async function fetchProducts() {
 
         if (result.status === 'success') {
             renderProductCards(result.data, grid);
-            // Re-init animations after products exist in DOM
+            // Re-initialize animations after cards are in the DOM
             initScrollAnimations();
         }
     } catch (error) {
@@ -208,7 +196,7 @@ function applyLanguage(lang) {
         if (!el.dataset.en) el.dataset.en = el.innerHTML;
         el.innerHTML = lang === 'bn' ? el.dataset.bn : el.dataset.en;
     });
-    const lb = document.getElementById('lang-toggle');
-    if (lb) lb.textContent = lang === 'bn' ? 'EN' : 'BN';
+    const langBtn = document.getElementById('lang-toggle');
+    if (langBtn) langBtn.textContent = lang === 'bn' ? 'EN' : 'BN';
     localStorage.setItem('site_lang', lang);
 }
