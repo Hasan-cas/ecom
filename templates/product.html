@@ -49,6 +49,12 @@
             border-color: #000;
         }
         
+        /* New Gallery Styles */
+        .gallery-thumb.thumb-active {
+            border-color: #000 !important;
+            opacity: 1 !important;
+        }
+
         .quantity-btn:hover { background-color: #f3f4f6; }
         
         #message-box {
@@ -87,10 +93,11 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-24">
         <div id="product-view" class="grid lg:grid-cols-2 gap-16 items-start">
             
-            <div class="lg:sticky lg:top-32">
+            <div class="lg:sticky lg:top-32 space-y-6">
                 <div id="image-container" class="rounded-3xl bg-gray-50 aspect-[4/5] flex items-center justify-center overflow-hidden relative group border border-gray-100">
                     <img id="product-image" src="" alt="Product" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                 </div>
+                <div id="image-gallery" class="grid grid-cols-4 sm:grid-cols-5 gap-4"></div>
             </div>
 
             <div class="flex flex-col space-y-8">

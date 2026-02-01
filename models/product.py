@@ -6,13 +6,14 @@ class Product(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
-    # Added category column to store strings like 'attar-oud' or 'hat-cotton'
     category = db.Column(db.String(100), nullable=True) 
     price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, nullable=False, default=0)
     variants = db.Column(db.JSON, nullable=True) 
     description = db.Column(db.Text, nullable=True)
     image = db.Column(db.String(500), nullable=True)
+    # Added gallery column to store N additional image URLs
+    gallery = db.Column(db.JSON, nullable=True, default=[]) 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -21,15 +22,17 @@ class Product(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'category': self.category, # Included in dictionary for API responses
+            'category': self.category,
             'price': self.price,
             'stock': self.stock,
             'variants': self.variants,
             'description': self.description,
             'image': self.image,
+            'gallery': self.gallery if self.gallery else [], # Included in dictionary for API responses
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
     def __repr__(self):
         return f'<Product {self.id}: {self.name}>'
+

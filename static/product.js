@@ -1,6 +1,6 @@
 /**
  * Markazus Sunnah | Product Detail Logic (Production Ready)
- * Version: 2.2.0 (Clean Event Listeners - No Inline HTML)
+ * Version: 2.3.0 (Added Image Gallery Support)
  */
 
 let currentProduct = null;
@@ -12,13 +12,14 @@ const elements = {
     price: document.getElementById('product-price'),
     description: document.getElementById('product-description'),
     image: document.getElementById('product-image'),
+    gallery: document.getElementById('image-gallery'), // New: Gallery Container
     sizeContainer: document.getElementById('size-container'),
     stockPill: document.getElementById('stock-pill'),
     quantity: document.getElementById('quantity'),
     addToCartBtn: document.getElementById('addToCart'),
     buyNowBtn: document.getElementById('buyNow'),
     messageBox: document.getElementById('message-box'),
-    accordionGroup: document.getElementById('accordion-group') // New reference
+    accordionGroup: document.getElementById('accordion-group')
 };
 
 // 1. INITIALIZATION
@@ -45,7 +46,7 @@ async function fetchProduct() {
     }
 }
 
-// 3. EVENT LISTENERS (REPLACES ONCLICK)
+// 3. EVENT LISTENERS
 function setupEventListeners() {
     // Drawer/Accordion Logic
     if (elements.accordionGroup) {
@@ -56,12 +57,10 @@ function setupEventListeners() {
             const item = header.parentElement;
             const isActive = item.classList.contains('active');
 
-            // Close all items
             document.querySelectorAll('.accordion-item').forEach(el => {
                 el.classList.remove('active');
             });
 
-            // Toggle current
             if (!isActive) item.classList.add('active');
         });
     }
@@ -81,6 +80,21 @@ function setupEventListeners() {
         };
         updateVariantDisplay(variant);
     });
+
+    // Gallery Switching (Event Delegation)
+    if (elements.gallery) {
+        elements.gallery.addEventListener('click', (e) => {
+            const thumb = e.target.closest('.gallery-thumb');
+            if (!thumb) return;
+
+            // Update main image
+            elements.image.src = thumb.getAttribute('data-src');
+
+            // Update active state UI
+            document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('thumb-active'));
+            thumb.classList.add('thumb-active');
+        });
+    }
 
     // Quantity Buttons
     document.getElementById('increase').addEventListener('click', () => {
@@ -103,6 +117,9 @@ function renderProduct(product) {
     elements.description.textContent = product.description;
     elements.image.src = product.image || 'https://placehold.co/600x800?text=No+Image';
 
+    // Render Gallery
+    renderGallery(product);
+
     let variants = [];
     if (Array.isArray(product.variants)) {
         variants = product.variants;
@@ -123,6 +140,25 @@ function renderProduct(product) {
         `).join('');
         updateVariantDisplay(variants[0]);
     }
+}
+
+function renderGallery(product) {
+    if (!elements.gallery) return;
+    
+    // Combine main image and gallery images
+    const images = [product.image, ...(product.gallery || [])].filter(src => src);
+
+    if (images.length <= 1) {
+        elements.gallery.innerHTML = "";
+        return;
+    }
+
+    elements.gallery.innerHTML = images.map((src, i) => `
+        <div class="gallery-thumb aspect-square rounded-xl overflow-hidden border-2 cursor-pointer transition-all opacity-60 hover:opacity-100 ${i === 0 ? 'thumb-active' : 'border-transparent'}" 
+             data-src="${src}">
+            <img src="${src}" class="w-full h-full object-cover">
+        </div>
+    `).join('');
 }
 
 function updateVariantDisplay(variant) {
