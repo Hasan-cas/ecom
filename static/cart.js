@@ -1,6 +1,6 @@
 /**
  * Markazus Sunnah | Shopping Bag & Logic
- * Handles variants, dynamic shipping calculation, and refined UI.
+ * Integrated: bKash Transaction Capture
  */
 
 const API_BASE = '/api/cart';
@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
 async function initApp() {
     await fetchCart();
 
-    // Event Delegation for Drawer Toggles
     document.addEventListener('click', (e) => {
         const toggleBtn = e.target.closest('.drawer-toggle-btn');
         if (toggleBtn) {
@@ -38,7 +37,6 @@ async function initApp() {
         }
     });
 
-    // Event Delegation for Remove Buttons in Cart
     if (DOM.container) {
         DOM.container.addEventListener('click', (e) => {
             const removeBtn = e.target.closest('.remove-item-btn');
@@ -50,20 +48,14 @@ async function initApp() {
         });
     }
 
-    // Shipping selection change
     document.querySelectorAll('.shipping-radio').forEach(radio => {
         radio.addEventListener('change', () => {
             if (currentCartData) calculateTotals(currentCartData);
         });
     });
 
-    if (DOM.clearBtn) {
-        DOM.clearBtn.addEventListener('click', handleClearCart);
-    }
-
-    if (DOM.checkoutBtn) {
-        DOM.checkoutBtn.addEventListener('click', navigateToCheckout);
-    }
+    if (DOM.clearBtn) DOM.clearBtn.addEventListener('click', handleClearCart);
+    if (DOM.checkoutBtn) DOM.checkoutBtn.addEventListener('click', navigateToCheckout);
 }
 
 async function fetchCart() {
@@ -74,9 +66,7 @@ async function fetchCart() {
             currentCartData = result.data;
             renderCart(result.data);
         }
-    } catch (err) {
-        console.error("Cart fetch failed:", err);
-    }
+    } catch (err) { console.error("Cart fetch failed:", err); }
 }
 
 function renderCart(cartData) {
@@ -94,33 +84,28 @@ function renderCart(cartData) {
     DOM.options.classList.remove('hidden');
     DOM.countHeader.innerText = `${cartData.total_items} Items`;
 
-    // Render items - each size variant appears as a separate card
     DOM.container.innerHTML = cartData.items.map(item => `
         <div class="cart-card bg-white p-6 rounded-3xl border border-gray-100 flex items-center gap-6 shadow-sm">
             <div class="w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden bg-gray-50 border border-gray-50">
                 <img src="${item.image || 'https://placehold.co/150'}" class="w-full h-full object-cover">
             </div>
-            
             <div class="flex-1">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="heading-font font-bold text-sm uppercase tracking-tight text-gray-900">${item.product_name || item.name}</h3>
+                        <h3 class="heading-font font-bold text-sm uppercase tracking-tight text-gray-900">${item.product_name}</h3>
                         <div class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full bg-khaki/40 text-gray-700 text-[9px] font-bold uppercase tracking-wider border border-khaki/50">
-                            Size: ${item.size || 'Standard'}
+                            Size: ${item.size}
                         </div>
                     </div>
-                    <button class="remove-item-btn text-gray-300 hover:text-red-500 transition-colors p-1" 
-                            data-id="${item.product_id}" data-size="${item.size || ''}">
+                    <button class="remove-item-btn text-gray-300 hover:text-red-500 transition-colors p-1"
+                            data-id="${item.product_id}" data-size="${item.size}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-                
                 <div class="flex justify-between items-end mt-4">
                     <div class="flex flex-col">
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Quantity</span>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm font-bold text-gray-900">${item.quantity}</span>
-                        </div>
+                        <span class="text-sm font-bold text-gray-900">${item.quantity}</span>
                     </div>
                     <div class="text-right">
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Subtotal</span>
@@ -136,19 +121,14 @@ function renderCart(cartData) {
 
 function calculateTotals(cartData) {
     const subtotal = parseFloat(cartData.total_price);
-    const selectedShippingValue = getSelectedShippingValue();
-    
-    let discount = 0;
-    let finalTotal = subtotal + selectedShippingValue;
+    const shipping = getSelectedShippingValue();
+    let finalTotal = subtotal + shipping;
 
-    // Logic: Free delivery if subtotal > 1500 BDT
     if (subtotal > 1500) {
-        discount = selectedShippingValue;
-        finalTotal = subtotal; // effective shipping becomes 0
-        
+        finalTotal = subtotal;
         DOM.freeBadge.classList.remove('hidden');
         DOM.discountRow.classList.remove('hidden');
-        DOM.discountEl.innerText = `-৳${selectedShippingValue.toFixed(2)}`;
+        DOM.discountEl.innerText = `-৳${shipping.toFixed(2)}`;
         DOM.shippingEl.classList.add('text-gray-400', 'line-through');
     } else {
         DOM.freeBadge.classList.add('hidden');
@@ -156,9 +136,9 @@ function calculateTotals(cartData) {
         DOM.shippingEl.classList.remove('text-gray-400', 'line-through');
     }
 
-    DOM.subtotalEl.innerText = `৳${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-    DOM.shippingEl.innerText = `৳${selectedShippingValue.toFixed(2)}`;
-    DOM.grandTotalEl.innerText = `৳${finalTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+    DOM.subtotalEl.innerText = `৳${subtotal.toLocaleString()}`;
+    DOM.shippingEl.innerText = `৳${shipping.toFixed(2)}`;
+    DOM.grandTotalEl.innerText = `৳${finalTotal.toLocaleString()}`;
 }
 
 function getSelectedShippingValue() {
@@ -166,71 +146,50 @@ function getSelectedShippingValue() {
     return selected ? parseFloat(selected.value) : 60;
 }
 
-async function removeItem(productId, size) {
-    try {
-        const response = await fetch(`${API_BASE}/remove`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                product_id: productId, 
-                size: size
-            })
-        });
-        const result = await response.json();
-        if (result.status === 'success') {
-            currentCartData = result.data;
-            renderCart(result.data);
-        }
-    } catch (err) {
-        console.error("Remove failed:", err);
-    }
+async function removeItem(id, size) {
+    const response = await fetch(`${API_BASE}/remove`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: id, size: size })
+    });
+    const result = await response.json();
+    if (result.status === 'success') renderCart(result.data);
 }
 
 async function handleClearCart() {
-    if (!confirm("Are you sure you want to clear your shopping bag?")) return;
-    try {
-        const response = await fetch(`${API_BASE}/clear`, {
-            method: 'POST'
-        });
-        const result = await response.json();
-        if (result.status === 'success') {
-            fetchCart();
-        }
-    } catch (err) {
-        console.error("Clear failed:", err);
-    }
+    if (!confirm("Clear bag?")) return;
+    const response = await fetch(`${API_BASE}/clear`, { method: 'POST' });
+    if (response.ok) fetchCart();
 }
 
+/**
+ * PRODUCTION READY NAVIGATE: Captures payment info before redirect
+ */
 function navigateToCheckout() {
     if (!currentCartData || currentCartData.items.length === 0) return;
+
+    // FIX: Target elements by their actual ID attributes from the HTML
+    const payNumber = document.getElementById('payment-number')?.value || "";
+    const trxId = document.getElementById('transaction-id')?.value || "";
+
+    if (!payNumber || !trxId) {
+        alert("Please provide bKash Number and Transaction ID in the 'Make Payment' section.");
+        return;
+    }
+
+    // 2. Persist to LocalStorage for the next page
+    localStorage.setItem('pending_payment_number', payNumber);
+    localStorage.setItem('pending_transaction_id', trxId);
 
     const subtotal = parseFloat(currentCartData.total_price);
     const shippingValue = getSelectedShippingValue();
     const isFree = subtotal > 1500;
-    
-    const locationRadio = document.querySelector('input[name="shipping"]:checked');
-    const locationName = locationRadio ? locationRadio.closest('label').querySelector('span').innerText : "Inside Dhaka";
+    const total = isFree ? subtotal : subtotal + shippingValue;
 
-    const finalSummary = {
-        subtotal: subtotal,
-        shipping: isFree ? 0 : shippingValue,
-        actual_shipping: shippingValue,
-        location: locationName,
-        total: isFree ? subtotal : subtotal + shippingValue
-    };
+    alert(`Order of ৳${total.toLocaleString()} placed! Redirecting to fill address...`);
 
-    console.log("Finalized Order Summary:", finalSummary);
-
-    // 1. Show the message
-    alert(`Order of ৳${finalSummary.total.toLocaleString()} placed successfully! Redirecting to checkout...`);
-
-    // 2. Wait 3 seconds (3000ms) then redirect
     setTimeout(() => {
         window.location.href = '/checkout';
-    }, 3000);
+    }, 1500);
 }
-
-
 
