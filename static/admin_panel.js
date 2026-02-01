@@ -99,12 +99,21 @@ async function fetchOrders() {
 
 function renderOrders(orders) {
     if (!DOM.ordersContainer) return;
-    if (orders.length === 0) {
+
+    // Filter out delivered orders and sort: Pending first, then Shipped
+    const displayOrders = orders
+        .filter(order => order.status !== 'Delivered')
+        .sort((a, b) => {
+            if (a.status === b.status) return 0;
+            return a.status === 'Pending' ? -1 : 1;
+        });
+
+    if (displayOrders.length === 0) {
         DOM.ordersContainer.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">No orders yet.</div>`;
         return;
     }
 
-    DOM.ordersContainer.innerHTML = orders.map(order => `
+    DOM.ordersContainer.innerHTML = displayOrders.map(order => `
         <div class="order-card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-black transition cursor-pointer" data-id="${order.order_id}">
             <div class="flex justify-between items-start mb-4">
                 <div>
@@ -145,7 +154,7 @@ function showOrderDetails(orderId) {
                 <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center font-bold text-xs">x${item.quantity}</div>
                 <div>
                     <p class="font-bold text-sm">${item.product_name}</p>
-                    <p class="text-[10px] text-gray-400 uppercase">Unit: $${parseFloat(item.price).toFixed(2)}</p>
+                    <p class="text-[10px] text-gray-400 uppercase">Size: ${item.size} | Unit: $${parseFloat(item.price).toFixed(2)}</p>
                 </div>
             </div>
             <p class="font-bold text-sm">$${(item.price * item.quantity).toFixed(2)}</p>
@@ -234,10 +243,10 @@ async function deleteProduct(id) {
 
 async function updateOrderStatus(orderId, newStatus) {
     try {
-        const response = await fetch(`${ORDER_API}/${orderId}`, {
-            method: 'PUT',
+        const response = await fetch(`${API_BASE}/status`, {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: newStatus })
+            body: JSON.stringify({ order_id: orderId, status: newStatus })
         });
         if (response.ok) {
             showToast(`Order #${orderId} Updated`, "success");

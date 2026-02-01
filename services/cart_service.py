@@ -25,12 +25,13 @@ def check_stock_availability(product, quantity):
     return True, None
 
 def add_item_to_cart(client_token, product_id, quantity, size="Standard"):
+    """Adds a specific variant to the cart, treating different sizes as unique items."""
     try:
         product, error = validate_product_exists(product_id)
         if error: return False, error, None
         if quantity <= 0: return False, "Quantity must be > 0", None
 
-        # Check for matching product AND size
+        # Logic: Filter by BOTH product_id AND size to find existing variants
         existing_item = CartItem.query.filter_by(
             client_token=client_token,
             product_id=product_id,
@@ -63,6 +64,7 @@ def add_item_to_cart(client_token, product_id, quantity, size="Standard"):
         return False, str(e), None
 
 def remove_item_from_cart(client_token, product_id, size):
+    """Targets a specific variant for removal from the cart."""
     try:
         item = CartItem.query.filter_by(
             client_token=client_token,

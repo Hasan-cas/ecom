@@ -1,6 +1,6 @@
 /**
  * Markazus Sunnah | Shopping Bag & Logic
- * Integrated: bKash Transaction Capture
+ * Integrated: bKash Transaction Capture & Variant Support
  */
 
 const API_BASE = '/api/cart';
@@ -162,13 +162,9 @@ async function handleClearCart() {
     if (response.ok) fetchCart();
 }
 
-/**
- * PRODUCTION READY NAVIGATE: Captures payment info before redirect
- */
 function navigateToCheckout() {
     if (!currentCartData || currentCartData.items.length === 0) return;
 
-    // FIX: Target elements by their actual ID attributes from the HTML
     const payNumber = document.getElementById('payment-number')?.value || "";
     const trxId = document.getElementById('transaction-id')?.value || "";
 
@@ -177,7 +173,6 @@ function navigateToCheckout() {
         return;
     }
 
-    // 2. Persist to LocalStorage for the next page
     localStorage.setItem('pending_payment_number', payNumber);
     localStorage.setItem('pending_transaction_id', trxId);
 

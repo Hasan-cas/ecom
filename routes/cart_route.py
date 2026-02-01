@@ -20,7 +20,8 @@ def add_to_cart():
         data = request.get_json()
         product_id = int(data['product_id'])
         quantity = int(data.get('quantity', 1))
-        size = data.get('size', 'Standard') # Extract size from frontend
+        # Logic: Extract size from frontend to treat it as a distinct variant
+        size = data.get('size', 'Standard') 
         
         token = get_or_create_client_token()
         success, message, cart_data = add_item_to_cart(token, product_id, quantity, size)
@@ -36,7 +37,8 @@ def remove_from_cart():
     try:
         data = request.get_json()
         product_id = data.get('product_id')
-        size = data.get('size', 'Standard') # Target specific variant for removal
+        # Logic: Use size to identify which specific variant row to delete
+        size = data.get('size', 'Standard') 
         
         token = get_or_create_client_token()
         success, message, cart_data = remove_item_from_cart(token, product_id, size)
