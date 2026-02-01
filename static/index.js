@@ -1,6 +1,6 @@
 /**
- * MARKAZUS SUNNAH | Frontend Logic
- * Integrated API, GSAP Animations, Language Toggle, Stats Counter
+ * MARKAZUS SUNNAH | Full Fixed Frontend Logic
+ * Optimized for Render.com and Mobile/Termux environments.
  */
 
 // --- CONFIGURATION & GLOBAL VARIABLES ---
@@ -15,6 +15,9 @@ async function fetchProducts() {
 
     try {
         const response = await fetch(PRODUCT_API);
+        // Better error handling for the 500 error seen in logs
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
         const result = await response.json();
 
         if (result.status === 'success') {
@@ -24,7 +27,7 @@ async function fetchProducts() {
         console.error("API Error:", error);
         grid.innerHTML = `
             <p class="col-span-full text-center text-red-500">
-                Failed to load products. Please try again later.
+                Failed to load products from database.
             </p>`;
     }
 }
@@ -58,7 +61,8 @@ function renderProductCards(products, container) {
         </div>
     `).join('');
 
-    initScrollAnimations();
+    // Crucial: Refresh GSAP so it "sees" the new product cards
+    ScrollTrigger.refresh();
     applyLanguage(localStorage.getItem('site_lang') || 'en');
 }
 
@@ -124,7 +128,8 @@ function initScrollAnimations() {
             start: "top top",
             end: "+=200%",
             scrub: 1,
-            pin: true
+            pin: true,
+            invalidateOnRefresh: true // Added for better mobile support
         }
     })
         .from(".bg-layer", { scale: 1.2, autoAlpha: 0, duration: 2 })
@@ -133,13 +138,12 @@ function initScrollAnimations() {
         .from(".item-right", { x: 300, y: -100, rotation: 30, autoAlpha: 0, duration: 2 }, "-=1.6");
 }
 
-// --- HERO SLIDER (SMOOTH FADE FIX) ---
+// --- HERO SLIDER ---
 function setupHeroSlider() {
     const slides = document.querySelectorAll('.hero-slide');
     const dots = document.querySelectorAll('.hero-dot');
     if (!slides.length) return;
 
-    // Init first slide
     gsap.set(slides, { autoAlpha: 0 });
     gsap.set(slides[0], { autoAlpha: 1 });
     gsap.set(dots[0], { width: 48, backgroundColor: "white" });
@@ -157,59 +161,27 @@ function setupHeroSlider() {
         const oldSlide = slides[currentSlide];
         const newSlide = slides[index];
 
-        gsap.killTweensOf([oldSlide, newSlide]);
-
         dots.forEach((dot, i) => {
             gsap.to(dot, {
                 width: i === index ? 48 : 12,
                 backgroundColor: i === index ? "white" : "rgba(255,255,255,0.2)",
-                duration: 0.5,
-                ease: "power2.out"
+                duration: 0.5
             });
         });
 
         const tl = gsap.timeline({
-            defaults: { ease: "expo.inOut" },
             onComplete: () => {
                 currentSlide = index;
                 isAnimating = false;
             }
         });
 
-        tl.to(oldSlide, {
-            autoAlpha: 0,
-            scale: 0.98,
-            duration: 1
-        }, 0);
-
-        tl.fromTo(newSlide,
-            { autoAlpha: 0, scale: 1.02 },
-            { autoAlpha: 1, scale: 1, duration: 1 },
-            0
-        );
-
-        tl.fromTo(
-            newSlide.querySelector('.hero-img'),
-            { scale: 1.08 },
-            { scale: 1, duration: 5, ease: "power2.out" },
-            0
-        );
-
-        tl.fromTo(
-            newSlide.querySelector('.text-content'),
-            { y: 30, autoAlpha: 0 },
-            { y: 0, autoAlpha: 1, duration: 1.2, ease: "expo.out" },
-            0.2
-        );
+        tl.to(oldSlide, { autoAlpha: 0, scale: 0.98, duration: 1 }, 0);
+        tl.fromTo(newSlide, { autoAlpha: 0, scale: 1.02 }, { autoAlpha: 1, scale: 1, duration: 1 }, 0);
     }
 
-    dots.forEach((dot, i) =>
-        dot.addEventListener('click', () => changeSlide(i))
-    );
-
-    setInterval(() => {
-        changeSlide((currentSlide + 1) % slides.length);
-    }, 8000);
+    dots.forEach((dot, i) => dot.addEventListener('click', () => changeSlide(i)));
+    setInterval(() => changeSlide((currentSlide + 1) % slides.length), 8000);
 }
 
 // --- COLLECTION DRAG ---
@@ -217,87 +189,48 @@ function setupCollectionScroll() {
     const wrapper = document.getElementById('collectionsWrapper');
     if (!wrapper) return;
 
-    const cards = wrapper.querySelectorAll('.collection-card');
-    if (!cards.length) return;
-
-    const step = cards[0].offsetWidth + 24;
-    let autoTimer, startX;
-
     Draggable.create(wrapper, {
         type: "x",
         bounds: {
             minX: -(wrapper.scrollWidth - wrapper.parentElement.offsetWidth),
             maxX: 0
         },
-        onDragStart() {
-            clearInterval(autoTimer);
-            startX = this.x;
-        },
-        onDragEnd() {
-            const diff = this.x - startX;
-            const target =
-                Math.abs(diff) > 50
-                    ? startX + (diff < 0 ? -step : step)
-                    : startX;
-
-            gsap.to(wrapper, {
-                x: target,
-                duration: 0.6,
-                ease: "power2.out",
-                onComplete: startAuto
-            });
-        }
+        inertia: true
     });
-
-    function moveNext() {
-        const x = gsap.getProperty(wrapper, "x");
-        const max = -(wrapper.scrollWidth - wrapper.parentElement.offsetWidth);
-        gsap.to(wrapper, {
-            x: x - step < max ? 0 : x - step,
-            duration: 1,
-            ease: "power3.inOut"
-        });
-    }
-
-    function startAuto() {
-        clearInterval(autoTimer);
-        autoTimer = setInterval(moveNext, 4000);
-    }
-
-    startAuto();
-    wrapper.addEventListener('mouseenter', () => clearInterval(autoTimer));
-    wrapper.addEventListener('mouseleave', startAuto);
 }
 
 // --- LANGUAGE ---
-const langBtn = document.getElementById('lang-toggle');
-
 function applyLanguage(lang) {
     document.body.classList.toggle('lang-bn', lang === 'bn');
-
     document.querySelectorAll('[data-bn]').forEach(el => {
         if (!el.dataset.en) el.dataset.en = el.innerHTML;
         el.innerHTML = lang === 'bn' ? el.dataset.bn : el.dataset.en;
     });
 
+    const langBtn = document.getElementById('lang-toggle');
     if (langBtn) langBtn.textContent = lang === 'bn' ? 'EN' : 'BN';
     localStorage.setItem('site_lang', lang);
 }
 
 // --- INIT ---
 window.addEventListener('load', () => {
+    // 1. Setup GSAP
     gsap.registerPlugin(ScrollTrigger, Draggable);
 
+    // 2. Start all animations IMMEDIATELY 
+    // This ensures your 3D Scene and Hero work even if the database is broken
     setupHeroSlider();
     setupCollectionScroll();
     initStatsCounter();
+    initScrollAnimations(); 
+
+    // 3. Fetch Data
     fetchProducts();
 
+    const langBtn = document.getElementById('lang-toggle');
     if (langBtn) {
         langBtn.addEventListener('click', () => {
-            applyLanguage(
-                localStorage.getItem('site_lang') === 'bn' ? 'en' : 'bn'
-            );
+            applyLanguage(localStorage.getItem('site_lang') === 'bn' ? 'en' : 'bn');
         });
     }
 });
