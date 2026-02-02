@@ -69,6 +69,9 @@ def admin_form():
 def admin_panel():
     return render_template("admin_panel.html")
 
+with app.app_context():
+        db.create_all()
+
 # ---------- Main ----------
 if __name__ == "__main__":
     with app.app_context():
