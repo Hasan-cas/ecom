@@ -12,7 +12,7 @@ load_dotenv()
 
 # Initialize Flask
 app = setup_security()
-#app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///selly.db"
+#app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv('DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
 
