@@ -174,32 +174,84 @@ function setupCollectionScroll() {
     const cards = wrapper.querySelectorAll('.collection-card');
     if (!cards.length) return;
 
-    const step = cards[0].offsetWidth + 24;
-    let autoTimer, startX;
+    const gap = 24;
+    let step = cards[0].offsetWidth + gap;
+    let autoTimer, startX, draggable;
 
-    Draggable.create(wrapper, {
-        type: "x",
-        bounds: { minX: -(wrapper.scrollWidth - wrapper.parentElement.offsetWidth), maxX: 0 },
-        onDragStart() { clearInterval(autoTimer); startX = this.x; },
-        onDragEnd() {
-            const diff = this.x - startX;
-            const target = Math.abs(diff) > 50 ? startX + (diff < 0 ? -step : step) : startX;
-            gsap.to(wrapper, { x: target, duration: 0.6, ease: "power2.out", onComplete: startAuto });
-        }
-    });
-
-    function moveNext() {
-        const x = gsap.getProperty(wrapper, "x");
-        const max = -(wrapper.scrollWidth - wrapper.parentElement.offsetWidth);
-        gsap.to(wrapper, { x: x - step < max ? 0 : x - step, duration: 1, ease: "power3.inOut" });
+    function getBounds() {
+        return {
+            minX: -(wrapper.scrollWidth - wrapper.parentElement.offsetWidth),
+            maxX: 0
+        };
     }
 
-    function startAuto() { clearInterval(autoTimer); autoTimer = setInterval(moveNext, 4000); }
-    startAuto();
-    wrapper.addEventListener('mouseenter', () => clearInterval(autoTimer));
-    wrapper.addEventListener('mouseleave', startAuto);
-}
+    function clampX(x) {
+        const { minX, maxX } = getBounds();
+        return Math.min(maxX, Math.max(minX, x));
+    }
 
+    draggable = Draggable.create(wrapper, {
+        type: "x",
+        inertia: true,
+        bounds: getBounds(),
+        onPress() {
+            gsap.killTweensOf(wrapper);
+            clearInterval(autoTimer);
+            startX = this.x;
+        },
+        onRelease() {
+            const diff = this.x - startX;
+            let target = startX;
+
+            if (Math.abs(diff) > 50) {
+                target += diff < 0 ? -step : step;
+            }
+
+            target = clampX(target);
+
+            gsap.to(wrapper, {
+                x: target,
+                duration: 0.5,
+                ease: "power3.out",
+                onComplete: startAuto
+            });
+        }
+    })[0];
+
+    function moveNext() {
+        const { minX } = getBounds();
+        const x = gsap.getProperty(wrapper, "x");
+        let target = x - step;
+
+        if (target < minX) target = 0;
+
+        gsap.to(wrapper, {
+            x: target,
+            duration: 0.9,
+            ease: "power3.inOut"
+        });
+    }
+
+    function startAuto() {
+        clearInterval(autoTimer);
+        autoTimer = setInterval(moveNext, 4000);
+    }
+
+    startAuto();
+
+    wrapper.addEventListener('mouseenter', () => {
+        clearInterval(autoTimer);
+        gsap.killTweensOf(wrapper);
+    });
+
+    wrapper.addEventListener('mouseleave', startAuto);
+
+    window.addEventListener('resize', () => {
+        step = cards[0].offsetWidth + gap;
+        draggable.applyBounds(getBounds());
+        gsap.set(wrapper, { x: clampX(gsap.getProperty(wrapper, "x")) });
+    });
+}
 function initStatsCounter() {
     gsap.utils.toArray('.count-up').forEach(el => {
         const target = parseInt(el.dataset.target);
