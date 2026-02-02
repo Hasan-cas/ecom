@@ -1,6 +1,6 @@
 /**
  * Markazus Sunnah | Product Detail Logic (Production Ready)
- * Version: 2.3.0 (Added Image Gallery Support)
+ * Version: 2.3.1 (Fix: Added Object-to-Array conversion for Variants)
  */
 
 let currentProduct = null;
@@ -12,7 +12,7 @@ const elements = {
     price: document.getElementById('product-price'),
     description: document.getElementById('product-description'),
     image: document.getElementById('product-image'),
-    gallery: document.getElementById('image-gallery'), // New: Gallery Container
+    gallery: document.getElementById('image-gallery'), 
     sizeContainer: document.getElementById('size-container'),
     stockPill: document.getElementById('stock-pill'),
     quantity: document.getElementById('quantity'),
@@ -48,7 +48,6 @@ async function fetchProduct() {
 
 // 3. EVENT LISTENERS
 function setupEventListeners() {
-    // Drawer/Accordion Logic
     if (elements.accordionGroup) {
         elements.accordionGroup.addEventListener('click', (e) => {
             const header = e.target.closest('.accordion-header');
@@ -65,7 +64,6 @@ function setupEventListeners() {
         });
     }
 
-    // Volume Selection
     elements.sizeContainer.addEventListener('click', (e) => {
         const btn = e.target.closest('.size-option');
         if (!btn) return;
@@ -81,22 +79,17 @@ function setupEventListeners() {
         updateVariantDisplay(variant);
     });
 
-    // Gallery Switching (Event Delegation)
     if (elements.gallery) {
         elements.gallery.addEventListener('click', (e) => {
             const thumb = e.target.closest('.gallery-thumb');
             if (!thumb) return;
 
-            // Update main image
             elements.image.src = thumb.getAttribute('data-src');
-
-            // Update active state UI
             document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('thumb-active'));
             thumb.classList.add('thumb-active');
         });
     }
 
-    // Quantity Buttons
     document.getElementById('increase').addEventListener('click', () => {
         elements.quantity.value = parseInt(elements.quantity.value) + 1;
     });
@@ -106,7 +99,6 @@ function setupEventListeners() {
         if (val > 1) elements.quantity.value = val - 1;
     });
 
-    // Cart Actions
     elements.addToCartBtn.addEventListener('click', () => addToBag(false));
     elements.buyNowBtn.addEventListener('click', () => addToBag(true));
 }
@@ -117,13 +109,20 @@ function renderProduct(product) {
     elements.description.textContent = product.description;
     elements.image.src = product.image || 'https://placehold.co/600x800?text=No+Image';
 
-    // Render Gallery
     renderGallery(product);
 
     let variants = [];
-    if (Array.isArray(product.variants)) {
+
+    // FIX: Handle the new dictionary/object format from backend
+    if (product.variants && !Array.isArray(product.variants) && typeof product.variants === 'object') {
+        variants = Object.values(product.variants); 
+    } 
+    // Fallback for legacy Array format
+    else if (Array.isArray(product.variants)) {
         variants = product.variants;
-    } else if (typeof product.variants === 'string' && product.variants.trim() !== "") {
+    } 
+    // Fallback for simple String format
+    else if (typeof product.variants === 'string' && product.variants.trim() !== "") {
         variants = product.variants.split(',').map(s => ({ 
             size: s.trim(), 
             price: product.price, 
@@ -145,7 +144,6 @@ function renderProduct(product) {
 function renderGallery(product) {
     if (!elements.gallery) return;
     
-    // Combine main image and gallery images
     const images = [product.image, ...(product.gallery || [])].filter(src => src);
 
     if (images.length <= 1) {

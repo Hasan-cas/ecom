@@ -153,7 +153,10 @@ async function removeItem(id, size) {
         body: JSON.stringify({ product_id: id, size: size })
     });
     const result = await response.json();
-    if (result.status === 'success') renderCart(result.data);
+    if (result.status === 'success') {
+        currentCartData = result.data;
+        renderCart(result.data);
+    }
 }
 
 async function handleClearCart() {

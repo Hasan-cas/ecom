@@ -10,6 +10,8 @@ class CartItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     size = db.Column(db.String(50), nullable=False, default="Standard")
     quantity = db.Column(db.Integer, nullable=False, default=1)
+    # Price represents the variant price at the moment of adding to cart
+    price = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -18,11 +20,9 @@ class CartItem(db.Model):
     def to_dict(self):
         """
         Standardizes the output for the frontend.
-        Ensures 'image' key exists for legacy frontend support and 
-        'subtotal' is calculated correctly.
+        Uses the stored variant price instead of the generic product price.
         """
-        # Ensure price is a float for JSON serialization
-        price = float(self.product.price) if self.product else 0.0
+        price = float(self.price)
         image_path = self.product.image if self.product else None
         
         return {
@@ -30,7 +30,6 @@ class CartItem(db.Model):
             'product_id': self.product_id,
             'product_name': self.product.name if self.product else "Unknown Product",
             'product_price': price,
-            # FIX: Provide both keys to ensure cart.js always finds the image
             'product_image': image_path,
             'image': image_path, 
             'quantity': self.quantity,

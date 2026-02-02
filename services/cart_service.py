@@ -19,19 +19,37 @@ def validate_product_exists(product_id):
     except SQLAlchemyError as e:
         return None, f"Database error: {str(e)}"
 
-def check_stock_availability(product, quantity):
-    if product.stock < quantity:
-        return False, f"Insufficient stock. Available: {product.stock}, Requested: {quantity}"
+def check_stock_availability(product, quantity, size):
+    # Change the lookup from a loop/next() to a simple .get()
+    variant = (product.variants or {}).get(size) # Grab it directly!
+    
+    if not variant:
+        return False, f"Variant '{size}' not found"
+    
+    variant_stock = variant.get('stock', 0)
+    if variant_stock < quantity:
+        return False, f"Insufficient stock. Available: {variant_stock}"
+    
     return True, None
 
-def add_item_to_cart(client_token, product_id, quantity, size="Standard"):
-    """Adds a specific variant to the cart, treating different sizes as unique items."""
+
+def add_item_to_cart(client_token, product_id, quantity, size="Standard", price=None):
+    """Adds a specific variant to the cart, persisting the correct variant price from Product.variants."""
     try:
         product, error = validate_product_exists(product_id)
         if error: return False, error, None
         if quantity <= 0: return False, "Quantity must be > 0", None
 
-        # Logic: Filter by BOTH product_id AND size to find existing variants
+        # Variant Lookup: Instant grab instead of searching the list
+        variant = (product.variants or {}).get(size)
+        
+        if not variant:
+            # Helpful error: shows them exactly what keys are available in the dict
+            available = ", ".join(product.variants.keys()) if product.variants else "None"
+            return False, f"Variant '{size}' is not available. Try: {available}", None
+        
+        variant_price = float(variant.get('price', 0))
+
         existing_item = CartItem.query.filter_by(
             client_token=client_token,
             product_id=product_id,
@@ -40,20 +58,22 @@ def add_item_to_cart(client_token, product_id, quantity, size="Standard"):
 
         if existing_item:
             new_qty = existing_item.quantity + quantity
-            available, stock_err = check_stock_availability(product, new_qty)
+            available, stock_err = check_stock_availability(product, new_qty, size)
             if not available: return False, stock_err, None
             
             existing_item.quantity = new_qty
+            existing_item.price = variant_price 
             existing_item.updated_at = datetime.utcnow()
         else:
-            available, stock_err = check_stock_availability(product, quantity)
+            available, stock_err = check_stock_availability(product, quantity, size)
             if not available: return False, stock_err, None
             
             new_item = CartItem(
                 client_token=client_token,
                 product_id=product_id,
                 quantity=quantity,
-                size=size
+                size=size,
+                price=variant_price
             )
             db.session.add(new_item)
 

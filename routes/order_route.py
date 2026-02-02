@@ -4,12 +4,12 @@ from models import db
 
 from services.admin_service import admin_required
 from services.cart_service import get_or_create_client_token, clear_cart 
+from services.product_service import reduce_variant_stock
 from services.order_service import (
     fetch_cart_items, 
     validate_cart_not_empty,
     validate_stock_availability,
     create_order_from_cart,
-    reduce_product_stock,
     get_all_orders,
     update_order_status
 )
@@ -40,7 +40,6 @@ def checkout():
 
         # The service internally copies size from CartItem to OrderItem
         order = create_order_from_cart(client_token, data)
-        reduce_product_stock(cart_items)
         clear_cart(client_token)
         
         return jsonify({
