@@ -1,7 +1,6 @@
 /**
  * MARKAZUS SUNNAH | Full Enterprise Production Logic
  * Optimized for: Render, Vercel, and slow-loading cloud assets
- * Guarantee: Includes forced layout recalculation to fix 3D Scene race conditions.
  */
 
 // --- CONFIGURATION & GLOBAL VARIABLES ---
@@ -11,24 +10,19 @@ let isAnimating = false;
 
 // --- 1. CORE INITIALIZATION ENGINE ---
 window.addEventListener('load', () => {
-    // Register Plugins immediately
     gsap.registerPlugin(ScrollTrigger, Draggable);
 
-    // Initial UI Modules
     setupHeroSlider();
     setupCollectionScroll();
     initStatsCounter();
     
-    // Fetch products and THEN force-init ScrollTrigger
     fetchProducts().then(() => {
-        // Critical: Small delay to let API-injected DOM items settle
         setTimeout(() => {
             initScrollAnimations();
             ScrollTrigger.refresh();
         }, 800);
     });
 
-    // Language Toggle Listener
     const langBtn = document.getElementById('lang-toggle');
     if (langBtn) {
         const savedLang = localStorage.getItem('site_lang') || 'en';
@@ -39,11 +33,7 @@ window.addEventListener('load', () => {
         });
     }
 
-    // FINAL PRODUCTION GUARANTEE:
-    // Forces a full page recalculation after 2.5s in case images load slowly on Render
-    setTimeout(() => {
-        ScrollTrigger.refresh();
-    }, 2500);
+    setTimeout(() => { ScrollTrigger.refresh(); }, 2500);
 });
 
 // --- 2. API & RENDERING ---
@@ -54,7 +44,6 @@ async function fetchProducts() {
     try {
         const response = await fetch(PRODUCT_API);
         const result = await response.json();
-
         if (result.status === 'success') {
             renderProductCards(result.data, grid);
         }
@@ -80,22 +69,17 @@ function renderProductCards(products, container) {
             </a>
         </div>
     `).join('');
-
-    // Re-apply language to newly injected cards
     applyLanguage(localStorage.getItem('site_lang') || 'en');
 }
 
 // --- 3. ANIMATION MODULES ---
-
 function initScrollAnimations() {
-    // Navbar Shrink Effect
     ScrollTrigger.create({
         start: "top -50",
         onEnter: () => gsap.to("#navbar", { height: 65, backgroundColor: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)", duration: 0.4 }),
         onLeaveBack: () => gsap.to("#navbar", { height: 80, backgroundColor: "rgba(255,255,255,1)", backdropFilter: "blur(0px)", duration: 0.4 })
     });
 
-    // Reveal Product Cards
     gsap.utils.toArray('.reveal-item').forEach(item => {
         gsap.to(item, {
             opacity: 1, y: 0, scale: 1,
@@ -104,7 +88,6 @@ function initScrollAnimations() {
         });
     });
 
-    // 3D SCENE FIX: Force hidden starting state using xPercent for reliability
     gsap.set(".item-left", { xPercent: -150, y: 100, rotation: -30, autoAlpha: 0 });
     gsap.set(".item-right", { xPercent: 150, y: -100, rotation: 30, autoAlpha: 0 });
     gsap.set(".hero-title", { xPercent: -100, autoAlpha: 0 });
@@ -117,7 +100,7 @@ function initScrollAnimations() {
             scrub: 1.5,
             pin: true,
             anticipatePin: 1,
-            invalidateOnRefresh: true // This replaces the "debugger fix" by forcing recalculation
+            invalidateOnRefresh: true
         }
     });
 
@@ -137,32 +120,19 @@ function setupHeroSlider() {
     gsap.set(slides[0], { autoAlpha: 1 });
     gsap.set(dots[0], { width: 48, backgroundColor: "white" });
 
-    // Initial Zoom-out for first slide
-    gsap.fromTo(slides[0].querySelector('.hero-img'),
-        { scale: 1.15 },
-        { scale: 1, duration: 8, ease: "power2.out" }
-    );
+    gsap.fromTo(slides[0].querySelector('.hero-img'), { scale: 1.15 }, { scale: 1, duration: 8, ease: "power2.out" });
 
     function changeSlide(index) {
         if (isAnimating || index === currentSlide) return;
         isAnimating = true;
-
         const oldSlide = slides[currentSlide];
         const newSlide = slides[index];
-
-        dots.forEach((dot, i) => {
-            gsap.to(dot, { width: i === index ? 48 : 12, backgroundColor: i === index ? "white" : "rgba(255,255,255,0.2)", duration: 0.5 });
-        });
-
+        dots.forEach((dot, i) => gsap.to(dot, { width: i === index ? 48 : 12, backgroundColor: i === index ? "white" : "rgba(255,255,255,0.2)", duration: 0.5 }));
         const tl = gsap.timeline({ onComplete: () => { currentSlide = index; isAnimating = false; }});
         tl.to(oldSlide, { autoAlpha: 0, scale: 0.98, duration: 1.2, ease: "expo.inOut" }, 0);
         tl.fromTo(newSlide, { autoAlpha: 0, scale: 1.02 }, { autoAlpha: 1, scale: 1, duration: 1.2, ease: "expo.inOut" }, 0);
-        
-        // Ensure Zoom-out happens on every transition
-        tl.fromTo(newSlide.querySelector('.hero-img'), 
-            { scale: 1.15 }, { scale: 1, duration: 6, ease: "power2.out" }, 0);
+        tl.fromTo(newSlide.querySelector('.hero-img'), { scale: 1.15 }, { scale: 1, duration: 6, ease: "power2.out" }, 0);
     }
-
     dots.forEach((dot, i) => dot.addEventListener('click', () => changeSlide(i)));
     setInterval(() => changeSlide((currentSlide + 1) % slides.length), 8000);
 }
@@ -172,46 +142,39 @@ function setupCollectionScroll() {
     if (!wrapper) return;
 
     const cards = wrapper.querySelectorAll('.collection-card');
-    if (!cards.length) return;
-
-    const gap = 24;
-    let step = cards[0].offsetWidth + gap;
-    let autoTimer, startX, draggable;
+    const gap = 24; 
+    let autoTimer, draggable;
 
     function getBounds() {
+        // Correctly calculates the 'Right Wall' by subtracting the viewport width from total content width
         return {
             minX: -(wrapper.scrollWidth - wrapper.parentElement.offsetWidth),
             maxX: 0
         };
     }
 
-    function clampX(x) {
-        const { minX, maxX } = getBounds();
-        return Math.min(maxX, Math.max(minX, x));
-    }
-
     draggable = Draggable.create(wrapper, {
         type: "x",
         inertia: true,
         bounds: getBounds(),
+        edgeResistance: 0.7, // Adds a tactile feel when hitting the right boundary
         onPress() {
             gsap.killTweensOf(wrapper);
             clearInterval(autoTimer);
-            startX = this.x;
+            this.update(); // Recalculate bounds in case screen size changed
         },
         onRelease() {
-            const diff = this.x - startX;
-            let target = startX;
-
-            if (Math.abs(diff) > 50) {
-                target += diff < 0 ? -step : step;
-            }
-
-            target = clampX(target);
+            const step = cards[0].offsetWidth + gap;
+            // Snap the card to the nearest place in the wall
+            let target = Math.round(this.x / step) * step;
+            
+            // Safety Clamp to ensure we don't snap past the wall
+            const bounds = getBounds();
+            target = Math.max(bounds.minX, Math.min(bounds.maxX, target));
 
             gsap.to(wrapper, {
                 x: target,
-                duration: 0.5,
+                duration: 0.6,
                 ease: "power3.out",
                 onComplete: startAuto
             });
@@ -219,17 +182,12 @@ function setupCollectionScroll() {
     })[0];
 
     function moveNext() {
-        const { minX } = getBounds();
-        const x = gsap.getProperty(wrapper, "x");
-        let target = x - step;
-
-        if (target < minX) target = 0;
-
-        gsap.to(wrapper, {
-            x: target,
-            duration: 0.9,
-            ease: "power3.inOut"
-        });
+        const step = cards[0].offsetWidth + gap;
+        const bounds = getBounds();
+        const currentX = gsap.getProperty(wrapper, "x");
+        let target = currentX - step;
+        if (target < bounds.minX - 10) target = 0;
+        gsap.to(wrapper, { x: target, duration: 0.9, ease: "power3.inOut" });
     }
 
     function startAuto() {
@@ -238,20 +196,14 @@ function setupCollectionScroll() {
     }
 
     startAuto();
-
-    wrapper.addEventListener('mouseenter', () => {
-        clearInterval(autoTimer);
-        gsap.killTweensOf(wrapper);
-    });
-
+    wrapper.addEventListener('mouseenter', () => { clearInterval(autoTimer); gsap.killTweensOf(wrapper); });
     wrapper.addEventListener('mouseleave', startAuto);
 
     window.addEventListener('resize', () => {
-        step = cards[0].offsetWidth + gap;
         draggable.applyBounds(getBounds());
-        gsap.set(wrapper, { x: clampX(gsap.getProperty(wrapper, "x")) });
     });
 }
+
 function initStatsCounter() {
     gsap.utils.toArray('.count-up').forEach(el => {
         const target = parseInt(el.dataset.target);
@@ -273,3 +225,4 @@ function applyLanguage(lang) {
     if (lb) lb.textContent = lang === 'bn' ? 'EN' : 'BN';
     localStorage.setItem('site_lang', lang);
 }
+

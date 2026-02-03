@@ -11,7 +11,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        /* Added Poppins for headings and Quicksand for body */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap');
 
         .bg-khaki {
@@ -29,7 +28,6 @@
             font-family: 'Hind Siliguri', sans-serif;
         }
 
-        /* Updated Heading Font to Poppins */
         .heading-font { 
             font-family: 'Poppins', sans-serif; 
         }
@@ -119,7 +117,7 @@
 <body class="bg-white">
     <button id="lang-toggle" class="fixed top-24 right-4 z-[100] bg-black text-white px-4 py-2 rounded-full font-bold shadow-lg border border-gray-700 hover:bg-gray-800 transition">BN</button>
 
-    <div class="bg-black text-white text-center py-2 text-sm w-full" data-bn="৬০ ডলারের বেশি অর্ডারে ফ্রি শিপিং">
+    <div class="bg-black text-white text-center py-2 text-sm w-full" data-bn="৬০ টাকার বেশি অর্ডারে ফ্রি শিপিং">
         FREE Shipping On Orders Over BDT 1500</div>
 
     <nav class="bg-white border-b sticky top-0 z-50 w-full" id="navbar">
@@ -180,7 +178,6 @@
     </div>
 </section>
 
-
     <section class="py-20 bg-khaki border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-center">
@@ -206,71 +203,69 @@
             <p class="text-center text-gray-600 mb-12 text-lg font-medium" data-bn="নিজেকে অবিস্মরণীয় করে তুলতে যা পরবেন।">What you wear when you want to be unforgettable.</p>
 
             <div class="collections-container overflow-hidden cursor-grab active:cursor-grabbing">
-                <div class="flex gap-6 collections-wrapper" id="collectionsWrapper">
+                <div class="flex gap-6 collections-wrapper pr-8" id="collectionsWrapper">
 
-                    <a href="/products?category=tupi">
-                    <div class="collection-card flex-shrink-0 h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl ml-1">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/tupi.webp');"></div>
-                        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
-                        <div class="absolute bottom-8 left-8 text-white">
-                            <h3 class="heading-font text-3xl font-bold mb-1" data-bn="টুপি">TUPI</h3>
+                    <a href="/products?category=tupi" class="flex-shrink-0">
+                        <div class="collection-card h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl">
+                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/tupi.webp');"></div>
+                            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
+                            <div class="absolute bottom-8 left-8 text-white">
+                                <h3 class="heading-font text-3xl font-bold mb-1" data-bn="টুপি">TUPI</h3>
+                            </div>
                         </div>
-                    </div></a>
+                    </a>
 
-                    <a href="/products?category=attar">
-                    <div class="collection-card flex-shrink-0 h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/attor.webp');"></div>
-                        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
-                        <div class="absolute bottom-8 left-8 text-white">
-                            <h3 class="heading-font text-3xl font-bold mb-1" data-bn="আতর">ATTAR</h3>
+                    <a href="/products?category=attar" class="flex-shrink-0">
+                        <div class="collection-card h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl">
+                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/attor.webp');"></div>
+                            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
+                            <div class="absolute bottom-8 left-8 text-white">
+                                <h3 class="heading-font text-3xl font-bold mb-1" data-bn="আতর">ATTAR</h3>
+                            </div>
                         </div>
-                    </div></a>
+                    </a>
 
-                    <a href="/products?category=perfume">
-                    <div class="collection-card flex-shrink-0 h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/taj.webp');"></div>
-                        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
-                        <div class="absolute bottom-8 left-8 text-white">
-                            <h3 class="heading-font text-3xl font-bold mb-1" data-bn="পারফিউম">PERFUME</h3>
+                    <a href="/products?category=perfume" class="flex-shrink-0">
+                        <div class="collection-card h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl">
+                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/perf.webp');"></div>
+                            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
+                            <div class="absolute bottom-8 left-8 text-white">
+                                <h3 class="heading-font text-3xl font-bold mb-1" data-bn="পারফিউম">PERFUME</h3>
+                            </div>
                         </div>
-                    </div></a>
+                    </a>
 
-                    <a href="/products?category=panjabi">
-                    <div class="collection-card flex-shrink-0 h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl ml-1">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/tupi.webp');"></div>
-                        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
-                        <div class="absolute bottom-8 left-8 text-white">
-                            <h3 class="heading-font text-3xl font-bold mb-1" data-bn="পাঞ্জাবি ">PANJABI</h3>
+                    <a href="/products?category=panjabi" class="flex-shrink-0">
+                        <div class="collection-card h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl">
+                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/panjabi.webp');"></div>
+                            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
+                            <div class="absolute bottom-8 left-8 text-white">
+                                <h3 class="heading-font text-3xl font-bold mb-1" data-bn="পাঞ্জাবি ">PANJABI</h3>
+                            </div>
                         </div>
-                    </div></a>
+                    </a>
 
-                    <a href="/products?category=jubba">
-                    <div class="collection-card flex-shrink-0 h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl ml-1">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/tupi.webp');"></div>
-                        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
-                        <div class="absolute bottom-8 left-8 text-white">
-                            <h3 class="heading-font text-3xl font-bold mb-1" data-bn="জুব্বা">JUBBA</h3>
+                    <a href="/products?category=jubba" class="flex-shrink-0">
+                        <div class="collection-card h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl">
+                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/jubba.webp');"></div>
+                            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
+                            <div class="absolute bottom-8 left-8 text-white">
+                                <h3 class="heading-font text-3xl font-bold mb-1" data-bn="জুব্বা">JUBBA</h3>
+                            </div>
                         </div>
-                    </div></a>
+                    </a>
 
-                    <a href="/products?category=pray%20mat">
-                    <div class="collection-card flex-shrink-0 h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl ml-1">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/tupi.webp');"></div>
-                        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
-                        <div class="absolute bottom-8 left-8 text-white">
-                            <h3 class="heading-font text-3xl font-bold mb-1" data-bn="জায়নামাজ">PRAY MAT</h3>
+                    <a href="/products?category=othersunnah" class="flex-shrink-0">
+                        <div class="collection-card h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl">
+                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/othersunnah.webp');"></div>
+                            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
+                            <div class="absolute bottom-8 left-8 text-white">
+                                <h3 class="heading-font text-3xl font-bold mb-1" data-bn="অন্যান্য সুন্নাহ">OTHER SHUNNAH</h3>
+                            </div>
                         </div>
-                    </div>
-
-                    <a href="/products?category=all">
-                    <div class="collection-card flex-shrink-0 h-[220px] w-[345px] md:w-[400px] relative overflow-hidden group rounded-3xl ml-1">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('/static/img/tupi.webp');"></div>
-                        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all"></div>
-                        <div class="absolute bottom-8 left-8 text-white">
-                            <h3 class="heading-font text-3xl font-bold mb-1" data-bn="অন্যান্য সুন্নাহ">OTHER SHUNNAH</h3>
-                        </div>
-                    </div></a>
-
+                    </a>
+                    
+                    <div class="flex-shrink-0 w-8 md:w-12 h-full"></div>
                 </div>
             </div>
         </div>
@@ -324,3 +319,4 @@
     <script src="/static/index.js"></script>
 </body>
 </html>
+
