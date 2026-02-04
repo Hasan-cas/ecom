@@ -32,6 +32,8 @@ class Order(db.Model):
         order_dict = {
             'order_id': self.order_id,
             'customer_name': self.customer_name,
+            'payment_number': self.payment_number,
+            'transaction_id': self.transaction_id,
             'phone': self.phone,
             'address': self.address,
             'total': self.total,
@@ -48,4 +50,5 @@ class Order(db.Model):
     
     def __repr__(self):
         return f'<Order {self.order_id}: {self.customer_name} - ${self.total}>'
+
 

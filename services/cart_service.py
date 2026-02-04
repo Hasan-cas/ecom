@@ -20,8 +20,8 @@ def validate_product_exists(product_id):
         return None, f"Database error: {str(e)}"
 
 def check_stock_availability(product, quantity, size):
-    # Change the lookup from a loop/next() to a simple .get()
-    variant = (product.variants or {}).get(size) # Grab it directly!
+    # Direct lookup from the variants dictionary
+    variant = (product.variants or {}).get(size)
     
     if not variant:
         return False, f"Variant '{size}' not found"
@@ -32,7 +32,6 @@ def check_stock_availability(product, quantity, size):
     
     return True, None
 
-
 def add_item_to_cart(client_token, product_id, quantity, size="Standard", price=None):
     """Adds a specific variant to the cart, persisting the correct variant price from Product.variants."""
     try:
@@ -40,11 +39,10 @@ def add_item_to_cart(client_token, product_id, quantity, size="Standard", price=
         if error: return False, error, None
         if quantity <= 0: return False, "Quantity must be > 0", None
 
-        # Variant Lookup: Instant grab instead of searching the list
+        # Variant Lookup
         variant = (product.variants or {}).get(size)
         
         if not variant:
-            # Helpful error: shows them exactly what keys are available in the dict
             available = ", ".join(product.variants.keys()) if product.variants else "None"
             return False, f"Variant '{size}' is not available. Try: {available}", None
         
@@ -101,6 +99,7 @@ def remove_item_from_cart(client_token, product_id, size):
         return False, str(e), None
 
 def clear_cart(client_token):
+    """Removes all items associated with a client token."""
     try:
         CartItem.query.filter_by(client_token=client_token).delete()
         db.session.commit()
@@ -110,6 +109,7 @@ def clear_cart(client_token):
         return False, str(e)
 
 def fetch_cart_contents(client_token):
+    """Retrieves all cart items and calculates totals."""
     try:
         cart_items = CartItem.query.filter_by(client_token=client_token).all()
         items = [item.to_dict() for item in cart_items]

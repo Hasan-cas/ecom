@@ -1,6 +1,6 @@
 /**
  * Markazus Sunnah | Shopping Bag & Logic
- * Integrated: bKash Transaction Capture & Variant Support
+ * Cleaned: Removed bKash capture logic (moved to checkout)
  */
 
 const API_BASE = '/api/cart';
@@ -167,27 +167,20 @@ async function handleClearCart() {
 
 function navigateToCheckout() {
     if (!currentCartData || currentCartData.items.length === 0) return;
+    
+    // Redirecting directly to checkout as payment info is now handled there
+    window.location.href = '/checkout';
+}
 
-    const payNumber = document.getElementById('payment-number')?.value || "";
-    const trxId = document.getElementById('transaction-id')?.value || "";
-
-    if (!payNumber || !trxId) {
-        alert("Please provide bKash Number and Transaction ID in the 'Make Payment' section.");
-        return;
-    }
-
-    localStorage.setItem('pending_payment_number', payNumber);
-    localStorage.setItem('pending_transaction_id', trxId);
-
-    const subtotal = parseFloat(currentCartData.total_price);
-    const shippingValue = getSelectedShippingValue();
-    const isFree = subtotal > 1500;
-    const total = isFree ? subtotal : subtotal + shippingValue;
-
-    alert(`Order of ৳${total.toLocaleString()} placed! Redirecting to fill address...`);
-
-    setTimeout(() => {
-        window.location.href = '/checkout';
-    }, 1500);
+// --- LANGUAGE SYSTEM ---
+function applyLanguage(lang) {
+    document.body.classList.toggle('lang-bn', lang === 'bn');
+    document.querySelectorAll('[data-bn]').forEach(el => {
+        if (!el.dataset.en) el.dataset.en = el.innerHTML;
+        el.innerHTML = lang === 'bn' ? el.dataset.bn : el.dataset.en;
+    });
+    const lb = document.getElementById('lang-toggle');
+    if (lb) lb.textContent = lang === 'bn' ? 'EN' : 'BN';
+    localStorage.setItem('site_lang', lang);
 }
 

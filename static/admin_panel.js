@@ -1,5 +1,5 @@
 /**
- * ZENFOX Admin Dashboard Logic
+ * Markazus Sunnah Admin Dashboard Logic
  */
 
 const API_BASE = '/api/admin';
@@ -128,8 +128,10 @@ function renderOrders(orders) {
                 </span>
             </div>
             <p class="text-xs text-gray-500 mb-4 h-8 overflow-hidden">${order.address}</p>
+            <p class="text-[10px] font-mono text-blue-600">ID: ${order.transaction_id}</p>
+            <p class="text-[10px] font-mono text-gray-600">Paid from: ${order.payment_number}</p>
             <div class="space-y-3 pt-3 border-t border-gray-50 flex justify-between items-center">
-                <span class="text-sm font-bold">$${parseFloat(order.total).toFixed(2)}</span>
+                <span class="text-sm font-bold">BDT ${parseFloat(order.total).toFixed(2)}</span>
                 <select data-order-id="${order.order_id}"
                         class="order-status-select text-[10px] uppercase font-bold bg-gray-50 rounded-lg px-2 py-1 outline-none border-none cursor-pointer hover:bg-gray-100 transition">
                     <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -154,14 +156,14 @@ function showOrderDetails(orderId) {
                 <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center font-bold text-xs">x${item.quantity}</div>
                 <div>
                     <p class="font-bold text-sm">${item.product_name}</p>
-                    <p class="text-[10px] text-gray-400 uppercase">Size: ${item.size} | Unit: $${parseFloat(item.price).toFixed(2)}</p>
+                    <p class="text-[10px] text-gray-400 uppercase">Size: ${item.size} | Unit: BDT ${parseFloat(item.price).toFixed(2)}</p>
                 </div>
             </div>
-            <p class="font-bold text-sm">$${(item.price * item.quantity).toFixed(2)}</p>
+            <p class="font-bold text-sm">BDT ${(item.price * item.quantity).toFixed(2)}</p>
         </div>
     `).join('');
 
-    totalEl.innerText = `$${parseFloat(order.total).toFixed(2)}`;
+    totalEl.innerText = `BDT ${parseFloat(order.total).toFixed(2)}`;
     DOM.orderModal.classList.remove('hidden');
 }
 
@@ -188,7 +190,7 @@ function renderProducts(products) {
                     ${p.category ? p.category.replace('-', ' > ') : 'Uncategorized'}
                 </div>
             </td>
-            <td class="px-6 py-4 font-medium text-gray-600">$${parseFloat(p.price).toFixed(2)}</td>
+            <td class="px-6 py-4 font-medium text-gray-600">BDT ${parseFloat(p.price).toFixed(2)}</td>
             <td class="px-6 py-4 text-right">
                 <button type="button" data-id="${p.id}" class="delete-product-btn text-red-500 hover:text-red-700 transition">
                     <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -268,4 +270,6 @@ function showToast(message, type = 'info') {
 async function handleLogout() { await fetch('/api/admin/logout'); window.location.href = 'admin-form'; }
 
 document.addEventListener('DOMContentLoaded', checkAuth);
+
+
 

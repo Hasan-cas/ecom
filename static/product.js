@@ -1,6 +1,6 @@
 /**
  * Markazus Sunnah | Product Detail Logic (Production Ready)
- * Version: 2.3.1 (Fix: Added Object-to-Array conversion for Variants)
+ * Version: 2.3.2 (Fix: Dynamic Stock Display & Detailed Error Handling)
  */
 
 let currentProduct = null;
@@ -113,15 +113,12 @@ function renderProduct(product) {
 
     let variants = [];
 
-    // FIX: Handle the new dictionary/object format from backend
     if (product.variants && !Array.isArray(product.variants) && typeof product.variants === 'object') {
         variants = Object.values(product.variants); 
     } 
-    // Fallback for legacy Array format
     else if (Array.isArray(product.variants)) {
         variants = product.variants;
     } 
-    // Fallback for simple String format
     else if (typeof product.variants === 'string' && product.variants.trim() !== "") {
         variants = product.variants.split(',').map(s => ({ 
             size: s.trim(), 
@@ -137,6 +134,7 @@ function renderProduct(product) {
                 ${v.size}
             </button>
         `).join('');
+        // This ensures the first variant is correctly styled (red/green) on page load
         updateVariantDisplay(variants[0]);
     }
 }
@@ -164,9 +162,18 @@ function updateVariantDisplay(variant) {
     currentSelectedSize = variant.size;
     elements.price.textContent = `BDT ${parseFloat(variant.price).toLocaleString()}`;
 
-    const isAvailable = parseInt(variant.stock) > 0;
-    elements.stockPill.textContent = isAvailable ? "In Stock" : "Out of Stock";
-    elements.stockPill.className = `px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${isAvailable ? 'border-emerald-500 text-emerald-600 bg-emerald-50' : 'border-red-500 text-red-600 bg-red-50'}`;
+    // Requirement 1: Show stock of each variant in the capsule
+    const stockCount = parseInt(variant.stock);
+    const isAvailable = stockCount > 0;
+
+    if (isAvailable) {
+        elements.stockPill.textContent = `${stockCount} Units In Stock`;
+        elements.stockPill.className = `px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-emerald-500 text-emerald-600 bg-emerald-50`;
+    } else {
+        // Requirement 3: Show red pill "Out of Stock" if stock is 0
+        elements.stockPill.textContent = "Out of Stock";
+        elements.stockPill.className = `px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-red-500 text-red-600 bg-red-50`;
+    }
     
     elements.addToCartBtn.disabled = !isAvailable;
     elements.buyNowBtn.disabled = !isAvailable;
@@ -194,9 +201,14 @@ async function addToBag(redirect) {
         });
 
         const result = await response.json();
-        if (result.status === 'success') {
+        
+        // Requirement 2: Show specific stock error from backend if request fails
+        if (response.ok && result.status === 'success') {
             showMessage("Added to Bag", "bg-black");
             if (redirect) window.location.href = '/cart';
+        } else {
+            // result.message will contain "Insufficient stock. Available: X" from cart_service.py
+            showMessage(result.message || "Could not add to cart", "bg-red-600");
         }
     } catch (err) {
         showMessage("Connection Error", "bg-red-600");
