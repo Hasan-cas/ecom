@@ -64,9 +64,6 @@ def create_order_from_cart(client_token, customer_data):
         payment_number = customer_data.get('payment_number')
         transaction_id = customer_data.get('transaction_id')
 
-        if not payment_number or not transaction_id:
-            raise ValueError("Payment details required: payment_number and transaction_id must be provided.")
-
         # 2. Fetch and Validate Cart
         cart_items = fetch_cart_items(client_token)
         is_not_empty, empty_err = validate_cart_not_empty(cart_items)
