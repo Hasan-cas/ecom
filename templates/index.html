@@ -112,6 +112,13 @@
         }
         .item-left { left: 60%; top: 40%; }
         .item-right { right: 60%; top: 35%; }
+
+        @media (min-width: 768px) {
+        .hero-title {
+            display: none;
+        }
+
+    }
     </style>
 </head>
 <body class="bg-white">
@@ -282,10 +289,13 @@
     </section>
 
     <section class="scene-container py-32 bg-white text-black w-full overflow-hidden">
+    <picture>
+        <source srcset="/static/img/bg_desk.webp" media="(min-width: 768px)">
         <img src="/static/img/bg.webp" class="bg-layer" alt="Background">
+    </picture>
         <h1 class="hero-title" data-bn="সেরা">BEST</h1>
-        <h1 class="hero-title mt-10" data-bn="কালেকশন">COLLECTIONS</h1>
-        <img src="/static/img/product_1.webp" class="support-item item-left w-[180px] mr-3">
+        <h1 class="hero-title mt-10 md:mt-20" data-bn="কালেকশন">COLLECTIONS</h1>
+        <img src="/static/img/product_1.webp" class="support-item item-left w-[180px] mr-3 ">
         <img src="/static/img/product.png" class="support-item item-right">
     </section>
 <section class="py-20 bg-khaki w-full">
@@ -377,7 +387,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       
       <div class="space-y-4">
-        <h2 class="text-white text-lg font-bold tracking-tighter">OFFICE AR</h2>
+        <h2 class="text-white text-lg font-bold tracking-tighter">Markazus Sunnah</h2>
         <div class="flex gap-4 text-[14px]">
           <a href="#" class="hover:text-white">FB</a>
           <a href="#" class="hover:text-white">Tiktok</a>
@@ -417,3 +427,4 @@
     <script src="/static/index.js"></script>
 </body>
 </html>
+

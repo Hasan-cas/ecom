@@ -226,3 +226,4 @@ function applyLanguage(lang) {
     localStorage.setItem('site_lang', lang);
 }
 
+
