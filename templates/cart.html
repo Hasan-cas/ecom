@@ -10,21 +10,17 @@
         body { font-family: 'Quicksand', sans-serif; background-color: #fcfcfc; }
         .heading-font { font-family: 'Poppins', sans-serif; }
         .bg-khaki { background-color: #e2e8dd; }
-/* Replace your existing drawer logic with this */
-.drawer-content { 
-    max-height: 0; 
-    overflow: hidden; 
-    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
-}
-
-.drawer-item.active .drawer-content { 
-    /* Increased to 1200px to ensure the full payment form is visible */
-    max-height: 1200px; 
-}
-
-.drawer-item.active .drawer-icon { 
-    transform: rotate(180deg); 
-}
+        .drawer-content { 
+            max-height: 0; 
+            overflow: hidden; 
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .drawer-item.active .drawer-content { 
+            max-height: 1200px; 
+        }
+        .drawer-item.active .drawer-icon { 
+            transform: rotate(180deg); 
+        }
         .cart-card {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -127,6 +123,35 @@
                 </div>
             </div>
         </div>
+
+        <div class="drawer-item bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm mt-4">
+            <button class="drawer-toggle-btn w-full px-8 py-6 flex justify-between items-center hover:bg-gray-50 transition">
+                <span class="text-xs font-bold uppercase tracking-[0.2em] heading-font" data-bn="৩. ক্যাশ অন ডেলিভারি">3. Cash on Delivery</span>
+                <span class="drawer-icon transition-transform text-xs">▼</span>
+            </button>
+
+            <div class="drawer-content">
+                <div class="px-8 pb-8">
+                    <div class="pt-2">
+                        <div class="p-6 bg-khaki/30 rounded-2xl border border-khaki flex flex-col gap-6">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-khaki/50 pb-4 mb-4">
+                                <div>
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1" data-bn="হাতে পেয়ে মূল্য পরিশোধ">Pay after receiving product</p>
+                                    <p class="text-2xl font-bold heading-font tracking-tight text-gray-900" data-bn="ক্যাশ অন ডেলিভারি">Cash on Delivery</p>
+                                </div>
+                            </div>
+
+                            <div class="text-sm text-gray-700 space-y-2">
+                                <p data-bn="<strong>০১.</strong> আপনি যদি ক্যাশ অন ডেলিভারি নিতে চান, তবে নিচের শর্তগুলো অনুসরণ করুন"><strong>01.</strong> If you want to choose Cash on Delivery, please follow the steps below:</p>
+                                <p data-bn="<strong>০২.</strong> চেকআউট ফর্মের ট্রানজেকশন আইডি <strong>(Transaction ID)</strong> ঘরটি খালি রাখুন"><strong>02.</strong> Leave the <strong>Transaction ID</strong> field empty on the checkout form</p>
+                                <p data-bn="<strong>০৩.</strong> বিকাশ নম্বর <strong>(bKash Number)</strong> ঘরটিও খালি রাখুন"><strong>03.</strong> Leave the <strong>bKash Number</strong> field empty as well</p>
+                                <p data-bn="<strong>০৪.</strong> সবশেষে অর্ডার সম্পন্ন করতে <strong>'Place Order'</strong> বাটনে ক্লিক করুন"><strong>04.</strong> Finally, click the <strong>"Place Order"</strong> button to complete your purchase</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="cart-summary" class="mt-12 pt-10 border-t border-gray-100 hidden">
@@ -170,7 +195,6 @@
 
 <footer class="bg-[#080808] text-[#999] py-8 px-6 border-t border-[#1a1a1a] font-sans text-[12px]">
   <div class="max-w-7xl mx-auto">
-    
     <div class="flex flex-wrap gap-x-6 gap-y-2 border-b border-[#111] pb-6 mb-6 uppercase tracking-wider font-semibold text-[#c5a059]">
       <div class="flex items-center gap-2">
         <span class="text-[10px]">🚚</span>
@@ -191,13 +215,12 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      
       <div class="space-y-4">
-        <h2 class="text-white text-lg font-bold tracking-tighter">OFFICE AR</h2>
+        <h2 class="text-white text-lg font-bold tracking-tighter">MARKAZUS SUNNAH</h2>
         <div class="flex gap-4 text-[14px]">
-          <a href="https://www.facebook.com/share/1K7QCmj53c/" class="hover:text-white">FB</a>
-          <a href="https://www.tiktok.com/@markazus_sunnah?_r=1&_t=ZT-93e3S0FKEvt" class="hover:text-white">Tiktok</a>
-          <a href="https://www.instagram.com/markazussunnah313?igsh=MXM1MzljaDVpOTN6Ng==" class="hover:text-white">Insta</a>
+          <a href="#" class="hover:text-white">FB</a>
+          <a href="#" class="hover:text-white">Tiktok</a>
+          <a href="#" class="hover:text-white">Insta</a>
         </div>
       </div>
 
@@ -222,14 +245,12 @@
     </div>
 
     <div class="mt-8 pt-4 border-t border-[#111] flex justify-between items-center text-[10px] opacity-50">
-      <p data-bn="© ২০২৬ অফিস এআর।">© 2026 Markazus Sunnah</p>
-      <p>Accepted: BKASH / COD</p>
+      <p data-bn="© ২০২৬ মারকাজুস সুন্নাহ।">© 2026 Markazus Sunnah</p>
+      <p data-bn="পেমেন্ট: বিকাশ / ক্যাশ অন ডেলিভারি">Accepted: BKASH / COD</p>
     </div>
-
   </div>
 </footer>
 
     <script src="/static/cart.js"></script>
 </body>
 </html>
-
