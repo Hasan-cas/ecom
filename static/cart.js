@@ -1,6 +1,6 @@
 /**
  * Markazus Sunnah | Shopping Bag & Logic
- * Cleaned: Removed bKash capture logic (moved to checkout)
+ * Fixed: Language toggle integration and persistent state
  */
 
 const API_BASE = '/api/cart';
@@ -17,7 +17,8 @@ const DOM = {
     freeBadge: document.getElementById('free-delivery-badge'),
     options: document.getElementById('cart-options'),
     clearBtn: document.getElementById('clear-btn'),
-    checkoutBtn: document.getElementById('checkout-btn')
+    checkoutBtn: document.getElementById('checkout-btn'),
+    langToggle: document.getElementById('lang-toggle')
 };
 
 let currentCartData = null;
@@ -27,6 +28,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function initApp() {
+    // Initialize Language
+    const savedLang = localStorage.getItem('site_lang') || 'en';
+    applyLanguage(savedLang);
+
+    if (DOM.langToggle) {
+        DOM.langToggle.addEventListener('click', () => {
+            const newLang = document.body.classList.contains('lang-bn') ? 'en' : 'bn';
+            applyLanguage(newLang);
+        });
+    }
+
     await fetchCart();
 
     document.addEventListener('click', (e) => {
@@ -65,6 +77,9 @@ async function fetchCart() {
         if (result.status === 'success') {
             currentCartData = result.data;
             renderCart(result.data);
+            // Re-apply language after rendering dynamic items
+            const currentLang = localStorage.getItem('site_lang') || 'en';
+            applyLanguage(currentLang);
         }
     } catch (err) { console.error("Cart fetch failed:", err); }
 }
@@ -94,7 +109,7 @@ function renderCart(cartData) {
                     <div>
                         <h3 class="heading-font font-bold text-sm uppercase tracking-tight text-gray-900">${item.product_name}</h3>
                         <div class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full bg-khaki/40 text-gray-700 text-[9px] font-bold uppercase tracking-wider border border-khaki/50">
-                            Size: ${item.size}
+                            <span data-bn="সাইজ:">Size:</span> ${item.size}
                         </div>
                     </div>
                     <button class="remove-item-btn text-gray-300 hover:text-red-500 transition-colors p-1"
@@ -104,11 +119,11 @@ function renderCart(cartData) {
                 </div>
                 <div class="flex justify-between items-end mt-4">
                     <div class="flex flex-col">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Quantity</span>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-bn="পরিমাণ">Quantity</span>
                         <span class="text-sm font-bold text-gray-900">${item.quantity}</span>
                     </div>
                     <div class="text-right">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Subtotal</span>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1" data-bn="উপমোট">Subtotal</span>
                         <span class="font-black heading-font text-black text-lg">৳${item.subtotal.toLocaleString()}</span>
                     </div>
                 </div>
@@ -156,31 +171,29 @@ async function removeItem(id, size) {
     if (result.status === 'success') {
         currentCartData = result.data;
         renderCart(result.data);
+        const currentLang = localStorage.getItem('site_lang') || 'en';
+        applyLanguage(currentLang);
     }
 }
 
 async function handleClearCart() {
-    if (!confirm("Clear bag?")) return;
+    const msg = document.body.classList.contains('lang-bn') ? "ব্যাগ খালি করবেন?" : "Clear bag?";
+    if (!confirm(msg)) return;
     const response = await fetch(`${API_BASE}/clear`, { method: 'POST' });
     if (response.ok) fetchCart();
 }
 
 function navigateToCheckout() {
     if (!currentCartData || currentCartData.items.length === 0) return;
-    
-    // Redirecting directly to checkout as payment info is now handled there
     window.location.href = '/checkout';
 }
 
-// --- LANGUAGE SYSTEM ---
 function applyLanguage(lang) {
     document.body.classList.toggle('lang-bn', lang === 'bn');
     document.querySelectorAll('[data-bn]').forEach(el => {
         if (!el.dataset.en) el.dataset.en = el.innerHTML;
         el.innerHTML = lang === 'bn' ? el.dataset.bn : el.dataset.en;
     });
-    const lb = document.getElementById('lang-toggle');
-    if (lb) lb.textContent = lang === 'bn' ? 'EN' : 'BN';
+    if (DOM.langToggle) DOM.langToggle.textContent = lang === 'bn' ? 'EN' : 'BN';
     localStorage.setItem('site_lang', lang);
 }
-
