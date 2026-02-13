@@ -6,61 +6,8 @@
 <title>Markazus sunnah Admin | Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-:root { --khaki: #F4E1C4; }
-.bg-khaki { background-color: var(--khaki); }
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    /* Desktop Specific Extensions */
-    @media (min-width: 1024px) {
-        /* Custom Scrollbar for Desktop */
-        main::-webkit-scrollbar {
-            width: 6px;
-        }
-        main::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        main::-webkit-scrollbar-thumb {
-            background: #C8A86A;
-            border-radius: 10px;
-        }
-        main::-webkit-scrollbar-thumb:hover {
-            background: #b69659;
-        }
-
-        /* Smooth Interaction Classes */
-        .desktop-card-hover {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .desktop-card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-        }
-
-        .sidebar-link-transition {
-            transition: all 0.2s ease;
-        }
-        
-        .table-row-transition {
-            transition: background-color 0.2s ease;
-        }
-        .table-row-transition:hover {
-            background-color: #fafafa;
-        }
-
-        #add-product-form input, #add-product-form textarea {
-            transition: all 0.2s ease;
-        }
-        #add-product-form input:focus, #add-product-form textarea:focus {
-            background-color: white;
-        }
-
-        /* Desktop Specific Spacing */
-        .desktop-wide-modal {
-            max-width: 800px !important;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
 
 </head>
 <body class="bg-khaki text-gray-900 font-sans antialiased">
