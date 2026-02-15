@@ -35,7 +35,13 @@ limiter = Limiter(key_func=get_remote_address)
 # -------------------
 # Config
 # -------------------
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'selly-ai.onrender.com']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'selly-ai.onrender.com',
+    'markazussunnahbd.com',
+    'www.markazussunnahbd.com'
+]
 TRUSTED_CRAWLERS = ["facebookexternalhit", "facebookcatalog", "googlebot", "bingbot"]
 TARGET_URLS = [
     "https://fonts.googleapis.com",
