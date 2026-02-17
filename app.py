@@ -69,41 +69,64 @@ def admin_form():
 def admin_panel():
     return render_template("admin_panel.html")
 
+# --- SEO ROUTES BLOCK ----
+@app.route('/robots.txt')
+def robots():
+    """
+    Tells search engines which pages to ignore.
+    Blocking /cart and /checkout prevents 'thin content' ranking drops.
+    """
+    lines = [
+        "User-agent: *",
+        "Disallow: /cart",
+        "Disallow: /checkout",
+        "Disallow: /login",
+        "Disallow: /register",
+        "Disallow: /api/",
+        "",
+        "Sitemap: https://markazussunnahbd.com/sitemap.xml"
+    ]
+    return Response("\n".join(lines), mimetype="text/plain")
+
+
 @app.route('/sitemap.xml')
 def sitemap():
-    """Dynamically generate sitemap.xml"""
+    """
+    The curated tour guide for Google.
+    Matches your exact 'product?id=' structure.
+    """
+    base_url = "https://markazussunnahbd.com"
     pages = []
-    
-    # 1. Add your static main pages
-    # You can manually list the URLs you want indexed
-    main_urls = [
-        "/",
-        "/products",
-        "/cart",
-        "/checkout"
-    ]
-    
-    for url in main_urls:
-        pages.append({"loc": f"https://markazussunnahbd.com{url}", "priority": "1.0"})
 
-    # 2. Add dynamic Product pages from your database
-    # Assuming you have a Product model in your models.py
+    # 1. High-Value Static Pages
+    # We give the Homepage 1.0 priority. We skip Cart/Checkout entirely.
+    pages.append({"loc": f"{base_url}/", "priority": "1.0", "changefreq": "daily"})
+    pages.append({"loc": f"{base_url}/products", "priority": "0.8", "changefreq": "daily"})
+
+    # 2. Dynamic Product Pages
     try:
-        products = Product.query.all()
+        # Assuming 'Product' is your SQLAlchemy model
+        products = Product.query.all() 
         for p in products:
-            # Adjust '/product/' to match your actual product URL structure
-            pages.append({"loc": f"https://markazussunnahbd.com/product/{p.id}", "priority": "0.8"})
+            pages.append({
+                "loc": f"{base_url}/product?id={p.id}", 
+                "priority": "0.7",
+                "changefreq": "weekly",
+                "lastmod": datetime.now().strftime('%Y-%m-%d')
+            })
     except Exception as e:
         app.logger.error(f"Sitemap generation error: {e}")
 
-    # Build the XML structure
+    # Build the XML structure manually to ensure UTF-8 and proper tags
     xml = '<?xml version="1.0" encoding="UTF-8"?>'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
     for page in pages:
-        xml += f'<url>'
+        xml += '<url>'
         xml += f'<loc>{page["loc"]}</loc>'
+        xml += f'<lastmod>{page["lastmod"]}</lastmod>'
+        xml += f'<changefreq>{page["changefreq"]}</changefreq>'
         xml += f'<priority>{page["priority"]}</priority>'
-        xml += f'</url>'
+        xml += '</url>'
     xml += '</urlset>'
 
     return Response(xml, mimetype='application/xml')
