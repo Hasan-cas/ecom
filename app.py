@@ -67,7 +67,7 @@ def admin_form():
 
 @app.route("/admin-panel")
 def admin_panel():
-    return render_template("admin_panel.html")
+    return render_template("dashboard.html")
 
 # --- SEO ROUTES BLOCK ----
 @app.route('/robots.txt')

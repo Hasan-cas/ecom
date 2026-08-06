@@ -89,7 +89,7 @@ def setup_security():
     csp = {
         'default-src': ["'self'"],
         'img-src': ["'self'"] + TARGET_URLS,
-        'style-src': ["'self'"] + TARGET_URLS,
+        'style-src': ["'self'", "'unsafe-inline'"] + TARGET_URLS,
         'script-src': ["'self'"] + TARGET_URLS,
         'connect-src': ["'self'", "wss://*.facebook.com"] + TARGET_URLS,
         'font-src': ["'self'"] + TARGET_URLS,

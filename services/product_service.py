@@ -53,7 +53,7 @@ def create_product(data, image_file, gallery_files=None):
     try:
         # 1. Parse Variations
         variants_json = data.get('variants')
-        parsed_variants = json.loads(variants_json) if variants_json else []
+        parsed_variants = json.loads(variants_json) if variants_json else {}
 
         # 2. Upload Main Image
         image_url = None
@@ -69,34 +69,34 @@ def create_product(data, image_file, gallery_files=None):
                     res = cloudinary.uploader.upload(file, folder="zenfox_products")
                     gallery_urls.append(res.get('secure_url'))
 
-        variants_json = data.get('variants')
-        raw_variants = json.loads(variants_json) if variants_json else []
         # 4. Determine Price & Stock
-        parsed_variants = {v['size']: v for v in raw_variants} 
+        # SURGICAL CHANGE: variants are now keyed by axis (size/color/scent),
+        # e.g. {"axes": {"color": [...]}, "combinations": [...], "axis_images": {...}}
+        # — not by size with per-variant price/stock baked into the old
+        # {v['size']: v} shape. See models.py for the full shape.
+        base_price = float(data.get('price', 0))
+        total_stock = int(data.get('stock', 0))
 
-        # 2. Image Uploads (logic remains same)
-        # ... (Cloudinary code) ...
-
-        # 3. SURGICAL FIX: Determine Price & Stock from Dictionary
-        if parsed_variants:
-            # We get the first available key to set a base price
-            first_key = next(iter(parsed_variants))
-            base_price = float(parsed_variants[first_key].get('price', 0))
-            total_stock = sum(int(v.get('stock', 0)) for v in parsed_variants.values())
-        else:
-            base_price = float(data.get('price', 0))
-            total_stock = int(data.get('stock', 0))
+        # SURGICAL CHANGE: category renamed to collection_tags (JSON list,
+        # e.g. ["gypsum", "jar_candle"]) + collection_label (display name),
+        # matching models.py v2. collection_tags may arrive as a JSON
+        # string (form-data) or already a list (JSON body) — handle both.
+        collection_tags = data.get('collection_tags', [])
+        if isinstance(collection_tags, str):
+            collection_tags = json.loads(collection_tags) if collection_tags else []
 
         # 5. Create Database Entry
         new_product = Product(
             name=data.get('name'),
-            category=data.get('category'),
+            collection_tags=collection_tags,
+            collection_label=data.get('collection_label'),
             price=base_price,
             stock=total_stock,
             description=data.get('description'),
             image=image_url,
             gallery=gallery_urls,
-            variants=parsed_variants
+            variants=parsed_variants,
+            variant_mode=data.get('variant_mode', 'unified')
         )
 
         db.session.add(new_product)
@@ -118,6 +118,20 @@ def update_product(product_id, data, image_file=None, gallery_files=None):
         if 'description' in data: product.description = data['description']
         if 'price' in data: product.price = float(data['price'])
         if 'stock' in data: product.stock = int(data['stock'])
+
+        if 'collection_label' in data: product.collection_label = data['collection_label']
+        if 'collection_tags' in data:
+            tags = data['collection_tags']
+            if isinstance(tags, str):
+                tags = json.loads(tags) if tags else []
+            product.collection_tags = tags
+
+        if 'variant_mode' in data: product.variant_mode = data['variant_mode']
+        if 'variants' in data:
+            variants = data['variants']
+            if isinstance(variants, str):
+                variants = json.loads(variants) if variants else {}
+            product.variants = variants
 
         # Handle Main Image Update
         if image_file and image_file.filename != '':
@@ -177,35 +191,75 @@ def delete_product(product_id):
         db.session.rollback()
         return False, f"Deletion failed: {str(e)}"
         
-def reduce_variant_stock(product, size, quantity):
+def reduce_variant_stock(product, selected_variants, quantity):
     """
-    Reduces stock for a specific variant and updates the total product stock.
+    Adjusts stock by `quantity` (positive = reduce, negative = increase —
+    same signed convention as before).
+
+    selected_variants: dict of axis->choice, e.g. {"size": "200ml",
+    "color": "Red", "scent": "Lavender"}, or None/{} for a manual
+    top-level adjustment that doesn't target one specific combination.
+
+    Branches on product.variant_mode, per the confirmed design:
+      - "unified" (default): every combination shares ONE stock number
+        (product.stock). selected_variants, if given, is only used to
+        confirm the choice(s) actually exist on this product — it does
+        NOT select a separate stock bucket.
+      - "per_variant": each entry in product.variants['combinations']
+        has its own 'stock'. selected_variants must match a specific
+        combination for anything other than a manual top-level check;
+        if selected_variants is empty/None in per_variant mode, this
+        cannot identify which combination to adjust and returns an error
+        rather than guessing.
     """
-    if not product.variants:
-        return False, "No variants defined"
+    variants = product.variants or {}
+    mode = product.variant_mode or "unified"
 
-    # 1. Grab the specific variant from the dictionary
-    # The structure is now {"Size": {"size": "Size", "stock": 10, ...}}
-    target_variant = product.variants.get(size)
-    
-    if not target_variant:
-        return False, f"Variant '{size}' not found"
+    if mode == "per_variant":
+        combinations = variants.get('combinations', [])
 
-    # 2. Check stock availability
-    current_variant_stock = int(target_variant.get('stock', 0))
-    if current_variant_stock < quantity:
-        return False, f"Insufficient stock. Have {current_variant_stock}, need {quantity}"
+        if not selected_variants:
+            return False, "per_variant product requires selected_variants to identify which combination to adjust"
 
-    # 3. Update the variant dictionary directly
-    target_variant['stock'] = current_variant_stock - quantity
-    
-    # 4. Sync the global product stock (Sum of all variants)
-    # This ensures product.stock matches the total of all variant stocks
-    product.stock = sum(int(v.get('stock', 0)) for v in product.variants.values())
-    
-    # 5. REQUIRED: Explicitly tell SQLAlchemy the JSON 'variants' column has changed
-    flag_modified(product, "variants")
-    
+        match = None
+        for combo in combinations:
+            # match on every axis key present in selected_variants —
+            # combo may have extra keys (price/stock) which we ignore here
+            if all(combo.get(axis) == value for axis, value in selected_variants.items()):
+                match = combo
+                break
+
+        if match is None:
+            return False, f"No matching combination found for {selected_variants}"
+
+        current_stock = int(match.get('stock', 0))
+        new_stock = current_stock - quantity
+        if new_stock < 0:
+            return False, f"Insufficient stock. Have {current_stock}, need {quantity}"
+
+        match['stock'] = new_stock
+        flag_modified(product, "variants")  # in-place nested mutation — required for JSON columns
+
+        # Keep product.stock as a rough overall total for display/sort
+        # purposes (e.g. the storefront grid's "in stock" badge) — not
+        # the authoritative number in per_variant mode, but useful to
+        # not leave stale.
+        product.stock = sum(int(c.get('stock', 0)) for c in combinations)
+
+    else:  # unified
+        if selected_variants:
+            all_choices = []
+            for axis_choices in variants.get('axes', {}).values():
+                all_choices.extend(axis_choices)
+            for value in selected_variants.values():
+                if value not in all_choices:
+                    return False, f"Variant '{value}' not found"
+
+        if product.stock < quantity:
+            return False, f"Insufficient stock. Have {product.stock}, need {quantity}"
+
+        product.stock -= quantity
+
     try:
         db.session.commit()
         return True, "Stock reduced successfully"

@@ -1,39 +1,37 @@
 from datetime import datetime
 from . import db
-from models.product import Product
 
 class CartItem(db.Model):
-    __tablename__ = 'cart_items'
+    __tablename__ = "cart_items"
 
-    cart_id = db.Column(db.Integer, primary_key=True)
-    client_token = db.Column(db.String(100), nullable=False, index=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
-    size = db.Column(db.String(50), nullable=False, default="Standard")
+    id = db.Column(db.Integer, primary_key=True)
+    client_token = db.Column(db.String(80), nullable=False, index=True)
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
+
     quantity = db.Column(db.Integer, nullable=False, default=1)
-    # Price represents the variant price at the moment of adding to cart
-    price = db.Column(db.Float, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    product = db.relationship('Product', backref='cart_items', lazy=True)
+    # Price AT THE TIME the item was added to cart — same snapshot
+    # principle as OrderItem.price below, so a mid-cart price change
+    # doesn't silently alter what's already in someone's cart.
+    price = db.Column(db.Float, nullable=False)
+
+    # DEPARTURE FROM order_service.py's assumption: this is JSON, not
+    # a flat `size` string column. Required because a jar_candle line
+    # needs size AND scent AND color together on one cart row — a
+    # single flat column cannot hold that. e.g.
+    # {"size": "200ml", "color": "Red", "scent": "Lavender"}
+    # For a unified-mode product with no axes chosen, this can be {}.
+    selected_variants = db.Column(db.JSON, nullable=True, default=dict)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    product = db.relationship("Product", back_populates="cart_items")
 
     def to_dict(self):
-        """
-        Standardizes the output for the frontend.
-        Uses the stored variant price instead of the generic product price.
-        """
-        price = float(self.price)
-        image_path = self.product.image if self.product else None
-        
         return {
-            'cart_id': self.cart_id,
-            'product_id': self.product_id,
-            'product_name': self.product.name if self.product else "Unknown Product",
-            'product_price': price,
-            'product_image': image_path,
-            'image': image_path, 
-            'quantity': self.quantity,
-            'size': self.size,
-            'subtotal': round(price * self.quantity, 2)
+            "id": self.id,
+            "product_id": self.product_id,
+            "quantity": self.quantity,
+            "price": self.price,
+            "selected_variants": self.selected_variants or {},
         }
-
