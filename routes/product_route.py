@@ -80,7 +80,7 @@ def delete_product_route(product_id):
         current_app.logger.error(f"Error in delete_product_route: {str(e)}")
         return jsonify({'status': 'error', 'message': 'Deletion failed'}), 500
 
-@product_bp.route('/admin/products/<int:product_id>', methods=['PUT'])
+@product_bp.route('/admin/products/<int:product_id>', methods=['PUT', 'PATCH'])
 @admin_required
 def update_product_route(product_id):
     try:
@@ -159,4 +159,5 @@ def adjust_stock_route(product_id):
     except Exception as e:
         current_app.logger.error(f"Error in adjust_stock_route: {str(e)}")
         return jsonify({'status': 'error', 'message': 'Stock adjustment failed'}), 500
+
 

@@ -6,9 +6,11 @@ attar-site models.py (which was never uploaded), it's the schema for
 the confirmed design:
 
   - collection alone decides which extra fields a product shows in
-    the admin form (size is universal; gypsum adds color; jar_candle
-    adds burn_rate/scent_throw_size/color/wick_type/scent; a
-    collection tagged as both gets the union)
+    the admin form (no shared fields anymore — gypsum owns
+    gypsum_size/gypsum_color, jar_candle owns wax_size/wax_color plus
+    burn_rate/scent_throw_size/wick_type/scent, raw_materials owns a
+    plain size; a product tagged with more than one collection gets
+    the union of those collections' fields)
   - variant_mode is ONE switch per product: "unified" (one shared
     price/stock for every combination) or "per_variant" (each
     size/color/scent combination has its own price + stock)
@@ -32,34 +34,43 @@ from . import db
 # ============================================================
 # COLLECTION -> EXTRA FIELD SETS
 # ============================================================
-# "Collection alone decides the extra fields" — confirmed. size is
-# universal (every collection gets it). Additional field-sets stack:
-# a collection whose name/tag matches more than one key below gets
-# the UNION of those sets, e.g. a "gypsum_candle" collection gets
-# color (from gypsum) AND burn_rate/scent_throw_size/wick_type/scent
-# (from jar_candle) AND size (universal).
+# "Collection alone decides the extra fields" — confirmed. Each
+# collection now owns its own field names (no shared "universal"
+# fields anymore — size is prefixed per-collection to avoid admin/
+# customer confusion when gypsum + jar_candle are combined on one
+# product, e.g. "gypsum_size" vs "wax_size" both showing at once).
+# A collection whose name/tag matches more than one key below gets
+# the UNION of those sets, e.g. ["gypsum", "jar_candle"] together
+# gets gypsum_size + gypsum_color + wax_size + wax_color + the rest
+# of jar_candle's fields.
+#
+# raw_materials is mutually exclusive with gypsum/jar_candle by
+# confirmed product decision — enforced client-side only for now
+# (dashboard.js unchecks the others when raw_materials is checked).
+# Not re-validated here; a direct API call could still combine them.
 #
 # Kept as a plain constant, not a DB table, matching the same
 # not-yet-admin-editable decision already made for product types
 # earlier in this build. Promote to a table later if you want
 # collections/field-sets defined through the UI instead of code.
-UNIVERSAL_EXTRA_FIELDS = ["size"]
-
 COLLECTION_EXTRA_FIELDS = {
-    "gypsum": ["color"],
-    "jar_candle": ["burn_rate", "scent_throw_size", "color", "wick_type", "scent"],
+    "gypsum": ["gypsum_size", "gypsum_color"],
+    "jar_candle": ["wax_size", "wax_color", "scent_throw_size", "scent", "burn_rate", "wick_type"],
+    "raw_materials": ["size"],
 }
 
 
 def get_extra_fields_for_collection(collection_tags):
     """
     collection_tags: list of strings, e.g. ["gypsum", "jar_candle"] for
-    a "gypsum candle" product that needs both field-sets, or just
-    ["gypsum"] for a plain coastal-shell product.
-    Returns the deduplicated union of every matching field-set, plus
-    the universal fields, in a stable order.
+    a hybrid product that needs both field-sets (gypsum_size/gypsum_color
+    AND wax_size/wax_color AND jar_candle's other fields), or just
+    ["raw_materials"] for a plain-size product.
+    Returns the deduplicated union of every matching field-set, in a
+    stable order. No universal fields are added anymore — every field
+    a product shows comes from one of its collection tags.
     """
-    fields = list(UNIVERSAL_EXTRA_FIELDS)
+    fields = []
     for tag in collection_tags or []:
         for field in COLLECTION_EXTRA_FIELDS.get(tag, []):
             if field not in fields:
@@ -101,17 +112,17 @@ class Product(db.Model):
     # ---- VARIANTS — one JSON blob, shape below ----
     # {
     #   "axes": {
-    #     "size":  ["100ml", "200ml", "300ml"],
-    #     "color": ["Red", "Yellow", "Green"],
+    #     "wax_size":  ["100ml", "200ml", "300ml"],
+    #     "wax_color": ["Red", "Yellow", "Green"],
     #     "scent": ["Lavender", "Rose", "Unscented"]
     #   },
     #   "combinations": [
-    #     {"size": "100ml", "color": "Red", "scent": "Lavender", "price": 34, "stock": 12},
-    #     {"size": "200ml", "color": "Red", "scent": "Lavender", "price": 48, "stock": 5}
+    #     {"wax_size": "100ml", "wax_color": "Red", "scent": "Lavender", "price": 34, "stock": 12},
+    #     {"wax_size": "200ml", "wax_color": "Red", "scent": "Lavender", "price": 48, "stock": 5}
     #   ],
     #   "axis_images": {
-    #     "color": {"Red": "https://.../red.jpg", "Yellow": "https://.../yellow.jpg"},
-    #     "size":  {"200ml": "https://.../large.jpg"}
+    #     "wax_color": {"Red": "https://.../red.jpg", "Yellow": "https://.../yellow.jpg"},
+    #     "wax_size":  {"200ml": "https://.../large.jpg"}
     #   }
     # }
     #

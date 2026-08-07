@@ -138,7 +138,7 @@ def update_product(product_id, data, image_file=None, gallery_files=None):
             old_public_id = extract_public_id(product.image)
             if old_public_id:
                 cloudinary.uploader.destroy(old_public_id)
-            upload_result = cloudinary.uploader.upload(image_file, folder="ecom_products")
+            upload_result = cloudinary.uploader.upload(image_file, folder="zenfox_products")
             product.image = upload_result.get('secure_url')
 
         # Handle Gallery Update (Replace if new ones provided)
@@ -267,4 +267,5 @@ def reduce_variant_stock(product, selected_variants, quantity):
         db.session.rollback()
         current_app.logger.error(f"Stock update failed: {str(e)}")
         return False, str(e)
+
 
