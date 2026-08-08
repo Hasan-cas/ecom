@@ -82,6 +82,13 @@ class Product(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
+    # SURGICAL ADD: URL identifier, e.g. "low-tide". Required by the
+    # storefront — items.js skips rendering any product with no slug
+    # (dead /candle/ link otherwise), so this must be unique and always
+    # set on create. See create_slug() + the uniqueness loop in
+    # product_service.create_product().
+    slug = db.Column(db.String(220), unique=True, nullable=False, index=True)
+
     # ---- PERMANENT FIELDS (every product has these) ----
     name = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=True)
@@ -144,6 +151,7 @@ class Product(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
+            "slug": self.slug,
             "name": self.name,
             "description": self.description,
             "image": self.image,
@@ -158,3 +166,4 @@ class Product(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
+

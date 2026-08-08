@@ -1,4 +1,6 @@
 import os
+import re
+import uuid
 import json
 import cloudinary
 import cloudinary.uploader
@@ -10,6 +12,14 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.attributes import flag_modified
 
 from models import db, Product
+
+# SURGICAL ADD: ported from Robin's product_service.py — same stop-word
+# strip + non-alphanumeric collapse, unchanged.
+def create_slug(title):
+    slug = (title or '').lower()
+    slug = re.sub(r'\b(for|a|of|or|the|and|in|is)\b', '', slug)
+    slug = re.sub(r'[^a-z0-9]+', '-', slug)
+    return slug.strip('-')
 
 # Configure using environment variables
 cloudinary.config( 
@@ -85,8 +95,17 @@ def create_product(data, image_file, gallery_files=None):
         if isinstance(collection_tags, str):
             collection_tags = json.loads(collection_tags) if collection_tags else []
 
-        # 5. Create Database Entry
+        # 5. SURGICAL ADD: generate a unique slug from the name, same
+        # conflict-resolution pattern as Robin — append 4 random hex
+        # chars if the base slug is already taken.
+        base_slug = create_slug(data.get('name'))
+        unique_slug = base_slug
+        while Product.query.filter_by(slug=unique_slug).first() is not None:
+            unique_slug = f"{base_slug}-{uuid.uuid4().hex[:4]}"
+
+        # 6. Create Database Entry
         new_product = Product(
+            slug=unique_slug,
             name=data.get('name'),
             collection_tags=collection_tags,
             collection_label=data.get('collection_label'),
@@ -267,5 +286,6 @@ def reduce_variant_stock(product, selected_variants, quantity):
         db.session.rollback()
         current_app.logger.error(f"Stock update failed: {str(e)}")
         return False, str(e)
+
 
 
